@@ -1,21 +1,22 @@
 #!/usr/bin/env node
 /**
- * Get React/TypeScript source code implementation for HeroUI v3 components.
+ * HeroUI v3 コンポーネントの React/TypeScript ソースコード実装を取得する。
  *
- * Usage:
+ * 使い方:
  *   node get_source.mjs Button
  *   node get_source.mjs Button Accordion Card
  *
- * Output:
- *   Full TSX source code with GitHub URL for each component
+ * 出力:
+ *   各コンポーネントの完全な TSX ソースコードと GitHub URL
  */
 
 const API_BASE = process.env.HEROUI_API_BASE || "https://mcp-api.heroui.com";
-const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3";
+const GITHUB_RAW_BASE =
+  "https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3";
 const APP_PARAM = "app=react-skills";
 
 /**
- * Fetch data from HeroUI API with app parameter for analytics.
+ * アナリティクス用の app パラメータ付きで HeroUI API からデータを取得する。
  */
 async function fetchApi(endpoint, method = "GET", body = null) {
   const separator = endpoint.includes("?") ? "&" : "?";
@@ -28,7 +29,7 @@ async function fetchApi(endpoint, method = "GET", body = null) {
         "User-Agent": "HeroUI-Skill/1.0",
       },
       method,
-      signal: AbortSignal.timeout(30000),
+      signal: AbortSignal.timeout(30_000),
     };
 
     if (body) {
@@ -38,24 +39,24 @@ async function fetchApi(endpoint, method = "GET", body = null) {
     const response = await fetch(url, options);
 
     if (!response.ok) {
-      console.error(`# API Error: HTTP ${response.status}`);
+      console.error(`# API エラー: HTTP ${response.status}`);
 
       return null;
     }
 
     return await response.json();
   } catch (error) {
-    console.error(`# API Error: ${error.message}`);
+    console.error(`# API エラー: ${error.message}`);
 
     return null;
   }
 }
 
 /**
- * Fetch source code directly from GitHub as fallback.
+ * フォールバックとして GitHub からソースコードを直接取得する。
  */
 async function fetchGithubFallback(component) {
-  // Try common patterns for component paths
+  // コンポーネントパスの一般的なパターンを試行
   const patterns = [
     `packages/react/src/components/${component.toLowerCase()}/${component.toLowerCase()}.tsx`,
     `packages/react/src/components/${component.toLowerCase()}/index.tsx`,
@@ -66,8 +67,8 @@ async function fetchGithubFallback(component) {
 
     try {
       const response = await fetch(url, {
-        headers: {"User-Agent": "HeroUI-Skill/1.0"},
-        signal: AbortSignal.timeout(30000),
+        headers: { "User-Agent": "HeroUI-Skill/1.0" },
+        signal: AbortSignal.timeout(30_000),
       });
 
       if (response.ok) {
@@ -81,44 +82,44 @@ async function fetchGithubFallback(component) {
           sourceCode: content,
         };
       }
-    } catch {
-      continue;
-    }
+    } catch {}
   }
 
-  return {component, error: `Failed to fetch source for ${component}`};
+  return { component, error: `${component} のソースコード取得に失敗` };
 }
 
 /**
- * Main function to get source code for specified components.
+ * 指定コンポーネントのソースコードを取得するメイン関数。
  */
 async function main() {
   const args = process.argv.slice(2);
 
   if (args.length === 0) {
-    console.error("Usage: node get_source.mjs <Component1> [Component2] ...");
-    console.error("Example: node get_source.mjs Button Accordion");
+    console.error(
+      "使い方: node get_source.mjs <コンポーネント1> [コンポーネント2] ..."
+    );
+    console.error("例: node get_source.mjs Button Accordion");
     process.exit(1);
   }
 
   const components = args;
 
-  // Try API first
-  console.error(`# Fetching source code for: ${components.join(", ")}...`);
-  const data = await fetchApi("/v1/components/source", "POST", {components});
+  // まず API を試行
+  console.error(`# ソースコードを取得中: ${components.join(", ")}...`);
+  const data = await fetchApi("/v1/components/source", "POST", { components });
 
   if (data && data.results) {
     for (const result of data.results) {
       result.source = "api";
     }
 
-    // Output results
+    // 結果を出力
     if (data.results.length === 1) {
       const result = data.results[0];
 
       if (result.sourceCode) {
-        console.log(`// File: ${result.filePath || "unknown"}`);
-        console.log(`// GitHub: ${result.githubUrl || "unknown"}`);
+        console.log(`// ファイル: ${result.filePath || "不明"}`);
+        console.log(`// GitHub: ${result.githubUrl || "不明"}`);
         console.log();
         console.log(result.sourceCode);
       } else {
@@ -131,8 +132,8 @@ async function main() {
     return;
   }
 
-  // Fallback to GitHub direct fetch
-  console.error("# API failed, using GitHub fallback...");
+  // GitHub からの直接取得にフォールバック
+  console.error("# API 失敗、GitHub フォールバックを使用...");
   const results = [];
 
   for (const component of components) {
@@ -145,15 +146,15 @@ async function main() {
     const result = results[0];
 
     if (result.sourceCode) {
-      console.log(`// File: ${result.filePath || "unknown"}`);
-      console.log(`// GitHub: ${result.githubUrl || "unknown"}`);
+      console.log(`// ファイル: ${result.filePath || "不明"}`);
+      console.log(`// GitHub: ${result.githubUrl || "不明"}`);
       console.log();
       console.log(result.sourceCode);
     } else {
       console.log(JSON.stringify(result, null, 2));
     }
   } else {
-    console.log(JSON.stringify({results}, null, 2));
+    console.log(JSON.stringify({ results }, null, 2));
   }
 }
 

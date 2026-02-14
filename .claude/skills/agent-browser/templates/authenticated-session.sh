@@ -1,100 +1,100 @@
 #!/bin/bash
-# Template: Authenticated Session Workflow
-# Purpose: Login once, save state, reuse for subsequent runs
-# Usage: ./authenticated-session.sh <login-url> [state-file]
+# テンプレート: 認証済みセッションワークフロー
+# 目的: 一度ログインして状態を保存し、以降の実行で再利用する
+# 使用方法: ./authenticated-session.sh <login-url> [state-file]
 #
-# Environment variables:
-#   APP_USERNAME - Login username/email
-#   APP_PASSWORD - Login password
+# 環境変数:
+#   APP_USERNAME - ログイン用ユーザー名/メールアドレス
+#   APP_PASSWORD - ログイン用パスワード
 #
-# Two modes:
-#   1. Discovery mode (default): Shows form structure so you can identify refs
-#   2. Login mode: Performs actual login after you update the refs
+# 2 つのモード:
+#   1. 探索モード（デフォルト）: Ref を特定できるようにフォーム構造を表示
+#   2. ログインモード: Ref を更新した後に実際のログインを実行
 #
-# Setup steps:
-#   1. Run once to see form structure (discovery mode)
-#   2. Update refs in LOGIN FLOW section below
-#   3. Set APP_USERNAME and APP_PASSWORD
-#   4. Delete the DISCOVERY section
+# セットアップ手順:
+#   1. 一度実行してフォーム構造を確認（探索モード）
+#   2. 下記のログインフローセクションの Ref を更新
+#   3. APP_USERNAME と APP_PASSWORD を設定
+#   4. 探索モードセクションを削除
 
 set -euo pipefail
 
-LOGIN_URL="${1:?Usage: $0 <login-url> [state-file]}"
+LOGIN_URL="${1:?使用方法: $0 <login-url> [state-file]}"
 STATE_FILE="${2:-./auth-state.json}"
 
-echo "Authentication workflow: $LOGIN_URL"
+echo "認証ワークフロー: $LOGIN_URL"
 
 # ================================================================
-# SAVED STATE: Skip login if valid saved state exists
+# 保存済み状態: 有効な保存済み状態があればログインをスキップ
 # ================================================================
 if [[ -f "$STATE_FILE" ]]; then
-    echo "Loading saved state from $STATE_FILE..."
+    echo "$STATE_FILE から保存済み状態を読み込み中..."
     if agent-browser --state "$STATE_FILE" open "$LOGIN_URL" 2>/dev/null; then
         agent-browser wait --load networkidle
 
         CURRENT_URL=$(agent-browser get url)
         if [[ "$CURRENT_URL" != *"login"* ]] && [[ "$CURRENT_URL" != *"signin"* ]]; then
-            echo "Session restored successfully"
+            echo "セッションの復元に成功しました"
             agent-browser snapshot -i
             exit 0
         fi
-        echo "Session expired, performing fresh login..."
+        echo "セッションが期限切れです。新規ログインを実行中..."
         agent-browser close 2>/dev/null || true
     else
-        echo "Failed to load state, re-authenticating..."
+        echo "状態の読み込みに失敗しました。再認証中..."
     fi
     rm -f "$STATE_FILE"
 fi
 
 # ================================================================
-# DISCOVERY MODE: Shows form structure (delete after setup)
+# 探索モード: フォーム構造を表示（セットアップ後に削除）
 # ================================================================
-echo "Opening login page..."
+echo "ログインページを開いています..."
 agent-browser open "$LOGIN_URL"
 agent-browser wait --load networkidle
 
 echo ""
-echo "Login form structure:"
+echo "ログインフォーム構造:"
 echo "---"
 agent-browser snapshot -i
 echo "---"
 echo ""
-echo "Next steps:"
-echo "  1. Note the refs: username=@e?, password=@e?, submit=@e?"
-echo "  2. Update the LOGIN FLOW section below with your refs"
-echo "  3. Set: export APP_USERNAME='...' APP_PASSWORD='...'"
-echo "  4. Delete this DISCOVERY MODE section"
+echo "次のステップ:"
+echo "  1. Ref を確認: ユーザー名=@e?, パスワード=@e?, 送信=@e?"
+echo "  2. 下記のログインフローセクションを自分の Ref で更新"
+echo "  3. 設定: export APP_USERNAME='...' APP_PASSWORD='...'"
+echo "  4. この探索モードセクションを削除"
 echo ""
 agent-browser close
 exit 0
 
 # ================================================================
-# LOGIN FLOW: Uncomment and customize after discovery
+# ログインフロー: 探索後にコメント解除してカスタマイズ
 # ================================================================
-# : "${APP_USERNAME:?Set APP_USERNAME environment variable}"
-# : "${APP_PASSWORD:?Set APP_PASSWORD environment variable}"
+# : "${APP_USERNAME:?APP_USERNAME 環境変数を設定してください}"
+# : "${APP_PASSWORD:?APP_PASSWORD 環境変数を設定してください}"
 #
 # agent-browser open "$LOGIN_URL"
 # agent-browser wait --load networkidle
 # agent-browser snapshot -i
 #
-# # Fill credentials (update refs to match your form)
+# # 認証情報を入力（フォームに合わせて Ref を更新）
 # agent-browser fill @e1 "$APP_USERNAME"
 # agent-browser fill @e2 "$APP_PASSWORD"
 # agent-browser click @e3
 # agent-browser wait --load networkidle
 #
-# # Verify login succeeded
+# # ログイン成功を確認
 # FINAL_URL=$(agent-browser get url)
 # if [[ "$FINAL_URL" == *"login"* ]] || [[ "$FINAL_URL" == *"signin"* ]]; then
-#     echo "Login failed - still on login page"
+#     echo "ログイン失敗 - まだログインページにいます"
 #     agent-browser screenshot /tmp/login-failed.png
 #     agent-browser close
 #     exit 1
 # fi
 #
-# # Save state for future runs
-# echo "Saving state to $STATE_FILE"
+# # 今後の実行のために状態を保存
+# echo "状態を $STATE_FILE に保存中"
 # agent-browser state save "$STATE_FILE"
-# echo "Login successful"
+# echo "ログイン成功"
 # agent-browser snapshot -i

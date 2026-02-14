@@ -1,35 +1,35 @@
 ---
 name: heroui-react
-description: "HeroUI v3 React component library (Tailwind CSS v4 + React Aria). Use when working with HeroUI components, installing HeroUI, customizing HeroUI themes, or accessing HeroUI component documentation. Keywords: HeroUI, Hero UI, heroui, @heroui/react, @heroui/styles."
+description: "HeroUI v3 React コンポーネントライブラリ（Tailwind CSS v4 + React Aria）。HeroUI コンポーネントの利用、インストール、テーマカスタマイズ、コンポーネントドキュメント参照時に使用。キーワード: HeroUI, Hero UI, heroui, @heroui/react, @heroui/styles。"
 metadata:
   author: heroui
   version: "2.0.0"
 ---
 
-# HeroUI v3 React Development Guide
+# HeroUI v3 React 開発ガイド
 
-HeroUI v3 is a component library built on **Tailwind CSS v4** and **React Aria Components**, providing accessible, customizable UI components for React applications.
+HeroUI v3 は **Tailwind CSS v4** と **React Aria Components** をベースに構築されたコンポーネントライブラリで、アクセシブルかつカスタマイズ可能な React 向け UI コンポーネントを提供する。
 
 ---
 
-## CRITICAL: v3 Only - Ignore v2 Knowledge
+## 重要: v3 専用 - v2 の知識は使用しないこと
 
-**This guide is for HeroUI v3 ONLY.** Do NOT use any prior knowledge of HeroUI v2.
+**このガイドは HeroUI v3 専用。** HeroUI v2 の既存知識は一切使用しないこと。
 
-### What Changed in v3
+### v3 での変更点
 
-| Feature       | v2 (DO NOT USE)                   | v3 (USE THIS)                               |
-| ------------- | --------------------------------- | ------------------------------------------- |
-| Provider      | `<HeroUIProvider>` required       | **No Provider needed**                      |
-| Animations    | `framer-motion` package           | CSS-based, no extra deps                    |
-| Component API | Flat props: `<Card title="x">`    | Compound: `<Card><Card.Header>`             |
-| Styling       | Tailwind v3 + `@heroui/theme`     | Tailwind v4 + `@heroui/styles@beta`         |
-| Packages      | `@heroui/system`, `@heroui/theme` | `@heroui/react@beta`, `@heroui/styles@beta` |
+| 機能             | v2（使用禁止）                     | v3（こちらを使用）                            |
+| ---------------- | --------------------------------- | ------------------------------------------- |
+| Provider         | `<HeroUIProvider>` が必須          | **Provider 不要**                            |
+| アニメーション    | `framer-motion` パッケージ         | CSS ベース、追加依存なし                      |
+| コンポーネント API | フラット props: `<Card title="x">` | 複合: `<Card><Card.Header>`                 |
+| スタイリング      | Tailwind v3 + `@heroui/theme`     | Tailwind v4 + `@heroui/styles@beta`         |
+| パッケージ       | `@heroui/system`, `@heroui/theme` | `@heroui/react@beta`, `@heroui/styles@beta` |
 
-### WRONG (v2 patterns)
+### 誤り（v2 パターン）
 
 ```tsx
-// DO NOT DO THIS - v2 pattern
+// これはやらないこと - v2 パターン
 import { HeroUIProvider } from "@heroui/react";
 import { motion } from "framer-motion";
 
@@ -38,10 +38,10 @@ import { motion } from "framer-motion";
 </HeroUIProvider>;
 ```
 
-### CORRECT (v3 patterns)
+### 正解（v3 パターン）
 
 ```tsx
-// DO THIS - v3 pattern (no provider, compound components)
+// こちらを使用 - v3 パターン（Provider 不要、複合コンポーネント）
 import { Card } from "@heroui/react@beta";
 
 <Card>
@@ -52,91 +52,91 @@ import { Card } from "@heroui/react@beta";
 </Card>;
 ```
 
-**Always fetch v3 docs before implementing.** Do not assume v2 patterns work.
+**実装前に必ず v3 ドキュメントを取得すること。** v2 パターンが動作すると仮定しないこと。
 
 ---
 
-## Core Principles
+## 基本原則
 
-- Semantic variants (`primary`, `secondary`, `tertiary`) over visual descriptions
-- Composition over configuration (compound components)
-- CSS variable-based theming with `oklch` color space
-- BEM naming convention for predictable styling
+- 見た目の記述よりセマンティックバリアント（`primary`, `secondary`, `tertiary`）を優先
+- 設定より合成（複合コンポーネント）
+- `oklch` 色空間による CSS 変数ベースのテーマシステム
+- 予測可能なスタイリングのための BEM 命名規則
 
 ---
 
-## Accessing Documentation & Component Information
+## ドキュメント・コンポーネント情報へのアクセス
 
-**For component details, examples, props, and implementation patterns, always fetch documentation:**
+**コンポーネントの詳細、使用例、props、実装パターンについては、必ずドキュメントを取得すること:**
 
-### Using Scripts
+### スクリプトの使用
 
 ```bash
-# List all available components
+# 利用可能な全コンポーネントの一覧
 node scripts/list_components.mjs
 
-# Get component documentation (MDX)
+# コンポーネントドキュメント（MDX）の取得
 node scripts/get_component_docs.mjs Button
 node scripts/get_component_docs.mjs Button Card TextField
 
-# Get component source code
+# コンポーネントのソースコード取得
 node scripts/get_source.mjs Button
 
-# Get component CSS styles (BEM classes)
+# コンポーネントの CSS スタイル（BEM クラス）取得
 node scripts/get_styles.mjs Button
 
-# Get theme variables
+# テーマ変数の取得
 node scripts/get_theme.mjs
 
-# Get non-component docs (guides, releases)
+# コンポーネント以外のドキュメント（ガイド、リリースノート）取得
 node scripts/get_docs.mjs /docs/react/getting-started/theming
 ```
 
-### Direct MDX URLs
+### MDX の直接 URL
 
-Component docs: `https://v3.heroui.com/docs/react/components/{component-name}.mdx`
+コンポーネントドキュメント: `https://v3.heroui.com/docs/react/components/{component-name}.mdx`
 
-Examples:
+例:
 
 - Button: `https://v3.heroui.com/docs/react/components/button.mdx`
 - Modal: `https://v3.heroui.com/docs/react/components/modal.mdx`
 - Form: `https://v3.heroui.com/docs/react/components/form.mdx`
 
-Getting started guides: `https://v3.heroui.com/docs/react/getting-started/{topic}.mdx`
+入門ガイド: `https://v3.heroui.com/docs/react/getting-started/{topic}.mdx`
 
-**Important:** Always fetch component docs before implementing. The MDX docs include complete examples, props, anatomy, and API references.
+**重要:** 実装前に必ずコンポーネントドキュメントを取得すること。MDX ドキュメントには完全な使用例、props、構造、API リファレンスが含まれている。
 
 ---
 
-## Installation Essentials
+## インストール要点
 
-**CRITICAL**: HeroUI v3 is currently in BETA. Always use `@beta` tag when installing packages.
+**重要**: HeroUI v3 は現在 BETA 版。パッケージインストール時は必ず `@beta` タグを使用すること。
 
-### Quick Install
+### クイックインストール
 
 ```bash
 npm i @heroui/styles@beta @heroui/react@beta tailwind-variants
 ```
 
-### Framework Setup (Next.js App Router - Recommended)
+### フレームワークセットアップ（Next.js App Router - 推奨）
 
-1. **Install dependencies:**
+1. **依存パッケージのインストール:**
 
 ```bash
 npm i @heroui/styles@beta @heroui/react@beta tailwind-variants tailwindcss @tailwindcss/postcss postcss
 ```
 
-2. **Create/update `app/globals.css`:**
+2. **`app/globals.css` の作成/更新:**
 
 ```css
-/* Tailwind CSS v4 - Must be first */
+/* Tailwind CSS v4 - 最初に記述すること */
 @import "tailwindcss";
 
-/* HeroUI v3 styles - Must be after Tailwind */
+/* HeroUI v3 スタイル - Tailwind の後に記述すること */
 @import "@heroui/styles";
 ```
 
-3. **Import in `app/layout.tsx`:**
+3. **`app/layout.tsx` でのインポート:**
 
 ```tsx
 import "./globals.css";
@@ -147,9 +147,9 @@ export default function RootLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<html lang="en" suppressHydrationWarning>
+		<html lang="ja" suppressHydrationWarning>
 			<body>
-				{/* No Provider needed in HeroUI v3! */}
+				{/* HeroUI v3 では Provider 不要！ */}
 				{children}
 			</body>
 		</html>
@@ -157,7 +157,7 @@ export default function RootLayout({
 }
 ```
 
-4. **Configure PostCSS (`postcss.config.mjs`):**
+4. **PostCSS の設定（`postcss.config.mjs`）:**
 
 ```js
 export default {
@@ -167,62 +167,62 @@ export default {
 };
 ```
 
-### Critical Setup Requirements
+### セットアップの重要要件
 
-1. **Tailwind CSS v4 is MANDATORY** - HeroUI v3 will NOT work with Tailwind CSS v3
-2. **No Provider Required** - Unlike HeroUI v2, v3 components work directly without a Provider
-3. **Use Compound Components** - Components use compound structure (e.g., `Card.Header`, `Card.Content`)
-4. **Use onPress, not onClick** - For better accessibility, use `onPress` event handlers
-5. **Import Order Matters** - Always import Tailwind CSS before HeroUI styles
+1. **Tailwind CSS v4 は必須** - HeroUI v3 は Tailwind CSS v3 では動作しない
+2. **Provider 不要** - HeroUI v2 と異なり、v3 コンポーネントは Provider なしで直接動作する
+3. **複合コンポーネントを使用** - コンポーネントは複合構造を使用する（例: `Card.Header`, `Card.Content`）
+4. **onClick ではなく onPress を使用** - アクセシビリティ向上のため、`onPress` イベントハンドラを使用する
+5. **インポート順序が重要** - 必ず Tailwind CSS を HeroUI スタイルより先にインポートする
 
 ---
 
-## Component Patterns
+## コンポーネントパターン
 
-HeroUI v3 uses **compound component patterns**. Each component has subcomponents accessed via dot notation.
+HeroUI v3 は**複合コンポーネントパターン**を採用。各コンポーネントはドット記法でアクセスするサブコンポーネントを持つ。
 
-**Example - Card:**
+**例 - Card:**
 
 ```tsx
 <Card>
 	<Card.Header>
-		<Card.Title>Title</Card.Title>
-		<Card.Description>Description</Card.Description>
+		<Card.Title>タイトル</Card.Title>
+		<Card.Description>説明文</Card.Description>
 	</Card.Header>
-	<Card.Content>{/* Content */}</Card.Content>
-	<Card.Footer>{/* Actions */}</Card.Footer>
+	<Card.Content>{/* コンテンツ */}</Card.Content>
+	<Card.Footer>{/* アクション */}</Card.Footer>
 </Card>
 ```
 
-**Key Points:**
+**要点:**
 
-- Always use compound structure - don't flatten to props
-- Subcomponents are accessed via dot notation (e.g., `Card.Header`)
-- Each subcomponent may have its own props
-- **Fetch component docs for complete anatomy and examples**
+- 必ず複合構造を使用する - props にフラット化しないこと
+- サブコンポーネントはドット記法でアクセスする（例: `Card.Header`）
+- 各サブコンポーネントは独自の props を持つ場合がある
+- **完全な構造と使用例についてはコンポーネントドキュメントを取得すること**
 
 ---
 
-## Semantic Variants
+## セマンティックバリアント
 
-HeroUI uses semantic naming to communicate functional intent:
+HeroUI は機能的な意図を伝えるためにセマンティックな命名を使用する:
 
-| Variant     | Purpose                           | Usage          |
+| バリアント   | 目的                              | 使用頻度       |
 | ----------- | --------------------------------- | -------------- |
-| `primary`   | Main action to move forward       | 1 per context  |
-| `secondary` | Alternative actions               | Multiple       |
-| `tertiary`  | Dismissive actions (cancel, skip) | Sparingly      |
-| `danger`    | Destructive actions               | When needed    |
-| `ghost`     | Low-emphasis actions              | Minimal weight |
-| `outline`   | Secondary actions                 | Bordered style |
+| `primary`   | 前に進むためのメインアクション       | 1 コンテキストに 1 つ |
+| `secondary` | 代替アクション                     | 複数可          |
+| `tertiary`  | 却下アクション（キャンセル、スキップ） | 控えめに        |
+| `danger`    | 破壊的アクション                   | 必要時のみ      |
+| `ghost`     | 低強調アクション                   | 最小限の重み     |
+| `outline`   | 補助的アクション                   | ボーダースタイル  |
 
-**Don't use raw colors** - semantic variants adapt to themes and accessibility.
+**生のカラー値は使用しないこと** - セマンティックバリアントはテーマやアクセシビリティに適応する。
 
 ---
 
-## Theming
+## テーマシステム
 
-HeroUI v3 uses CSS variables with `oklch` color space:
+HeroUI v3 は `oklch` 色空間の CSS 変数を使用する:
 
 ```css
 :root {
@@ -233,21 +233,21 @@ HeroUI v3 uses CSS variables with `oklch` color space:
 }
 ```
 
-**Get current theme variables:**
+**現在のテーマ変数を取得:**
 
 ```bash
 node scripts/get_theme.mjs
 ```
 
-**Color naming:**
+**カラー命名規則:**
 
-- Without suffix = background (e.g., `--accent`)
-- With `-foreground` = text color (e.g., `--accent-foreground`)
+- サフィックスなし = 背景色（例: `--accent`）
+- `-foreground` 付き = テキスト色（例: `--accent-foreground`）
 
-**Theme switching:**
+**テーマ切り替え:**
 
 ```html
 <html class="dark" data-theme="dark"></html>
 ```
 
-For detailed theming, fetch: `https://v3.heroui.com/docs/react/getting-started/theming.mdx`
+テーマの詳細については: `https://v3.heroui.com/docs/react/getting-started/theming.mdx` を取得すること

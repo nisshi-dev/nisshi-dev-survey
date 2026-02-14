@@ -1,21 +1,22 @@
 #!/usr/bin/env node
 /**
- * Get CSS styles (BEM classes) for HeroUI v3 components.
+ * HeroUI v3 コンポーネントの CSS スタイル（BEM クラス）を取得する。
  *
- * Usage:
+ * 使い方:
  *   node get_styles.mjs Button
  *   node get_styles.mjs Button Card Chip
  *
- * Output:
- *   CSS file content with BEM classes and GitHub URL for each component
+ * 出力:
+ *   各コンポーネントの BEM クラスを含む CSS ファイル内容と GitHub URL
  */
 
 const API_BASE = process.env.HEROUI_API_BASE || "https://mcp-api.heroui.com";
-const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3";
+const GITHUB_RAW_BASE =
+  "https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3";
 const APP_PARAM = "app=react-skills";
 
 /**
- * Fetch data from HeroUI API with app parameter for analytics.
+ * アナリティクス用の app パラメータ付きで HeroUI API からデータを取得する。
  */
 async function fetchApi(endpoint, method = "GET", body = null) {
   const separator = endpoint.includes("?") ? "&" : "?";
@@ -28,7 +29,7 @@ async function fetchApi(endpoint, method = "GET", body = null) {
         "User-Agent": "HeroUI-Skill/1.0",
       },
       method,
-      signal: AbortSignal.timeout(30000),
+      signal: AbortSignal.timeout(30_000),
     };
 
     if (body) {
@@ -38,24 +39,24 @@ async function fetchApi(endpoint, method = "GET", body = null) {
     const response = await fetch(url, options);
 
     if (!response.ok) {
-      console.error(`# API Error: HTTP ${response.status}`);
+      console.error(`# API エラー: HTTP ${response.status}`);
 
       return null;
     }
 
     return await response.json();
   } catch (error) {
-    console.error(`# API Error: ${error.message}`);
+    console.error(`# API エラー: ${error.message}`);
 
     return null;
   }
 }
 
 /**
- * Fetch CSS styles directly from GitHub as fallback.
+ * フォールバックとして GitHub から CSS スタイルを直接取得する。
  */
 async function fetchGithubFallback(component) {
-  // Try common patterns for style paths
+  // スタイルパスの一般的なパターンを試行
   const patterns = [
     `packages/styles/src/components/${component.toLowerCase()}.css`,
     `packages/styles/components/${component.toLowerCase()}.css`,
@@ -66,8 +67,8 @@ async function fetchGithubFallback(component) {
 
     try {
       const response = await fetch(url, {
-        headers: {"User-Agent": "HeroUI-Skill/1.0"},
-        signal: AbortSignal.timeout(30000),
+        headers: { "User-Agent": "HeroUI-Skill/1.0" },
+        signal: AbortSignal.timeout(30_000),
       });
 
       if (response.ok) {
@@ -81,44 +82,44 @@ async function fetchGithubFallback(component) {
           stylesCode: content,
         };
       }
-    } catch {
-      continue;
-    }
+    } catch {}
   }
 
-  return {component, error: `Failed to fetch styles for ${component}`};
+  return { component, error: `${component} のスタイル取得に失敗` };
 }
 
 /**
- * Main function to get CSS styles for specified components.
+ * 指定コンポーネントの CSS スタイルを取得するメイン関数。
  */
 async function main() {
   const args = process.argv.slice(2);
 
   if (args.length === 0) {
-    console.error("Usage: node get_styles.mjs <Component1> [Component2] ...");
-    console.error("Example: node get_styles.mjs Button Card");
+    console.error(
+      "使い方: node get_styles.mjs <コンポーネント1> [コンポーネント2] ..."
+    );
+    console.error("例: node get_styles.mjs Button Card");
     process.exit(1);
   }
 
   const components = args;
 
-  // Try API first
-  console.error(`# Fetching styles for: ${components.join(", ")}...`);
-  const data = await fetchApi("/v1/components/styles", "POST", {components});
+  // まず API を試行
+  console.error(`# スタイルを取得中: ${components.join(", ")}...`);
+  const data = await fetchApi("/v1/components/styles", "POST", { components });
 
   if (data && data.results) {
     for (const result of data.results) {
       result.source = "api";
     }
 
-    // Output results
+    // 結果を出力
     if (data.results.length === 1) {
       const result = data.results[0];
 
       if (result.stylesCode) {
-        console.log(`/* File: ${result.filePath || "unknown"} */`);
-        console.log(`/* GitHub: ${result.githubUrl || "unknown"} */`);
+        console.log(`/* ファイル: ${result.filePath || "不明"} */`);
+        console.log(`/* GitHub: ${result.githubUrl || "不明"} */`);
         console.log();
         console.log(result.stylesCode);
       } else {
@@ -131,8 +132,8 @@ async function main() {
     return;
   }
 
-  // Fallback to GitHub direct fetch
-  console.error("# API failed, using GitHub fallback...");
+  // GitHub からの直接取得にフォールバック
+  console.error("# API 失敗、GitHub フォールバックを使用...");
   const results = [];
 
   for (const component of components) {
@@ -145,15 +146,15 @@ async function main() {
     const result = results[0];
 
     if (result.stylesCode) {
-      console.log(`/* File: ${result.filePath || "unknown"} */`);
-      console.log(`/* GitHub: ${result.githubUrl || "unknown"} */`);
+      console.log(`/* ファイル: ${result.filePath || "不明"} */`);
+      console.log(`/* GitHub: ${result.githubUrl || "不明"} */`);
       console.log();
       console.log(result.stylesCode);
     } else {
       console.log(JSON.stringify(result, null, 2));
     }
   } else {
-    console.log(JSON.stringify({results}, null, 2));
+    console.log(JSON.stringify({ results }, null, 2));
   }
 }
 

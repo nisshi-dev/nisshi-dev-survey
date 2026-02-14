@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * Get complete component documentation (MDX) for HeroUI v3 components.
+ * HeroUI v3 コンポーネントの完全なドキュメント（MDX）を取得する。
  *
- * Usage:
+ * 使い方:
  *   node get_component_docs.mjs Button
  *   node get_component_docs.mjs Button Card TextField
  *
- * Output:
- *   MDX documentation including imports, usage, variants, props, examples
+ * 出力:
+ *   インポート、使い方、バリアント、props、使用例を含む MDX ドキュメント
  */
 
 const API_BASE = process.env.HEROUI_API_BASE || "https://mcp-api.heroui.com";
@@ -15,7 +15,7 @@ const FALLBACK_BASE = "https://v3.heroui.com";
 const APP_PARAM = "app=react-skills";
 
 /**
- * Convert PascalCase to kebab-case.
+ * PascalCase を kebab-case に変換する。
  */
 function toKebabCase(name) {
   return name
@@ -25,7 +25,7 @@ function toKebabCase(name) {
 }
 
 /**
- * Fetch data from HeroUI API with app parameter for analytics.
+ * アナリティクス用の app パラメータ付きで HeroUI API からデータを取得する。
  */
 async function fetchApi(endpoint, method = "GET", body = null) {
   const separator = endpoint.includes("?") ? "&" : "?";
@@ -38,7 +38,7 @@ async function fetchApi(endpoint, method = "GET", body = null) {
         "User-Agent": "HeroUI-Skill/1.0",
       },
       method,
-      signal: AbortSignal.timeout(30000),
+      signal: AbortSignal.timeout(30_000),
     };
 
     if (body) {
@@ -58,7 +58,7 @@ async function fetchApi(endpoint, method = "GET", body = null) {
 }
 
 /**
- * Fetch MDX directly from v3.heroui.com as fallback.
+ * フォールバックとして v3.heroui.com から MDX を直接取得する。
  */
 async function fetchFallback(component) {
   const kebabName = toKebabCase(component);
@@ -66,12 +66,12 @@ async function fetchFallback(component) {
 
   try {
     const response = await fetch(url, {
-      headers: {"User-Agent": "HeroUI-Skill/1.0"},
-      signal: AbortSignal.timeout(30000),
+      headers: { "User-Agent": "HeroUI-Skill/1.0" },
+      signal: AbortSignal.timeout(30_000),
     });
 
     if (!response.ok) {
-      return {component, error: `Failed to fetch docs for ${component}`};
+      return { component, error: `${component} のドキュメント取得に失敗` };
     }
 
     const content = await response.text();
@@ -84,52 +84,54 @@ async function fetchFallback(component) {
       url,
     };
   } catch {
-    return {component, error: `Failed to fetch docs for ${component}`};
+    return { component, error: `${component} のドキュメント取得に失敗` };
   }
 }
 
 /**
- * Main function to get component documentation.
+ * コンポーネントドキュメントを取得するメイン関数。
  */
 async function main() {
   const args = process.argv.slice(2);
 
   if (args.length === 0) {
-    console.error("Usage: node get_component_docs.mjs <Component1> [Component2] ...");
-    console.error("Example: node get_component_docs.mjs Button Card");
+    console.error(
+      "使い方: node get_component_docs.mjs <コンポーネント1> [コンポーネント2] ..."
+    );
+    console.error("例: node get_component_docs.mjs Button Card");
     process.exit(1);
   }
 
   const components = args;
 
-  // Try API first - use POST /v1/components/docs for batch requests
-  console.error(`# Fetching docs for: ${components.join(", ")}...`);
-  const data = await fetchApi("/v1/components/docs", "POST", {components});
+  // まず API を試行 - バッチリクエストには POST /v1/components/docs を使用
+  console.error(`# ドキュメントを取得中: ${components.join(", ")}...`);
+  const data = await fetchApi("/v1/components/docs", "POST", { components });
 
   if (data && data.results) {
-    // Output results
+    // 結果を出力
     if (data.results.length === 1) {
-      // Single component - output content directly for easier reading
+      // 単一コンポーネント - 読みやすいようにコンテンツを直接出力
       const result = data.results[0];
 
       if (result.content) {
         console.log(result.content);
       } else if (result.error) {
-        console.error(`# Error for ${result.component}: ${result.error}`);
+        console.error(`# ${result.component} のエラー: ${result.error}`);
         console.log(JSON.stringify(result, null, 2));
       } else {
         console.log(JSON.stringify(result, null, 2));
       }
     } else {
-      // Multiple components - output as JSON array
+      // 複数コンポーネント - JSON 配列として出力
       console.log(JSON.stringify(data, null, 2));
     }
 
     return;
   }
 
-  // Fallback to individual component fetches
-  console.error("# API failed, using fallback...");
+  // 個別コンポーネント取得にフォールバック
+  console.error("# API 失敗、フォールバックを使用...");
   const results = [];
 
   for (const component of components) {
@@ -138,9 +140,9 @@ async function main() {
     results.push(result);
   }
 
-  // Output results
+  // 結果を出力
   if (results.length === 1) {
-    // Single component - output content directly for easier reading
+    // 単一コンポーネント - 読みやすいようにコンテンツを直接出力
     const result = results[0];
 
     if (result.content) {
@@ -149,7 +151,7 @@ async function main() {
       console.log(JSON.stringify(result, null, 2));
     }
   } else {
-    // Multiple components - output as JSON array
+    // 複数コンポーネント - JSON 配列として出力
     console.log(JSON.stringify(results, null, 2));
   }
 }

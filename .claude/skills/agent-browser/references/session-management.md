@@ -1,65 +1,65 @@
-# Session Management
+# セッション管理
 
-Multiple isolated browser sessions with state persistence and concurrent browsing.
+状態永続化と並行ブラウジングに対応した複数の分離ブラウザセッション。
 
-**Related**: [authentication.md](authentication.md) for login patterns, [SKILL.md](../SKILL.md) for quick start.
+**関連**: [authentication.md](authentication.md) でログインパターン、[SKILL.md](../SKILL.md) でクイックスタートを参照。
 
-## Contents
+## 目次
 
-- [Named Sessions](#named-sessions)
-- [Session Isolation Properties](#session-isolation-properties)
-- [Session State Persistence](#session-state-persistence)
-- [Common Patterns](#common-patterns)
-- [Default Session](#default-session)
-- [Session Cleanup](#session-cleanup)
-- [Best Practices](#best-practices)
+- [名前付きセッション](#named-sessions)
+- [セッションの分離プロパティ](#session-isolation-properties)
+- [セッション状態の永続化](#session-state-persistence)
+- [一般的なパターン](#common-patterns)
+- [デフォルトセッション](#default-session)
+- [セッションのクリーンアップ](#session-cleanup)
+- [ベストプラクティス](#best-practices)
 
-## Named Sessions
+## 名前付きセッション
 
-Use `--session` flag to isolate browser contexts:
+`--session` フラグを使用してブラウザコンテキストを分離する:
 
 ```bash
-# Session 1: Authentication flow
+# セッション 1: 認証フロー
 agent-browser --session auth open https://app.example.com/login
 
-# Session 2: Public browsing (separate cookies, storage)
+# セッション 2: パブリックブラウジング（別の Cookie、ストレージ）
 agent-browser --session public open https://example.com
 
-# Commands are isolated by session
+# コマンドはセッションごとに分離される
 agent-browser --session auth fill @e1 "user@example.com"
 agent-browser --session public get text body
 ```
 
-## Session Isolation Properties
+## セッションの分離プロパティ
 
-Each session has independent:
-- Cookies
+各セッションは以下を独立して保持する:
+- Cookie
 - LocalStorage / SessionStorage
 - IndexedDB
-- Cache
-- Browsing history
-- Open tabs
+- キャッシュ
+- ブラウジング履歴
+- 開いているタブ
 
-## Session State Persistence
+## セッション状態の永続化
 
-### Save Session State
+### セッション状態の保存
 
 ```bash
-# Save cookies, storage, and auth state
+# Cookie、ストレージ、認証状態を保存
 agent-browser state save /path/to/auth-state.json
 ```
 
-### Load Session State
+### セッション状態の読み込み
 
 ```bash
-# Restore saved state
+# 保存済みの状態を復元
 agent-browser state load /path/to/auth-state.json
 
-# Continue with authenticated session
+# 認証済みセッションで操作を続行
 agent-browser open https://app.example.com/dashboard
 ```
 
-### State File Contents
+### 状態ファイルの内容
 
 ```json
 {
@@ -70,22 +70,22 @@ agent-browser open https://app.example.com/dashboard
 }
 ```
 
-## Common Patterns
+## 一般的なパターン
 
-### Authenticated Session Reuse
+### 認証済みセッションの再利用
 
 ```bash
 #!/bin/bash
-# Save login state once, reuse many times
+# ログイン状態を一度保存し、何度も再利用
 
 STATE_FILE="/tmp/auth-state.json"
 
-# Check if we have saved state
+# 保存済み状態があるか確認
 if [[ -f "$STATE_FILE" ]]; then
     agent-browser state load "$STATE_FILE"
     agent-browser open https://app.example.com/dashboard
 else
-    # Perform login
+    # ログインを実行
     agent-browser open https://app.example.com/login
     agent-browser snapshot -i
     agent-browser fill @e1 "$USERNAME"
@@ -93,101 +93,101 @@ else
     agent-browser click @e3
     agent-browser wait --load networkidle
 
-    # Save for future use
+    # 今後の利用のために保存
     agent-browser state save "$STATE_FILE"
 fi
 ```
 
-### Concurrent Scraping
+### 並行スクレイピング
 
 ```bash
 #!/bin/bash
-# Scrape multiple sites concurrently
+# 複数のサイトを並行してスクレイピング
 
-# Start all sessions
+# 全セッションを開始
 agent-browser --session site1 open https://site1.com &
 agent-browser --session site2 open https://site2.com &
 agent-browser --session site3 open https://site3.com &
 wait
 
-# Extract from each
+# 各セッションからデータを抽出
 agent-browser --session site1 get text body > site1.txt
 agent-browser --session site2 get text body > site2.txt
 agent-browser --session site3 get text body > site3.txt
 
-# Cleanup
+# クリーンアップ
 agent-browser --session site1 close
 agent-browser --session site2 close
 agent-browser --session site3 close
 ```
 
-### A/B Testing Sessions
+### A/B テストセッション
 
 ```bash
-# Test different user experiences
+# 異なるユーザー体験をテスト
 agent-browser --session variant-a open "https://app.com?variant=a"
 agent-browser --session variant-b open "https://app.com?variant=b"
 
-# Compare
+# 比較
 agent-browser --session variant-a screenshot /tmp/variant-a.png
 agent-browser --session variant-b screenshot /tmp/variant-b.png
 ```
 
-## Default Session
+## デフォルトセッション
 
-When `--session` is omitted, commands use the default session:
+`--session` を省略すると、コマンドはデフォルトセッションを使用する:
 
 ```bash
-# These use the same default session
+# これらは同じデフォルトセッションを使用
 agent-browser open https://example.com
 agent-browser snapshot -i
-agent-browser close  # Closes default session
+agent-browser close  # デフォルトセッションを閉じる
 ```
 
-## Session Cleanup
+## セッションのクリーンアップ
 
 ```bash
-# Close specific session
+# 特定のセッションを閉じる
 agent-browser --session auth close
 
-# List active sessions
+# アクティブなセッションを一覧表示
 agent-browser session list
 ```
 
-## Best Practices
+## ベストプラクティス
 
-### 1. Name Sessions Semantically
+### 1. セッション名にはわかりやすい名前を付ける
 
 ```bash
-# GOOD: Clear purpose
+# 良い例: 目的が明確
 agent-browser --session github-auth open https://github.com
 agent-browser --session docs-scrape open https://docs.example.com
 
-# AVOID: Generic names
+# 避けるべき例: 汎用的な名前
 agent-browser --session s1 open https://github.com
 ```
 
-### 2. Always Clean Up
+### 2. 必ずクリーンアップする
 
 ```bash
-# Close sessions when done
+# 使用後はセッションを閉じる
 agent-browser --session auth close
 agent-browser --session scrape close
 ```
 
-### 3. Handle State Files Securely
+### 3. 状態ファイルを安全に扱う
 
 ```bash
-# Don't commit state files (contain auth tokens!)
+# 状態ファイルをコミットしない（認証トークンが含まれている！）
 echo "*.auth-state.json" >> .gitignore
 
-# Delete after use
+# 使用後に削除
 rm /tmp/auth-state.json
 ```
 
-### 4. Timeout Long Sessions
+### 4. 長時間セッションにはタイムアウトを設定する
 
 ```bash
-# Set timeout for automated scripts
+# 自動化スクリプトにタイムアウトを設定
 timeout 60 agent-browser --session long-task get text body
 ```

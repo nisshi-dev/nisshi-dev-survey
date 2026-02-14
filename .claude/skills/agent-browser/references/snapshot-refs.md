@@ -1,42 +1,42 @@
-# Snapshot and Refs
+# スナップショットと Ref
 
-Compact element references that reduce context usage dramatically for AI agents.
+AI エージェントのコンテキスト使用量を大幅に削減するコンパクトな要素参照。
 
-**Related**: [commands.md](commands.md) for full command reference, [SKILL.md](../SKILL.md) for quick start.
+**関連**: [commands.md](commands.md) で完全なコマンドリファレンス、[SKILL.md](../SKILL.md) でクイックスタートを参照。
 
-## Contents
+## 目次
 
-- [How Refs Work](#how-refs-work)
-- [Snapshot Command](#the-snapshot-command)
-- [Using Refs](#using-refs)
-- [Ref Lifecycle](#ref-lifecycle)
-- [Best Practices](#best-practices)
-- [Ref Notation Details](#ref-notation-details)
-- [Troubleshooting](#troubleshooting)
+- [Ref の仕組み](#how-refs-work)
+- [スナップショットコマンド](#the-snapshot-command)
+- [Ref の使用](#using-refs)
+- [Ref のライフサイクル](#ref-lifecycle)
+- [ベストプラクティス](#best-practices)
+- [Ref 記法の詳細](#ref-notation-details)
+- [トラブルシューティング](#troubleshooting)
 
-## How Refs Work
+## Ref の仕組み
 
-Traditional approach:
+従来のアプローチ:
 ```
-Full DOM/HTML → AI parses → CSS selector → Action (~3000-5000 tokens)
-```
-
-agent-browser approach:
-```
-Compact snapshot → @refs assigned → Direct interaction (~200-400 tokens)
+完全な DOM/HTML → AI が解析 → CSS セレクタ → アクション（約 3000〜5000 トークン）
 ```
 
-## The Snapshot Command
+agent-browser のアプローチ:
+```
+コンパクトなスナップショット → @ref が割り当てられる → 直接インタラクション（約 200〜400 トークン）
+```
+
+## スナップショットコマンド
 
 ```bash
-# Basic snapshot (shows page structure)
+# 基本的なスナップショット（ページ構造を表示）
 agent-browser snapshot
 
-# Interactive snapshot (-i flag) - RECOMMENDED
+# インタラクティブスナップショット（-i フラグ） - 推奨
 agent-browser snapshot -i
 ```
 
-### Snapshot Output Format
+### スナップショットの出力フォーマット
 
 ```
 Page: Example Site - Home
@@ -60,135 +60,135 @@ URL: https://example.com
   @e14 [a] "Privacy Policy"
 ```
 
-## Using Refs
+## Ref の使用
 
-Once you have refs, interact directly:
+Ref を取得したら、直接インタラクションできる:
 
 ```bash
-# Click the "Sign In" button
+# "Sign In" ボタンをクリック
 agent-browser click @e6
 
-# Fill email input
+# メール入力欄に入力
 agent-browser fill @e10 "user@example.com"
 
-# Fill password
+# パスワードを入力
 agent-browser fill @e11 "password123"
 
-# Submit the form
+# フォームを送信
 agent-browser click @e12
 ```
 
-## Ref Lifecycle
+## Ref のライフサイクル
 
-**IMPORTANT**: Refs are invalidated when the page changes!
+**重要**: ページが変更されると Ref は無効になります！
 
 ```bash
-# Get initial snapshot
+# 初期スナップショットを取得
 agent-browser snapshot -i
 # @e1 [button] "Next"
 
-# Click triggers page change
+# クリックでページが変更される
 agent-browser click @e1
 
-# MUST re-snapshot to get new refs!
+# 新しい Ref を取得するために再スナップショットが必須！
 agent-browser snapshot -i
-# @e1 [h1] "Page 2"  ← Different element now!
+# @e1 [h1] "Page 2"  ← 別の要素になっている！
 ```
 
-## Best Practices
+## ベストプラクティス
 
-### 1. Always Snapshot Before Interacting
+### 1. インタラクション前に必ずスナップショットを取る
 
 ```bash
-# CORRECT
+# 正しい方法
 agent-browser open https://example.com
-agent-browser snapshot -i          # Get refs first
-agent-browser click @e1            # Use ref
+agent-browser snapshot -i          # まず Ref を取得
+agent-browser click @e1            # Ref を使用
 
-# WRONG
+# 間違った方法
 agent-browser open https://example.com
-agent-browser click @e1            # Ref doesn't exist yet!
+agent-browser click @e1            # Ref がまだ存在しない！
 ```
 
-### 2. Re-Snapshot After Navigation
+### 2. ナビゲーション後に再スナップショットする
 
 ```bash
-agent-browser click @e5            # Navigates to new page
-agent-browser snapshot -i          # Get new refs
-agent-browser click @e1            # Use new refs
+agent-browser click @e5            # 新しいページに遷移
+agent-browser snapshot -i          # 新しい Ref を取得
+agent-browser click @e1            # 新しい Ref を使用
 ```
 
-### 3. Re-Snapshot After Dynamic Changes
+### 3. 動的変更後に再スナップショットする
 
 ```bash
-agent-browser click @e1            # Opens dropdown
-agent-browser snapshot -i          # See dropdown items
-agent-browser click @e7            # Select item
+agent-browser click @e1            # ドロップダウンを開く
+agent-browser snapshot -i          # ドロップダウンのアイテムを確認
+agent-browser click @e7            # アイテムを選択
 ```
 
-### 4. Snapshot Specific Regions
+### 4. 特定の領域をスナップショットする
 
-For complex pages, snapshot specific areas:
+複雑なページでは、特定のエリアをスナップショットする:
 
 ```bash
-# Snapshot just the form
+# フォームだけをスナップショット
 agent-browser snapshot @e9
 ```
 
-## Ref Notation Details
+## Ref 記法の詳細
 
 ```
 @e1 [tag type="value"] "text content" placeholder="hint"
 │    │   │             │               │
-│    │   │             │               └─ Additional attributes
-│    │   │             └─ Visible text
-│    │   └─ Key attributes shown
-│    └─ HTML tag name
-└─ Unique ref ID
+│    │   │             │               └─ 追加属性
+│    │   │             └─ 表示テキスト
+│    │   └─ 主要属性の表示
+│    └─ HTML タグ名
+└─ 一意の Ref ID
 ```
 
-### Common Patterns
+### 一般的なパターン
 
 ```
-@e1 [button] "Submit"                    # Button with text
-@e2 [input type="email"]                 # Email input
-@e3 [input type="password"]              # Password input
-@e4 [a href="/page"] "Link Text"         # Anchor link
-@e5 [select]                             # Dropdown
-@e6 [textarea] placeholder="Message"     # Text area
-@e7 [div class="modal"]                  # Container (when relevant)
-@e8 [img alt="Logo"]                     # Image
-@e9 [checkbox] checked                   # Checked checkbox
-@e10 [radio] selected                    # Selected radio
+@e1 [button] "Submit"                    # テキスト付きボタン
+@e2 [input type="email"]                 # メール入力欄
+@e3 [input type="password"]              # パスワード入力欄
+@e4 [a href="/page"] "Link Text"         # アンカーリンク
+@e5 [select]                             # ドロップダウン
+@e6 [textarea] placeholder="Message"     # テキストエリア
+@e7 [div class="modal"]                  # コンテナ（関連する場合）
+@e8 [img alt="Logo"]                     # 画像
+@e9 [checkbox] checked                   # チェック済みチェックボックス
+@e10 [radio] selected                    # 選択済みラジオボタン
 ```
 
-## Troubleshooting
+## トラブルシューティング
 
-### "Ref not found" Error
+### "Ref not found" エラー
 
 ```bash
-# Ref may have changed - re-snapshot
+# Ref が変更された可能性がある - 再スナップショットする
 agent-browser snapshot -i
 ```
 
-### Element Not Visible in Snapshot
+### スナップショットに要素が表示されない
 
 ```bash
-# Scroll to reveal element
+# スクロールして要素を表示させる
 agent-browser scroll --bottom
 agent-browser snapshot -i
 
-# Or wait for dynamic content
+# または動的コンテンツを待機する
 agent-browser wait 1000
 agent-browser snapshot -i
 ```
 
-### Too Many Elements
+### 要素が多すぎる
 
 ```bash
-# Snapshot specific container
+# 特定のコンテナをスナップショット
 agent-browser snapshot @e5
 
-# Or use get text for content-only extraction
+# またはテキストのみの抽出には get text を使用
 agent-browser get text @e5
 ```

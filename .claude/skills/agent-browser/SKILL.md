@@ -1,73 +1,73 @@
 ---
 name: agent-browser
-description: Browser automation CLI for AI agents. Use when the user needs to interact with websites, including navigating pages, filling forms, clicking buttons, taking screenshots, extracting data, testing web apps, or automating any browser task. Triggers include requests to "open a website", "fill out a form", "click a button", "take a screenshot", "scrape data from a page", "test this web app", "login to a site", "automate browser actions", or any task requiring programmatic web interaction.
+description: AI エージェント向けブラウザ自動化 CLI。ウェブサイトの操作（ページ遷移、フォーム入力、ボタンクリック、スクリーンショット取得、データ抽出、Web アプリテスト、ブラウザタスクの自動化）が必要な場合に使用。「ウェブサイトを開いて」「フォームに入力して」「ボタンをクリック」「スクリーンショットを撮って」「ページからデータを取得」「Web アプリをテスト」「サイトにログイン」「ブラウザ操作を自動化」など。
 allowed-tools: Bash(agent-browser:*)
 ---
 
-# Browser Automation with agent-browser
+# agent-browser によるブラウザ自動化
 
-## Core Workflow
+## 基本ワークフロー
 
-Every browser automation follows this pattern:
+すべてのブラウザ自動化は以下のパターンに従う:
 
-1. **Navigate**: `agent-browser open <url>`
-2. **Snapshot**: `agent-browser snapshot -i` (get element refs like `@e1`, `@e2`)
-3. **Interact**: Use refs to click, fill, select
-4. **Re-snapshot**: After navigation or DOM changes, get fresh refs
+1. **遷移**: `agent-browser open <url>`
+2. **スナップショット**: `agent-browser snapshot -i`（`@e1`, `@e2` のような要素参照を取得）
+3. **操作**: 参照を使ってクリック、入力、選択
+4. **再スナップショット**: ページ遷移や DOM 変更後に新しい参照を取得
 
 ```bash
 agent-browser open https://example.com/form
 agent-browser snapshot -i
-# Output: @e1 [input type="email"], @e2 [input type="password"], @e3 [button] "Submit"
+# 出力: @e1 [input type="email"], @e2 [input type="password"], @e3 [button] "Submit"
 
 agent-browser fill @e1 "user@example.com"
 agent-browser fill @e2 "password123"
 agent-browser click @e3
 agent-browser wait --load networkidle
-agent-browser snapshot -i  # Check result
+agent-browser snapshot -i  # 結果を確認
 ```
 
-## Essential Commands
+## 基本コマンド
 
 ```bash
-# Navigation
-agent-browser open <url>              # Navigate (aliases: goto, navigate)
-agent-browser close                   # Close browser
+# ナビゲーション
+agent-browser open <url>              # URL に遷移（別名: goto, navigate）
+agent-browser close                   # ブラウザを閉じる
 
-# Snapshot
-agent-browser snapshot -i             # Interactive elements with refs (recommended)
-agent-browser snapshot -i -C          # Include cursor-interactive elements (divs with onclick, cursor:pointer)
-agent-browser snapshot -s "#selector" # Scope to CSS selector
+# スナップショット
+agent-browser snapshot -i             # インタラクティブ要素と参照（推奨）
+agent-browser snapshot -i -C          # カーソル操作可能な要素も含める（onclick 付き div、cursor:pointer）
+agent-browser snapshot -s "#selector" # CSS セレクタでスコープ指定
 
-# Interaction (use @refs from snapshot)
-agent-browser click @e1               # Click element
-agent-browser fill @e2 "text"         # Clear and type text
-agent-browser type @e2 "text"         # Type without clearing
-agent-browser select @e1 "option"     # Select dropdown option
-agent-browser check @e1               # Check checkbox
-agent-browser press Enter             # Press key
-agent-browser scroll down 500         # Scroll page
+# 操作（snapshot の @refs を使用）
+agent-browser click @e1               # 要素をクリック
+agent-browser fill @e2 "text"         # クリアしてテキスト入力
+agent-browser type @e2 "text"         # クリアせずにテキスト入力
+agent-browser select @e1 "option"     # ドロップダウンの選択肢を選択
+agent-browser check @e1               # チェックボックスをオン
+agent-browser press Enter             # キー押下
+agent-browser scroll down 500         # ページスクロール
 
-# Get information
-agent-browser get text @e1            # Get element text
-agent-browser get url                 # Get current URL
-agent-browser get title               # Get page title
+# 情報取得
+agent-browser get text @e1            # 要素のテキストを取得
+agent-browser get url                 # 現在の URL を取得
+agent-browser get title               # ページタイトルを取得
 
-# Wait
-agent-browser wait @e1                # Wait for element
-agent-browser wait --load networkidle # Wait for network idle
-agent-browser wait --url "**/page"    # Wait for URL pattern
-agent-browser wait 2000               # Wait milliseconds
+# 待機
+agent-browser wait @e1                # 要素の出現を待機
+agent-browser wait --load networkidle # ネットワークアイドルを待機
+agent-browser wait --url "**/page"    # URL パターンを待機
+agent-browser wait 2000               # ミリ秒待機
 
-# Capture
-agent-browser screenshot              # Screenshot to temp dir
-agent-browser screenshot --full       # Full page screenshot
-agent-browser pdf output.pdf          # Save as PDF
+# キャプチャ
+agent-browser screenshot              # 一時ディレクトリにスクリーンショット
+agent-browser screenshot --full       # フルページスクリーンショット
+agent-browser pdf output.pdf          # PDF として保存
 ```
 
-## Common Patterns
+## よくあるパターン
 
-### Form Submission
+### フォーム送信
 
 ```bash
 agent-browser open https://example.com/signup
@@ -80,10 +80,10 @@ agent-browser click @e5
 agent-browser wait --load networkidle
 ```
 
-### Authentication with State Persistence
+### 認証状態の保存と再利用
 
 ```bash
-# Login once and save state
+# 一度ログインして状態を保存
 agent-browser open https://app.example.com/login
 agent-browser snapshot -i
 agent-browser fill @e1 "$USERNAME"
@@ -92,47 +92,47 @@ agent-browser click @e3
 agent-browser wait --url "**/dashboard"
 agent-browser state save auth.json
 
-# Reuse in future sessions
+# 以降のセッションで再利用
 agent-browser state load auth.json
 agent-browser open https://app.example.com/dashboard
 ```
 
-### Session Persistence
+### セッション永続化
 
 ```bash
-# Auto-save/restore cookies and localStorage across browser restarts
+# ブラウザ再起動時に Cookie と localStorage を自動保存・復元
 agent-browser --session-name myapp open https://app.example.com/login
-# ... login flow ...
-agent-browser close  # State auto-saved to ~/.agent-browser/sessions/
+# ... ログインフロー ...
+agent-browser close  # 状態が ~/.agent-browser/sessions/ に自動保存
 
-# Next time, state is auto-loaded
+# 次回、状態が自動読み込み
 agent-browser --session-name myapp open https://app.example.com/dashboard
 
-# Encrypt state at rest
+# 保存状態の暗号化
 export AGENT_BROWSER_ENCRYPTION_KEY=$(openssl rand -hex 32)
 agent-browser --session-name secure open https://app.example.com
 
-# Manage saved states
+# 保存状態の管理
 agent-browser state list
 agent-browser state show myapp-default.json
 agent-browser state clear myapp
 agent-browser state clean --older-than 7
 ```
 
-### Data Extraction
+### データ抽出
 
 ```bash
 agent-browser open https://example.com/products
 agent-browser snapshot -i
-agent-browser get text @e5           # Get specific element text
-agent-browser get text body > page.txt  # Get all page text
+agent-browser get text @e5           # 特定要素のテキスト取得
+agent-browser get text body > page.txt  # 全ページテキスト取得
 
-# JSON output for parsing
+# パース用 JSON 出力
 agent-browser snapshot -i --json
 agent-browser get text @e1 --json
 ```
 
-### Parallel Sessions
+### 並列セッション
 
 ```bash
 agent-browser --session site1 open https://site-a.com
@@ -144,77 +144,77 @@ agent-browser --session site2 snapshot -i
 agent-browser session list
 ```
 
-### Connect to Existing Chrome
+### 既存の Chrome に接続
 
 ```bash
-# Auto-discover running Chrome with remote debugging enabled
+# リモートデバッグが有効な実行中の Chrome を自動検出
 agent-browser --auto-connect open https://example.com
 agent-browser --auto-connect snapshot
 
-# Or with explicit CDP port
+# または CDP ポートを明示指定
 agent-browser --cdp 9222 snapshot
 ```
 
-### Visual Browser (Debugging)
+### ビジュアルブラウザ（デバッグ用）
 
 ```bash
 agent-browser --headed open https://example.com
-agent-browser highlight @e1          # Highlight element
-agent-browser record start demo.webm # Record session
+agent-browser highlight @e1          # 要素をハイライト
+agent-browser record start demo.webm # セッションを録画
 ```
 
-### Local Files (PDFs, HTML)
+### ローカルファイル（PDF、HTML）
 
 ```bash
-# Open local files with file:// URLs
+# file:// URL でローカルファイルを開く
 agent-browser --allow-file-access open file:///path/to/document.pdf
 agent-browser --allow-file-access open file:///path/to/page.html
 agent-browser screenshot output.png
 ```
 
-### iOS Simulator (Mobile Safari)
+### iOS シミュレータ（Mobile Safari）
 
 ```bash
-# List available iOS simulators
+# 利用可能な iOS シミュレータを一覧
 agent-browser device list
 
-# Launch Safari on a specific device
+# 特定デバイスで Safari を起動
 agent-browser -p ios --device "iPhone 16 Pro" open https://example.com
 
-# Same workflow as desktop - snapshot, interact, re-snapshot
+# デスクトップと同じワークフロー - スナップショット、操作、再スナップショット
 agent-browser -p ios snapshot -i
-agent-browser -p ios tap @e1          # Tap (alias for click)
+agent-browser -p ios tap @e1          # タップ（click の別名）
 agent-browser -p ios fill @e2 "text"
-agent-browser -p ios swipe up         # Mobile-specific gesture
+agent-browser -p ios swipe up         # モバイル固有のジェスチャー
 
-# Take screenshot
+# スクリーンショット取得
 agent-browser -p ios screenshot mobile.png
 
-# Close session (shuts down simulator)
+# セッションを閉じる（シミュレータをシャットダウン）
 agent-browser -p ios close
 ```
 
-**Requirements:** macOS with Xcode, Appium (`npm install -g appium && appium driver install xcuitest`)
+**要件:** macOS + Xcode、Appium（`npm install -g appium && appium driver install xcuitest`）
 
-**Real devices:** Works with physical iOS devices if pre-configured. Use `--device "<UDID>"` where UDID is from `xcrun xctrace list devices`.
+**実機:** 事前設定済みの物理 iOS デバイスでも動作。`--device "<UDID>"` を使用（UDID は `xcrun xctrace list devices` で取得）。
 
-## Ref Lifecycle (Important)
+## 参照のライフサイクル（重要）
 
-Refs (`@e1`, `@e2`, etc.) are invalidated when the page changes. Always re-snapshot after:
+参照（`@e1`, `@e2` 等）はページ変更時に無効化される。以下の後は必ず再スナップショット:
 
-- Clicking links or buttons that navigate
-- Form submissions
-- Dynamic content loading (dropdowns, modals)
+- リンクやボタンのクリックによるページ遷移
+- フォーム送信
+- 動的コンテンツの読み込み（ドロップダウン、モーダル）
 
 ```bash
-agent-browser click @e5              # Navigates to new page
-agent-browser snapshot -i            # MUST re-snapshot
-agent-browser click @e1              # Use new refs
+agent-browser click @e5              # 新しいページに遷移
+agent-browser snapshot -i            # 必ず再スナップショット
+agent-browser click @e1              # 新しい参照を使用
 ```
 
-## Semantic Locators (Alternative to Refs)
+## セマンティックロケーター（参照の代替手段）
 
-When refs are unavailable or unreliable, use semantic locators:
+参照が利用不可または不安定な場合、セマンティックロケーターを使用:
 
 ```bash
 agent-browser find text "Sign In" click
@@ -224,16 +224,16 @@ agent-browser find placeholder "Search" type "query"
 agent-browser find testid "submit-btn" click
 ```
 
-## JavaScript Evaluation (eval)
+## JavaScript 実行（eval）
 
-Use `eval` to run JavaScript in the browser context. **Shell quoting can corrupt complex expressions** -- use `--stdin` or `-b` to avoid issues.
+ブラウザコンテキストで JavaScript を実行するには `eval` を使用。**シェルのクォートが複雑な式を壊す可能性がある** ため、`--stdin` または `-b` の使用を推奨。
 
 ```bash
-# Simple expressions work with regular quoting
+# シンプルな式は通常のクォートで OK
 agent-browser eval 'document.title'
 agent-browser eval 'document.querySelectorAll("img").length'
 
-# Complex JS: use --stdin with heredoc (RECOMMENDED)
+# 複雑な JS: --stdin + ヒアドキュメントを使用（推奨）
 agent-browser eval --stdin <<'EVALEOF'
 JSON.stringify(
   Array.from(document.querySelectorAll("img"))
@@ -242,35 +242,35 @@ JSON.stringify(
 )
 EVALEOF
 
-# Alternative: base64 encoding (avoids all shell escaping issues)
+# 代替: base64 エンコード（シェルエスケープの問題を完全に回避）
 agent-browser eval -b "$(echo -n 'Array.from(document.querySelectorAll("a")).map(a => a.href)' | base64)"
 ```
 
-**Why this matters:** When the shell processes your command, inner double quotes, `!` characters (history expansion), backticks, and `$()` can all corrupt the JavaScript before it reaches agent-browser. The `--stdin` and `-b` flags bypass shell interpretation entirely.
+**重要な理由:** シェルがコマンドを処理する際、内部のダブルクォート、`!`（履歴展開）、バッククォート、`$()` が JavaScript を壊す可能性がある。`--stdin` と `-b` フラグはシェル解釈を完全にバイパスする。
 
-**Rules of thumb:**
-- Single-line, no nested quotes -> regular `eval 'expression'` with single quotes is fine
-- Nested quotes, arrow functions, template literals, or multiline -> use `eval --stdin <<'EVALEOF'`
-- Programmatic/generated scripts -> use `eval -b` with base64
+**使い分けの目安:**
+- 1 行、ネストしたクォートなし → 通常の `eval 'expression'`（シングルクォート）で OK
+- ネストしたクォート、アロー関数、テンプレートリテラル、複数行 → `eval --stdin <<'EVALEOF'` を使用
+- プログラム生成スクリプト → `eval -b` + base64 を使用
 
-## Deep-Dive Documentation
+## 詳細ドキュメント
 
-| Reference | When to Use |
+| リファレンス | 用途 |
 |-----------|-------------|
-| [references/commands.md](references/commands.md) | Full command reference with all options |
-| [references/snapshot-refs.md](references/snapshot-refs.md) | Ref lifecycle, invalidation rules, troubleshooting |
-| [references/session-management.md](references/session-management.md) | Parallel sessions, state persistence, concurrent scraping |
-| [references/authentication.md](references/authentication.md) | Login flows, OAuth, 2FA handling, state reuse |
-| [references/video-recording.md](references/video-recording.md) | Recording workflows for debugging and documentation |
-| [references/proxy-support.md](references/proxy-support.md) | Proxy configuration, geo-testing, rotating proxies |
+| [references/commands.md](references/commands.md) | 全オプション付きコマンドリファレンス |
+| [references/snapshot-refs.md](references/snapshot-refs.md) | 参照のライフサイクル、無効化ルール、トラブルシューティング |
+| [references/session-management.md](references/session-management.md) | 並列セッション、状態永続化、同時スクレイピング |
+| [references/authentication.md](references/authentication.md) | ログインフロー、OAuth、2FA 対応、状態の再利用 |
+| [references/video-recording.md](references/video-recording.md) | デバッグ・ドキュメント用の録画ワークフロー |
+| [references/proxy-support.md](references/proxy-support.md) | プロキシ設定、地域テスト、プロキシローテーション |
 
-## Ready-to-Use Templates
+## すぐに使えるテンプレート
 
-| Template | Description |
+| テンプレート | 説明 |
 |----------|-------------|
-| [templates/form-automation.sh](templates/form-automation.sh) | Form filling with validation |
-| [templates/authenticated-session.sh](templates/authenticated-session.sh) | Login once, reuse state |
-| [templates/capture-workflow.sh](templates/capture-workflow.sh) | Content extraction with screenshots |
+| [templates/form-automation.sh](templates/form-automation.sh) | バリデーション付きフォーム入力 |
+| [templates/authenticated-session.sh](templates/authenticated-session.sh) | 一度ログイン、状態を再利用 |
+| [templates/capture-workflow.sh](templates/capture-workflow.sh) | スクリーンショット付きコンテンツ抽出 |
 
 ```bash
 ./templates/form-automation.sh https://example.com/form

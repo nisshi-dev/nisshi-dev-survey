@@ -1,79 +1,79 @@
-# Proxy Support
+# プロキシサポート
 
-Proxy configuration for geo-testing, rate limiting avoidance, and corporate environments.
+ジオテスト、レート制限回避、企業環境向けのプロキシ設定。
 
-**Related**: [commands.md](commands.md) for global options, [SKILL.md](../SKILL.md) for quick start.
+**関連**: [commands.md](commands.md) でグローバルオプション、[SKILL.md](../SKILL.md) でクイックスタートを参照。
 
-## Contents
+## 目次
 
-- [Basic Proxy Configuration](#basic-proxy-configuration)
-- [Authenticated Proxy](#authenticated-proxy)
-- [SOCKS Proxy](#socks-proxy)
-- [Proxy Bypass](#proxy-bypass)
-- [Common Use Cases](#common-use-cases)
-- [Verifying Proxy Connection](#verifying-proxy-connection)
-- [Troubleshooting](#troubleshooting)
-- [Best Practices](#best-practices)
+- [基本的なプロキシ設定](#basic-proxy-configuration)
+- [認証付きプロキシ](#authenticated-proxy)
+- [SOCKS プロキシ](#socks-proxy)
+- [プロキシバイパス](#proxy-bypass)
+- [一般的なユースケース](#common-use-cases)
+- [プロキシ接続の確認](#verifying-proxy-connection)
+- [トラブルシューティング](#troubleshooting)
+- [ベストプラクティス](#best-practices)
 
-## Basic Proxy Configuration
+## 基本的なプロキシ設定
 
-Set proxy via environment variable before starting:
+開始前に環境変数でプロキシを設定する:
 
 ```bash
-# HTTP proxy
+# HTTP プロキシ
 export HTTP_PROXY="http://proxy.example.com:8080"
 agent-browser open https://example.com
 
-# HTTPS proxy
+# HTTPS プロキシ
 export HTTPS_PROXY="https://proxy.example.com:8080"
 agent-browser open https://example.com
 
-# Both
+# 両方
 export HTTP_PROXY="http://proxy.example.com:8080"
 export HTTPS_PROXY="http://proxy.example.com:8080"
 agent-browser open https://example.com
 ```
 
-## Authenticated Proxy
+## 認証付きプロキシ
 
-For proxies requiring authentication:
+認証が必要なプロキシの場合:
 
 ```bash
-# Include credentials in URL
+# URL に認証情報を含める
 export HTTP_PROXY="http://username:password@proxy.example.com:8080"
 agent-browser open https://example.com
 ```
 
-## SOCKS Proxy
+## SOCKS プロキシ
 
 ```bash
-# SOCKS5 proxy
+# SOCKS5 プロキシ
 export ALL_PROXY="socks5://proxy.example.com:1080"
 agent-browser open https://example.com
 
-# SOCKS5 with auth
+# 認証付き SOCKS5
 export ALL_PROXY="socks5://user:pass@proxy.example.com:1080"
 agent-browser open https://example.com
 ```
 
-## Proxy Bypass
+## プロキシバイパス
 
-Skip proxy for specific domains:
+特定のドメインに対してプロキシをスキップする:
 
 ```bash
-# Bypass proxy for local addresses
+# ローカルアドレスのプロキシをバイパス
 export NO_PROXY="localhost,127.0.0.1,.internal.company.com"
-agent-browser open https://internal.company.com  # Direct connection
-agent-browser open https://external.com          # Via proxy
+agent-browser open https://internal.company.com  # 直接接続
+agent-browser open https://external.com          # プロキシ経由
 ```
 
-## Common Use Cases
+## 一般的なユースケース
 
-### Geo-Location Testing
+### ジオロケーションテスト
 
 ```bash
 #!/bin/bash
-# Test site from different regions using geo-located proxies
+# ジオロケーション対応プロキシを使用して異なる地域からサイトをテスト
 
 PROXIES=(
     "http://us-proxy.example.com:8080"
@@ -86,7 +86,7 @@ for proxy in "${PROXIES[@]}"; do
     export HTTPS_PROXY="$proxy"
 
     region=$(echo "$proxy" | grep -oP '^\w+-\w+')
-    echo "Testing from: $region"
+    echo "テスト中の地域: $region"
 
     agent-browser --session "$region" open https://example.com
     agent-browser --session "$region" screenshot "./screenshots/$region.png"
@@ -94,11 +94,11 @@ for proxy in "${PROXIES[@]}"; do
 done
 ```
 
-### Rotating Proxies for Scraping
+### スクレイピング用プロキシローテーション
 
 ```bash
 #!/bin/bash
-# Rotate through proxy list to avoid rate limiting
+# レート制限を回避するためにプロキシリストをローテーション
 
 PROXY_LIST=(
     "http://proxy1.example.com:8080"
@@ -121,68 +121,68 @@ for i in "${!URLS[@]}"; do
     agent-browser get text body > "output-$i.txt"
     agent-browser close
 
-    sleep 1  # Polite delay
+    sleep 1  # 礼儀正しい遅延
 done
 ```
 
-### Corporate Network Access
+### 企業ネットワークアクセス
 
 ```bash
 #!/bin/bash
-# Access internal sites via corporate proxy
+# 企業プロキシ経由で内部サイトにアクセス
 
 export HTTP_PROXY="http://corpproxy.company.com:8080"
 export HTTPS_PROXY="http://corpproxy.company.com:8080"
 export NO_PROXY="localhost,127.0.0.1,.company.com"
 
-# External sites go through proxy
+# 外部サイトはプロキシ経由
 agent-browser open https://external-vendor.com
 
-# Internal sites bypass proxy
+# 内部サイトはプロキシをバイパス
 agent-browser open https://intranet.company.com
 ```
 
-## Verifying Proxy Connection
+## プロキシ接続の確認
 
 ```bash
-# Check your apparent IP
+# 見かけ上の IP を確認
 agent-browser open https://httpbin.org/ip
 agent-browser get text body
-# Should show proxy's IP, not your real IP
+# 実際の IP ではなく、プロキシの IP が表示されるはず
 ```
 
-## Troubleshooting
+## トラブルシューティング
 
-### Proxy Connection Failed
+### プロキシ接続に失敗
 
 ```bash
-# Test proxy connectivity first
+# まずプロキシの接続性をテスト
 curl -x http://proxy.example.com:8080 https://httpbin.org/ip
 
-# Check if proxy requires auth
+# プロキシが認証を必要としているか確認
 export HTTP_PROXY="http://user:pass@proxy.example.com:8080"
 ```
 
-### SSL/TLS Errors Through Proxy
+### プロキシ経由の SSL/TLS エラー
 
-Some proxies perform SSL inspection. If you encounter certificate errors:
+一部のプロキシは SSL インスペクションを実行します。証明書エラーが発生した場合:
 
 ```bash
-# For testing only - not recommended for production
+# テスト目的のみ - 本番環境には非推奨
 agent-browser open https://example.com --ignore-https-errors
 ```
 
-### Slow Performance
+### パフォーマンスの低下
 
 ```bash
-# Use proxy only when necessary
-export NO_PROXY="*.cdn.com,*.static.com"  # Direct CDN access
+# 必要な場合のみプロキシを使用
+export NO_PROXY="*.cdn.com,*.static.com"  # CDN への直接アクセス
 ```
 
-## Best Practices
+## ベストプラクティス
 
-1. **Use environment variables** - Don't hardcode proxy credentials
-2. **Set NO_PROXY appropriately** - Avoid routing local traffic through proxy
-3. **Test proxy before automation** - Verify connectivity with simple requests
-4. **Handle proxy failures gracefully** - Implement retry logic for unstable proxies
-5. **Rotate proxies for large scraping jobs** - Distribute load and avoid bans
+1. **環境変数を使用する** - プロキシの認証情報をハードコードしない
+2. **NO_PROXY を適切に設定する** - ローカルトラフィックをプロキシ経由にしない
+3. **自動化前にプロキシをテストする** - シンプルなリクエストで接続性を確認
+4. **プロキシ障害を適切に処理する** - 不安定なプロキシにはリトライロジックを実装
+5. **大規模スクレイピングではプロキシをローテーションする** - 負荷を分散しBAN を回避

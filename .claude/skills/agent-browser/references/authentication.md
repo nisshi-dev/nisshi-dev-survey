@@ -1,50 +1,50 @@
-# Authentication Patterns
+# 認証パターン
 
-Login flows, session persistence, OAuth, 2FA, and authenticated browsing.
+ログインフロー、セッション永続化、OAuth、2FA、認証済みブラウジングについて。
 
-**Related**: [session-management.md](session-management.md) for state persistence details, [SKILL.md](../SKILL.md) for quick start.
+**関連**: [session-management.md](session-management.md) で状態永続化の詳細、[SKILL.md](../SKILL.md) でクイックスタートを参照。
 
-## Contents
+## 目次
 
-- [Basic Login Flow](#basic-login-flow)
-- [Saving Authentication State](#saving-authentication-state)
-- [Restoring Authentication](#restoring-authentication)
-- [OAuth / SSO Flows](#oauth--sso-flows)
-- [Two-Factor Authentication](#two-factor-authentication)
-- [HTTP Basic Auth](#http-basic-auth)
-- [Cookie-Based Auth](#cookie-based-auth)
-- [Token Refresh Handling](#token-refresh-handling)
-- [Security Best Practices](#security-best-practices)
+- [基本的なログインフロー](#basic-login-flow)
+- [認証状態の保存](#saving-authentication-state)
+- [認証の復元](#restoring-authentication)
+- [OAuth / SSO フロー](#oauth--sso-flows)
+- [二要素認証](#two-factor-authentication)
+- [HTTP Basic 認証](#http-basic-auth)
+- [Cookie ベース認証](#cookie-based-auth)
+- [トークンリフレッシュ処理](#token-refresh-handling)
+- [セキュリティベストプラクティス](#security-best-practices)
 
-## Basic Login Flow
+## 基本的なログインフロー
 
 ```bash
-# Navigate to login page
+# ログインページに遷移
 agent-browser open https://app.example.com/login
 agent-browser wait --load networkidle
 
-# Get form elements
+# フォーム要素を取得
 agent-browser snapshot -i
-# Output: @e1 [input type="email"], @e2 [input type="password"], @e3 [button] "Sign In"
+# 出力: @e1 [input type="email"], @e2 [input type="password"], @e3 [button] "Sign In"
 
-# Fill credentials
+# 認証情報を入力
 agent-browser fill @e1 "user@example.com"
 agent-browser fill @e2 "password123"
 
-# Submit
+# 送信
 agent-browser click @e3
 agent-browser wait --load networkidle
 
-# Verify login succeeded
-agent-browser get url  # Should be dashboard, not login
+# ログイン成功を確認
+agent-browser get url  # ログインページではなくダッシュボードであること
 ```
 
-## Saving Authentication State
+## 認証状態の保存
 
-After logging in, save state for reuse:
+ログイン後、再利用のために状態を保存する:
 
 ```bash
-# Login first (see above)
+# まずログインする（上記を参照）
 agent-browser open https://app.example.com/login
 agent-browser snapshot -i
 agent-browser fill @e1 "user@example.com"
@@ -52,114 +52,114 @@ agent-browser fill @e2 "password123"
 agent-browser click @e3
 agent-browser wait --url "**/dashboard"
 
-# Save authenticated state
+# 認証済み状態を保存
 agent-browser state save ./auth-state.json
 ```
 
-## Restoring Authentication
+## 認証の復元
 
-Skip login by loading saved state:
+保存済みの状態を読み込んでログインをスキップする:
 
 ```bash
-# Load saved auth state
+# 保存済みの認証状態を読み込む
 agent-browser state load ./auth-state.json
 
-# Navigate directly to protected page
+# 保護されたページに直接遷移
 agent-browser open https://app.example.com/dashboard
 
-# Verify authenticated
+# 認証済みであることを確認
 agent-browser snapshot -i
 ```
 
-## OAuth / SSO Flows
+## OAuth / SSO フロー
 
-For OAuth redirects:
+OAuth リダイレクトの場合:
 
 ```bash
-# Start OAuth flow
+# OAuth フローを開始
 agent-browser open https://app.example.com/auth/google
 
-# Handle redirects automatically
+# リダイレクトを自動的に処理
 agent-browser wait --url "**/accounts.google.com**"
 agent-browser snapshot -i
 
-# Fill Google credentials
+# Google の認証情報を入力
 agent-browser fill @e1 "user@gmail.com"
-agent-browser click @e2  # Next button
+agent-browser click @e2  # 次へボタン
 agent-browser wait 2000
 agent-browser snapshot -i
 agent-browser fill @e3 "password"
-agent-browser click @e4  # Sign in
+agent-browser click @e4  # ログイン
 
-# Wait for redirect back
+# リダイレクトで戻るのを待つ
 agent-browser wait --url "**/app.example.com**"
 agent-browser state save ./oauth-state.json
 ```
 
-## Two-Factor Authentication
+## 二要素認証
 
-Handle 2FA with manual intervention:
+手動介入による 2FA の処理:
 
 ```bash
-# Login with credentials
-agent-browser open https://app.example.com/login --headed  # Show browser
+# 認証情報でログイン
+agent-browser open https://app.example.com/login --headed  # ブラウザを表示
 agent-browser snapshot -i
 agent-browser fill @e1 "user@example.com"
 agent-browser fill @e2 "password123"
 agent-browser click @e3
 
-# Wait for user to complete 2FA manually
-echo "Complete 2FA in the browser window..."
+# ユーザーが手動で 2FA を完了するのを待つ
+echo "ブラウザウィンドウで 2FA を完了してください..."
 agent-browser wait --url "**/dashboard" --timeout 120000
 
-# Save state after 2FA
+# 2FA 完了後に状態を保存
 agent-browser state save ./2fa-state.json
 ```
 
-## HTTP Basic Auth
+## HTTP Basic 認証
 
-For sites using HTTP Basic Authentication:
+HTTP Basic 認証を使用するサイトの場合:
 
 ```bash
-# Set credentials before navigation
+# ナビゲーション前に認証情報を設定
 agent-browser set credentials username password
 
-# Navigate to protected resource
+# 保護されたリソースに遷移
 agent-browser open https://protected.example.com/api
 ```
 
-## Cookie-Based Auth
+## Cookie ベース認証
 
-Manually set authentication cookies:
+認証 Cookie を手動で設定する:
 
 ```bash
-# Set auth cookie
+# 認証 Cookie を設定
 agent-browser cookies set session_token "abc123xyz"
 
-# Navigate to protected page
+# 保護されたページに遷移
 agent-browser open https://app.example.com/dashboard
 ```
 
-## Token Refresh Handling
+## トークンリフレッシュ処理
 
-For sessions with expiring tokens:
+有効期限付きトークンを持つセッションの場合:
 
 ```bash
 #!/bin/bash
-# Wrapper that handles token refresh
+# トークンリフレッシュを処理するラッパー
 
 STATE_FILE="./auth-state.json"
 
-# Try loading existing state
+# 既存の状態を読み込む
 if [[ -f "$STATE_FILE" ]]; then
     agent-browser state load "$STATE_FILE"
     agent-browser open https://app.example.com/dashboard
 
-    # Check if session is still valid
+    # セッションがまだ有効か確認
     URL=$(agent-browser get url)
     if [[ "$URL" == *"/login"* ]]; then
-        echo "Session expired, re-authenticating..."
-        # Perform fresh login
+        echo "セッションが期限切れです。再認証中..."
+        # 新規ログインを実行
         agent-browser snapshot -i
         agent-browser fill @e1 "$USERNAME"
         agent-browser fill @e2 "$PASSWORD"
@@ -168,35 +168,35 @@ if [[ -f "$STATE_FILE" ]]; then
         agent-browser state save "$STATE_FILE"
     fi
 else
-    # First-time login
+    # 初回ログイン
     agent-browser open https://app.example.com/login
-    # ... login flow ...
+    # ... ログインフロー ...
 fi
 ```
 
-## Security Best Practices
+## セキュリティベストプラクティス
 
-1. **Never commit state files** - They contain session tokens
+1. **状態ファイルをコミットしない** - セッショントークンが含まれています
    ```bash
    echo "*.auth-state.json" >> .gitignore
    ```
 
-2. **Use environment variables for credentials**
+2. **認証情報には環境変数を使用する**
    ```bash
    agent-browser fill @e1 "$APP_USERNAME"
    agent-browser fill @e2 "$APP_PASSWORD"
    ```
 
-3. **Clean up after automation**
+3. **自動化後にクリーンアップする**
    ```bash
    agent-browser cookies clear
    rm -f ./auth-state.json
    ```
 
-4. **Use short-lived sessions for CI/CD**
+4. **CI/CD では短命セッションを使用する**
    ```bash
-   # Don't persist state in CI
+   # CI では状態を永続化しない
    agent-browser open https://app.example.com/login
-   # ... login and perform actions ...
-   agent-browser close  # Session ends, nothing persisted
+   # ... ログインしてアクションを実行 ...
+   agent-browser close  # セッション終了、何も永続化されない
    ```

@@ -1,62 +1,62 @@
-# Video Recording
+# 動画録画
 
-Capture browser automation as video for debugging, documentation, or verification.
+デバッグ、ドキュメント作成、検証のためにブラウザ自動化を動画としてキャプチャします。
 
-**Related**: [commands.md](commands.md) for full command reference, [SKILL.md](../SKILL.md) for quick start.
+**関連**: [commands.md](commands.md) で完全なコマンドリファレンス、[SKILL.md](../SKILL.md) でクイックスタートを参照。
 
-## Contents
+## 目次
 
-- [Basic Recording](#basic-recording)
-- [Recording Commands](#recording-commands)
-- [Use Cases](#use-cases)
-- [Best Practices](#best-practices)
-- [Output Format](#output-format)
-- [Limitations](#limitations)
+- [基本的な録画](#basic-recording)
+- [録画コマンド](#recording-commands)
+- [ユースケース](#use-cases)
+- [ベストプラクティス](#best-practices)
+- [出力フォーマット](#output-format)
+- [制限事項](#limitations)
 
-## Basic Recording
+## 基本的な録画
 
 ```bash
-# Start recording
+# 録画を開始
 agent-browser record start ./demo.webm
 
-# Perform actions
+# アクションを実行
 agent-browser open https://example.com
 agent-browser snapshot -i
 agent-browser click @e1
 agent-browser fill @e2 "test input"
 
-# Stop and save
+# 停止して保存
 agent-browser record stop
 ```
 
-## Recording Commands
+## 録画コマンド
 
 ```bash
-# Start recording to file
+# ファイルに録画を開始
 agent-browser record start ./output.webm
 
-# Stop current recording
+# 現在の録画を停止
 agent-browser record stop
 
-# Restart with new file (stops current + starts new)
+# 新しいファイルで再開始（現在の録画を停止して新規開始）
 agent-browser record restart ./take2.webm
 ```
 
-## Use Cases
+## ユースケース
 
-### Debugging Failed Automation
+### 失敗した自動化のデバッグ
 
 ```bash
 #!/bin/bash
-# Record automation for debugging
+# デバッグ用に自動化を録画
 
 agent-browser record start ./debug-$(date +%Y%m%d-%H%M%S).webm
 
-# Run your automation
+# 自動化を実行
 agent-browser open https://app.example.com
 agent-browser snapshot -i
 agent-browser click @e1 || {
-    echo "Click failed - check recording"
+    echo "クリック失敗 - 録画を確認してください"
     agent-browser record stop
     exit 1
 }
@@ -64,16 +64,16 @@ agent-browser click @e1 || {
 agent-browser record stop
 ```
 
-### Documentation Generation
+### ドキュメント生成
 
 ```bash
 #!/bin/bash
-# Record workflow for documentation
+# ドキュメント用にワークフローを録画
 
 agent-browser record start ./docs/how-to-login.webm
 
 agent-browser open https://app.example.com/login
-agent-browser wait 1000  # Pause for visibility
+agent-browser wait 1000  # 見やすいように一時停止
 
 agent-browser snapshot -i
 agent-browser fill @e1 "demo@example.com"
@@ -84,16 +84,16 @@ agent-browser wait 500
 
 agent-browser click @e3
 agent-browser wait --load networkidle
-agent-browser wait 1000  # Show result
+agent-browser wait 1000  # 結果を表示
 
 agent-browser record stop
 ```
 
-### CI/CD Test Evidence
+### CI/CD テストエビデンス
 
 ```bash
 #!/bin/bash
-# Record E2E test runs for CI artifacts
+# CI アーティファクト用に E2E テストの実行を録画
 
 TEST_NAME="${1:-e2e-test}"
 RECORDING_DIR="./test-recordings"
@@ -101,35 +101,35 @@ mkdir -p "$RECORDING_DIR"
 
 agent-browser record start "$RECORDING_DIR/$TEST_NAME-$(date +%s).webm"
 
-# Run test
+# テストを実行
 if run_e2e_test; then
-    echo "Test passed"
+    echo "テスト成功"
 else
-    echo "Test failed - recording saved"
+    echo "テスト失敗 - 録画を保存しました"
 fi
 
 agent-browser record stop
 ```
 
-## Best Practices
+## ベストプラクティス
 
-### 1. Add Pauses for Clarity
+### 1. 見やすくするために一時停止を追加する
 
 ```bash
-# Slow down for human viewing
+# 人が見やすいようにゆっくりにする
 agent-browser click @e1
-agent-browser wait 500  # Let viewer see result
+agent-browser wait 500  # 閲覧者が結果を確認できるように
 ```
 
-### 2. Use Descriptive Filenames
+### 2. わかりやすいファイル名を使用する
 
 ```bash
-# Include context in filename
+# ファイル名にコンテキストを含める
 agent-browser record start ./recordings/login-flow-2024-01-15.webm
 agent-browser record start ./recordings/checkout-test-run-42.webm
 ```
 
-### 3. Handle Recording in Error Cases
+### 3. エラー時の録画を適切に処理する
 
 ```bash
 #!/bin/bash
@@ -142,13 +142,13 @@ cleanup() {
 trap cleanup EXIT
 
 agent-browser record start ./automation.webm
-# ... automation steps ...
+# ... 自動化のステップ ...
 ```
 
-### 4. Combine with Screenshots
+### 4. スクリーンショットと組み合わせる
 
 ```bash
-# Record video AND capture key frames
+# 動画を録画しつつキーフレームもキャプチャ
 agent-browser record start ./flow.webm
 
 agent-browser open https://example.com
@@ -160,14 +160,14 @@ agent-browser screenshot ./screenshots/step2-after-click.png
 agent-browser record stop
 ```
 
-## Output Format
+## 出力フォーマット
 
-- Default format: WebM (VP8/VP9 codec)
-- Compatible with all modern browsers and video players
-- Compressed but high quality
+- デフォルトフォーマット: WebM（VP8/VP9 コーデック）
+- すべてのモダンブラウザと動画プレーヤーに対応
+- 圧縮されているが高品質
 
-## Limitations
+## 制限事項
 
-- Recording adds slight overhead to automation
-- Large recordings can consume significant disk space
-- Some headless environments may have codec limitations
+- 録画は自動化にわずかなオーバーヘッドを追加する
+- 大きな録画はディスク容量を大幅に消費する可能性がある
+- 一部のヘッドレス環境ではコーデックに制限がある場合がある
