@@ -12,6 +12,14 @@ UI は **HeroUI v3 beta** + **Tailwind CSS v4** + **motion** で実装する。
 | [docs/git-guidelines.md](docs/git-guidelines.md) | Git ガイドライン |
 | [docs/coding-rules.md](docs/coding-rules.md) | コーディングルール（ultracite / Biome） |
 
+## 開発手法
+
+**TDD（テスト駆動開発）を採用する。** 機能実装・バグ修正の際は `/test-driven-development` スキルを使い、Red-Green-Refactor サイクルに従うこと。
+
+- 失敗するテストを先に書く → 失敗を確認 → 最小限の実装 → リファクタリング
+- テストなしにプロダクションコードを書かない
+- 詳細は `.claude/skills/test-driven-development/SKILL.md` を参照
+
 ## 開発コマンド
 
 - `npm run dev` — Vite 開発サーバー起動（フロント + API を単一プロセスで提供、ポート 5173）
