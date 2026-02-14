@@ -65,5 +65,5 @@ src/
 
 ## Vercel デプロイ
 
-- `vercel.json` の rewrites で `/api/*` を Serverless Function、それ以外を SPA にルーティング
+- `vercel.ts`（`@vercel/config`）の rewrites で `/api/*` を Serverless Function、それ以外を SPA にルーティング
 - `vercel-build` スクリプトで `prisma generate && vite build` を実行
