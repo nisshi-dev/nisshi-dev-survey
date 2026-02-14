@@ -1,9 +1,9 @@
 import { Route, Routes } from "react-router-dom";
-import { AdminLayout } from "./admin/AdminLayout";
-import { DashboardPage } from "./admin/DashboardPage";
-import { LoginPage } from "./admin/LoginPage";
-import { CompletePage } from "./survey/CompletePage";
-import { SurveyPage } from "./survey/SurveyPage";
+import { AdminLayout } from "./admin/admin-layout";
+import { DashboardPage } from "./admin/dashboard-page";
+import { LoginPage } from "./admin/login-page";
+import { CompletePage } from "./survey/complete-page";
+import { SurveyPage } from "./survey/survey-page";
 
 export function App() {
   return (

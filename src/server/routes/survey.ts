@@ -3,7 +3,7 @@ import { Hono } from "hono";
 const app = new Hono();
 
 // アンケート取得
-app.get("/:id", async (c) => {
+app.get("/:id", (c) => {
   const id = c.req.param("id");
 
   // TODO: Prisma でアンケート取得

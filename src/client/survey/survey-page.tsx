@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import useSWR from "swr";
-import { SurveyForm } from "./SurveyForm";
+import { SurveyForm } from "./survey-form";
 
 interface Survey {
   id: string;
