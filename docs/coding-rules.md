@@ -108,6 +108,14 @@ ultracite は **Biome** をラップした統合ツール。
 - JSX props の重複禁止
 - 関数コンポーネントを使用する
 
+## HeroUI v3 beta ルール
+
+- UI コンポーネントは HeroUI v3 beta（`@heroui/react`）を優先して使用する
+- 複合コンポーネントパターンを使用する（例: `<Card><Card.Header>` — フラット props にしない）
+- イベントハンドラは `onClick` ではなく `onPress` を使用する（React Aria 準拠）
+- カラー指定は生の値ではなくセマンティックバリアント（`primary`, `secondary`, `danger` 等）を使用する
+- HeroUI にないコンポーネントは Tailwind CSS ユーティリティクラスで自作する
+
 ---
 
 ## CSS ルール

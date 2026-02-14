@@ -5,9 +5,9 @@
 | レイヤー | 技術 | 役割 |
 |---|---|---|
 | フロントエンド | React + Vite | SPA。回答画面と管理画面を提供 |
-| UI コンポーネント | HeroUI v3（beta） | React Aria ベースのアクセシブルなコンポーネントライブラリ |
+| UI コンポーネント | HeroUI v3 beta | React Aria ベースのアクセシブルなコンポーネントライブラリ。beta 版のため破壊的変更の可能性あり |
 | スタイリング | Tailwind CSS v4 + `@heroui/styles` | ユーティリティファースト CSS。`@tailwindcss/vite` で統合 |
-| アニメーション | motion | 軽量アニメーションライブラリ |
+| アニメーション | motion | 軽量アニメーションライブラリ（Framer Motion の後継） |
 | ルーティング | react-router-dom v7（Declarative mode） | `<BrowserRouter>` + `<Routes>` による SPA ルーティング |
 | データ取得 | SWR（`useSWR` / `useSWRMutation`） | キャッシュ付きデータフェッチ・ミューテーション |
 | バックエンド | Hono | REST API サーバー |
@@ -75,6 +75,16 @@ src/
 - Prisma Client は `src/generated/prisma/` に生成（`.gitignore` 済み）
 - 環境変数は `.env` に `DATABASE_URL` を設定（`.env.example` 参照）
 - DB は [Prisma Postgres](https://console.prisma.io)（`@prisma/adapter-pg` で直接接続）
+
+## UI 実装方針
+
+- **HeroUI v3 beta をベースに UI を実装する**
+- HeroUI v3 は Tailwind CSS v4 + React Aria Components ベースの複合コンポーネントライブラリ
+- Provider 不要。コンポーネントを直接 import して使用する
+- `onClick` ではなく `onPress` を使用する（React Aria 準拠）
+- アニメーションは motion を使用する（HeroUI の CSS トランジションと併用可能）
+- スタイルのカスタマイズは Tailwind CSS ユーティリティクラスまたは HeroUI のテーマ変数で行う
+- HeroUI コンポーネントの実装時は `.claude/skills/heroui-react` のスクリプトで最新ドキュメントを参照する
 
 ## Vercel デプロイ
 
