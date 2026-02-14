@@ -45,11 +45,13 @@ describe('User', () => {
 ## Suite Options
 
 ```ts
-// All tests inherit options
+// All tests inherit options (4.0: オプションは必ず第2引数)
 describe('slow tests', { timeout: 30_000 }, () => {
   test('test 1', () => {}) // 30s timeout
   test('test 2', () => {}) // 30s timeout
 })
+
+// ⚠️ 4.0 で削除: describe('name', fn, options) 形式は使えない
 ```
 
 ## Suite Modifiers

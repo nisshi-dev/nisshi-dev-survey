@@ -39,9 +39,9 @@ defineConfig({
         '**/*.test.ts',
       ],
       
-      // Report uncovered files
-      all: true,
-      
+      // 4.0: `all` オプションは削除。代わりに include で対象を明示指定
+      // include で指定したファイルのうち、テストでカバーされなかったものも表示
+
       // Thresholds
       thresholds: {
         lines: 80,
@@ -65,6 +65,7 @@ npm i -D @vitest/coverage-v8
 - Faster, no pre-instrumentation
 - Uses V8's native coverage
 - Recommended for most projects
+- 4.0: AST ベースの解析に移行（v8-to-istanbul を廃止、精度向上）
 
 ### Istanbul
 
@@ -193,11 +194,20 @@ vitest run --shard=3/3 --coverage --reporter=blob
 vitest --merge-reports --coverage --reporter=json
 ```
 
+## 4.0 での変更
+
+| 項目 | 変更内容 |
+|------|----------|
+| `coverage.all` | 削除。`coverage.include` で対象ファイルを明示指定 |
+| `coverage.extensions` | 削除 |
+| `coverage.ignoreEmptyLines` | 削除 |
+| V8 プロバイダ内部 | v8-to-istanbul → AST ベース解析に移行（精度向上） |
+
 ## Key Points
 
 - V8 is faster, Istanbul is more compatible
 - Use `--coverage` flag or `coverage.enabled: true`
-- Include `all: true` to see uncovered files
+- 4.0: `all: true` は削除。`include` でカバレッジ対象を明示指定
 - Set thresholds to enforce minimum coverage
 - Use `@preserve` comment to keep ignore hints
 

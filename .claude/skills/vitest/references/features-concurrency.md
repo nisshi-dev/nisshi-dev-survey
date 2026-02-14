@@ -178,19 +178,17 @@ describe.shuffle('random order', () => {
 
 ## Pool Options
 
+4.0 では `poolOptions.threads.maxThreads` / `poolOptions.forks.maxForks` は廃止され、トップレベルの `maxWorkers` / `minWorkers` に統合。
+
 ### Threads (Default)
 
 ```ts
 defineConfig({
   test: {
     pool: 'threads',
-    poolOptions: {
-      threads: {
-        maxThreads: 8,
-        minThreads: 2,
-        isolate: true,
-      },
-    },
+    maxWorkers: 8,
+    minWorkers: 2,
+    isolate: true,
   },
 })
 ```
@@ -203,12 +201,8 @@ Better isolation, slower:
 defineConfig({
   test: {
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        maxForks: 4,
-        isolate: true,
-      },
-    },
+    maxWorkers: 4,
+    isolate: true,
   },
 })
 ```
@@ -242,6 +236,8 @@ vitest --bail      # Stop on first failure (same as --bail 1)
 - Sharding splits tests across CI machines
 - Use `--merge-reports` to combine sharded results
 - Shuffle tests to find hidden dependencies
+- 4.0: `poolOptions.threads.maxThreads` / `poolOptions.forks.maxForks` → `maxWorkers` に統合
+- 4.0: `singleThread` / `singleFork` → `maxWorkers: 1, isolate: false` に統合
 
 <!-- 
 Source references:

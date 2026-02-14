@@ -202,6 +202,25 @@ expect(import.meta.env.API_KEY).toBe('test-key')
 vi.unstubAllEnvs()
 ```
 
+## コンストラクタのモック（4.0 新機能）
+
+```ts
+// vi.fn でクラスコンストラクタをモック
+const MockUser = vi.fn(function (name: string) {
+  this.name = name
+})
+
+const user = new MockUser('Alice')
+expect(MockUser).toHaveBeenCalledWith('Alice')
+expect(user.name).toBe('Alice')
+expect(MockUser.mock.contexts[0]).toBe(user)
+
+// vi.spyOn でコンストラクタを監視
+vi.spyOn(globalThis, 'Request')
+const req = new Request('https://example.com')
+expect(globalThis.Request).toHaveBeenCalledWith('https://example.com')
+```
+
 ## Clearing Mocks
 
 ```ts
@@ -215,7 +234,7 @@ fn.mockRestore()     // Restore original (for spies)
 // Global
 vi.clearAllMocks()
 vi.resetAllMocks()
-vi.restoreAllMocks()
+vi.restoreAllMocks() // 4.0: vi.spyOn で作成したスパイのみ対象（vi.fn は対象外）
 ```
 
 ## Config Auto-Reset
@@ -257,6 +276,11 @@ test('hoisted mock', () => {
 - Always restore mocks to avoid test pollution
 - Use `{ spy: true }` to keep implementation but track calls
 - `vi.hoisted` lets you reference variables in mock factories
+- 4.0: `vi.fn().getMockName()` のデフォルト値が `"spy"` → `""（空文字列）` に変更
+- 4.0: `vi.restoreAllMocks()` は `vi.spyOn` で作成したスパイのみ復元（`vi.fn` は対象外）
+- 4.0: `mock.invocationCallOrder` が 1 始まり（3.x では 0 始まり）
+- 4.0: `mock.settledResults` が呼び出し直後に `{ type: 'incomplete' }` で即座に populate
+- 4.0: `vi.fn` / `vi.spyOn` でコンストラクタ呼び出しの監視をサポート
 
 <!-- 
 Source references:

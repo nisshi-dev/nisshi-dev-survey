@@ -197,19 +197,35 @@ export default <Environment>{
 }
 ```
 
-## Browser Mode (Separate from Environments)
+## Browser Mode（4.0 で安定版に昇格）
 
-For real browser testing, use Vitest Browser Mode:
+jsdom/happy-dom ではなく実ブラウザでテストを実行する。4.0 で安定版 API となり、`vitest/browser` からインポート可能。
 
 ```ts
+// vitest.config.ts
 defineConfig({
   test: {
     browser: {
       enabled: true,
-      name: 'chromium', // or 'firefox', 'webkit'
-      provider: 'playwright',
+      provider: 'playwright', // or 'webdriverio'
+      // 4.0: name → instances に変更（複数ブラウザ対応）
+      instances: [
+        { browser: 'chromium' },
+        // { browser: 'firefox' },
+        // { browser: 'webkit' },
+      ],
     },
   },
+})
+```
+
+```ts
+// テストファイル内（4.0: vitest/browser からインポート）
+import { page, userEvent } from 'vitest/browser'
+
+test('click button', async () => {
+  await page.render(<MyComponent />)
+  await userEvent.click(page.getByRole('button'))
 })
 ```
 
@@ -256,7 +272,9 @@ defineConfig({
 - Use `happy-dom` for faster tests with basic DOM
 - Per-file environment via `// @vitest-environment` comment
 - Use projects for multiple environment configurations
-- Browser Mode is for real browser testing, not environment
+- 4.0: Browser Mode が安定版に。`vitest/browser` からユーティリティをインポート
+- 4.0: `browser.name` → `browser.instances` に変更（複数ブラウザ対応）
+- 4.0: `deps.external` / `deps.inline` → `server.deps` に移行
 
 <!-- 
 Source references:

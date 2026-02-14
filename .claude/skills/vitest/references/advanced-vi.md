@@ -50,6 +50,11 @@ spy.mockReturnValue('mocked')
 
 // Spy on getter/setter
 vi.spyOn(obj, 'prop', 'get').mockReturnValue('value')
+
+// コンストラクタの監視（4.0 新機能）
+vi.spyOn(globalThis, 'Request')
+const req = new Request('https://example.com')
+expect(globalThis.Request).toHaveBeenCalledWith('https://example.com')
 ```
 
 ## Module Mocking
@@ -214,7 +219,7 @@ vi.resetConfig()
 ```ts
 vi.clearAllMocks()   // Clear all mock call history
 vi.resetAllMocks()   // Reset + clear implementation
-vi.restoreAllMocks() // Restore originals (spies)
+vi.restoreAllMocks() // Restore originals（4.0: vi.spyOn のスパイのみ対象）
 ```
 
 ## vi.mocked Type Helper
@@ -235,6 +240,16 @@ vi.mocked(myModule, { deep: true })
 vi.mocked(fn, { partial: true }).mockResolvedValue({ ok: true })
 ```
 
+## 4.0 でのモック動作変更
+
+| 項目 | 3.x | 4.x |
+|------|-----|-----|
+| `vi.fn().getMockName()` | `"spy"` | `""（空文字列）` |
+| `vi.restoreAllMocks()` | 全モック対象 | `vi.spyOn` のスパイのみ |
+| `mock.invocationCallOrder` | 0 始まり | 1 始まり |
+| `mock.settledResults` | 完了後に追加 | 呼び出し直後に `{ type: 'incomplete' }` で populate |
+| コンストラクタ監視 | 未サポート | `vi.fn` / `vi.spyOn` でサポート |
+
 ## Key Points
 
 - `vi.mock` is hoisted - use `vi.doMock` for dynamic mocking
@@ -242,6 +257,8 @@ vi.mocked(fn, { partial: true }).mockResolvedValue({ ok: true })
 - Use `vi.spyOn` to spy on existing methods
 - Fake timers require explicit setup and teardown
 - `vi.waitFor` retries until assertion passes
+- 4.0: `vi.fn` / `vi.spyOn` でコンストラクタ呼び出しを監視可能
+- 4.0: `vi.restoreAllMocks()` は `vi.spyOn` で作成したスパイのみ復元
 
 <!-- 
 Source references:

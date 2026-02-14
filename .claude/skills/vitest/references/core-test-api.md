@@ -46,10 +46,14 @@ test('slow test', async () => {
   // ...
 }, 10_000)
 
-// Or with options object
+// With options object (4.0: オプションは必ず第2引数。第3引数は不可)
 test('with options', { timeout: 10_000, retry: 2 }, async () => {
   // ...
 })
+
+// ⚠️ 4.0 で削除: test('name', fn, options) 形式は使えない
+// ✗ test('name', () => {}, { timeout: 10_000 })
+// ✓ test('name', { timeout: 10_000 }, () => {})
 ```
 
 ## Test Modifiers
@@ -226,6 +230,7 @@ test('database test', { tags: ['db', 'slow'] }, async () => {})
 - `test.only` throws in CI unless `allowOnly: true`
 - Use context's `expect` for concurrent tests and snapshots
 - Function name is used as test name if passed as first arg
+- 4.0: Options as 3rd argument (`test('name', fn, options)`) は廃止
 
 <!-- 
 Source references:

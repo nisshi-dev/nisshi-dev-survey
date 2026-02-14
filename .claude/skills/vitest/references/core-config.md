@@ -94,14 +94,10 @@ defineConfig({
     
     // Pool for running tests: 'threads', 'forks', 'vmThreads'
     pool: 'threads',
-    
-    // Number of threads/processes
-    poolOptions: {
-      threads: {
-        maxThreads: 4,
-        minThreads: 1,
-      },
-    },
+
+    // Number of workers (4.0: maxThreads/maxForks は廃止 → maxWorkers に統合)
+    maxWorkers: 4,
+    minWorkers: 1,
     
     // Automatically clear mocks between tests
     clearMocks: true,
@@ -159,6 +155,20 @@ defineConfig({
 })
 ```
 
+## 4.0 での設定変更
+
+| 3.x | 4.x |
+|-----|-----|
+| `maxThreads` / `maxForks` | `maxWorkers` |
+| `minThreads` / `minForks` | `minWorkers` |
+| `singleThread` / `singleFork` | `maxWorkers: 1, isolate: false` |
+| `poolOptions.threads.*` | トップレベルに昇格 |
+| `workspace` / `vitest.workspace.js` | `projects`（config 内に統合） |
+| `coverage.all` | 削除（`coverage.include` を明示指定） |
+| `coverage.extensions` | 削除 |
+| `coverage.ignoreEmptyLines` | 削除 |
+| `deps.external` / `deps.inline` | `server.deps` を使用 |
+
 ## Key Points
 
 - Vitest uses Vite's transformation pipeline - same `resolve.alias`, plugins work
@@ -166,6 +176,8 @@ defineConfig({
 - Use `--config` flag to specify a custom config path
 - `process.env.VITEST` is set to `true` when running tests
 - Test config uses `test` property, rest is Vite config
+- 4.0: Vite ModuleRunner を使用（vite-node を廃止）
+- 4.0: `vitest.workspace.js` は使用不可 → `projects` を `vitest.config.ts` 内に記述
 
 <!-- 
 Source references:

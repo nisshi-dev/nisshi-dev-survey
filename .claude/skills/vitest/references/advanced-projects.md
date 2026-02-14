@@ -285,6 +285,23 @@ defineConfig({
 })
 ```
 
+## 4.0 での変更: workspace → projects
+
+| 3.x | 4.x |
+|-----|-----|
+| `vitest.workspace.js` / `vitest.workspace.ts` | 使用不可（削除） |
+| `workspace` 設定プロパティ | `projects`（`vitest.config.ts` 内） |
+
+```ts
+// ⚠️ 3.x: vitest.workspace.js（4.0 で使用不可）
+// ✓ 4.x: vitest.config.ts 内の projects で定義
+defineConfig({
+  test: {
+    projects: ['packages/*'],
+  },
+})
+```
+
 ## Key Points
 
 - Projects run in same Vitest process
@@ -293,6 +310,7 @@ defineConfig({
 - Run specific projects with `--project` flag
 - Use `provide` to inject config values into tests
 - Projects inherit from root config unless overridden
+- 4.0: `vitest.workspace.js` は廃止。`vitest.config.ts` の `projects` に統合
 
 <!-- 
 Source references:

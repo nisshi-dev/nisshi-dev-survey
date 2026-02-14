@@ -205,6 +205,46 @@ await expect(result).toMatchFileSnapshot('./expected.json')
 expect(() => throw new Error('fail')).toThrowErrorMatchingSnapshot()
 ```
 
+## Chai Assert（4.0 新機能）
+
+```ts
+// expect.assert で Chai の assert 機能に直接アクセス（型の絞り込みに便利）
+const value: string | number = getValue()
+expect.assert(typeof value === 'string', 'value should be a string')
+// ここ以降、value は string として型推論される
+expect(value.toUpperCase()).toBe('HELLO')
+```
+
+## スキーママッチング（4.0 新機能）
+
+Standard Schema v1 に準拠する Zod/Valibot/ArkType でバリデーション:
+
+```ts
+import { z } from 'zod'
+
+const UserSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  email: z.string().email(),
+})
+
+test('API response matches schema', async () => {
+  const user = await fetchUser(1)
+  expect(user).toMatchSchema(UserSchema)
+})
+```
+
+## ビジュアルリグレッション（4.0 新機能、ブラウザモード）
+
+```ts
+// スクリーンショットのキャプチャと比較
+await expect(page.locator('.card')).toMatchScreenshot()
+
+// 要素がビューポート内にあることを検証（IntersectionObserver ベース）
+await expect(page.locator('.header')).toBeInViewport()
+await expect(page.locator('.section')).toBeInViewport({ ratio: 0.5 })
+```
+
 ## Key Points
 
 - Use `toBe` for primitives, `toEqual` for objects/arrays
@@ -212,6 +252,9 @@ expect(() => throw new Error('fail')).toThrowErrorMatchingSnapshot()
 - Always `await` async assertions (`resolves`, `rejects`, `poll`)
 - Use context's `expect` in concurrent tests for correct tracking
 - `toThrow` requires wrapping sync code in a function
+- 4.0: `expect.assert` で Chai assert + 型の絞り込み
+- 4.0: `toMatchSchema` で Standard Schema v1 バリデーション
+- 4.0: `toMatchScreenshot` / `toBeInViewport` でビジュアルリグレッション（ブラウザモード）
 
 <!-- 
 Source references:

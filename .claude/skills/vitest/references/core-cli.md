@@ -81,7 +81,7 @@ vitest init browser            # Set up browser testing
 --changed HEAD~1          # Tests for last commit changes
 
 # Reporters
---reporter <name>         # default, verbose, dot, json, html
+--reporter <name>         # default, verbose, tree, dot, json, html (4.0: basic は削除)
 --reporter=html --outputFile=report.html
 
 # Coverage
@@ -159,6 +159,9 @@ In watch mode, press:
 - Use `--run` flag to ensure single run (important for lint-staged)
 - Both camelCase (`--testTimeout`) and kebab-case (`--test-timeout`) work
 - Boolean options can be negated with `--no-` prefix
+- 4.0: `basic` reporter は削除。`--reporter=default --no-summary` で代替
+- 4.0: `verbose` は常にフラット表示。ツリー表示は `--reporter=tree`
+- 4.0: `--standalone` + ファイルパターン指定で自動実行
 
 <!-- 
 Source references:

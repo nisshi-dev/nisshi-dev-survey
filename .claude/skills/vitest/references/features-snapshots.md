@@ -199,6 +199,7 @@ defineConfig({
 - Use `toMatchFileSnapshot` for large outputs (HTML, JSON)
 - Inline snapshots auto-update in test file
 - Use context's `expect` for concurrent tests
+- 4.0: Shadow DOM 要素のスナップショット出力形式が改善（pretty-format 更新）
 
 <!-- 
 Source references:
