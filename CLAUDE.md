@@ -9,6 +9,7 @@ Google Forms の軽量版。アンケートを作成し、固定 URL を共有�
 | [docs/overview.md](docs/overview.md) | 要件定義・仕様 |
 | [docs/architecture.md](docs/architecture.md) | アーキテクチャ・技術仕様 |
 | [docs/git-guidelines.md](docs/git-guidelines.md) | Git ガイドライン |
+| [docs/coding-rules.md](docs/coding-rules.md) | コーディングルール（ultracite / Biome） |
 
 ## 開発コマンド
 
