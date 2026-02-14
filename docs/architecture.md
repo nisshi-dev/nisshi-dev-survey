@@ -5,6 +5,9 @@
 | レイヤー | 技術 | 役割 |
 |---|---|---|
 | フロントエンド | React + Vite | SPA。回答画面と管理画面を提供 |
+| UI コンポーネント | HeroUI v3（beta） | React Aria ベースのアクセシブルなコンポーネントライブラリ |
+| スタイリング | Tailwind CSS v4 + `@heroui/styles` | ユーティリティファースト CSS。`@tailwindcss/vite` で統合 |
+| アニメーション | motion | 軽量アニメーションライブラリ |
 | ルーティング | react-router-dom v7（Declarative mode） | `<BrowserRouter>` + `<Routes>` による SPA ルーティング |
 | データ取得 | SWR（`useSWR` / `useSWRMutation`） | キャッシュ付きデータフェッチ・ミューテーション |
 | バックエンド | Hono | REST API サーバー |
@@ -31,7 +34,8 @@ src/
 │           └── surveys.ts
 └── client/          # React SPA
     ├── main.tsx     # エントリポイント
-    ├── App.tsx      # ルーティング定義
+    ├── globals.css  # Tailwind CSS + HeroUI スタイル
+    ├── app.tsx      # ルーティング定義
     ├── survey/      # 回答者向けページ
     └── admin/       # 管理画面ページ
 ```
