@@ -1,4 +1,4 @@
-# Hitokoto
+# nisshi-dev Survey
 
 シンプルなアンケート収集アプリ。
 

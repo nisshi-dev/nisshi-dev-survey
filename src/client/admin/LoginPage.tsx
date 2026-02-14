@@ -27,7 +27,7 @@ export function LoginPage() {
 
   return (
     <div>
-      <h1>Hitokoto 管理画面</h1>
+      <h1>nisshi-dev Survey 管理画面</h1>
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="email">メールアドレス</label>

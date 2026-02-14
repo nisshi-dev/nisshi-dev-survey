@@ -1,4 +1,4 @@
-# Hitokoto
+# nisshi-dev Survey
 
 Google Forms の軽量版。アンケートを作成し、固定 URL を共有して回答を集める。
 
