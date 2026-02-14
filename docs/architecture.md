@@ -8,16 +8,21 @@
 | ルーティング | react-router-dom v7（Declarative mode） | `<BrowserRouter>` + `<Routes>` による SPA ルーティング |
 | データ取得 | SWR（`useSWR` / `useSWRMutation`） | キャッシュ付きデータフェッチ・ミューテーション |
 | バックエンド | Hono | REST API サーバー |
-| DB | PostgreSQL + Prisma | データ永続化 |
+| DB | Prisma Postgres + Prisma ORM 7 | マネージド PostgreSQL（`@prisma/adapter-pg` で直接接続） |
 | デプロイ | Vercel | ホスティング + Serverless Functions |
 
 ## プロジェクト構造
 
 ```
+prisma/
+├── schema.prisma    # Prisma スキーマ定義
+└── migrations/      # マイグレーション履歴
+prisma.config.ts     # Prisma CLI 設定（datasource URL 等）
 src/
+├── generated/prisma/  # Prisma Client 生成コード（.gitignore 済み）
 ├── server/          # Hono API サーバー
 │   ├── index.ts     # エントリポイント（/api ベース）
-│   ├── lib/db.ts    # Prisma クライアント
+│   ├── lib/db.ts    # Prisma クライアント（adapter-pg 直接接続）
 │   ├── middleware/   # 認証ミドルウェア等
 │   └── routes/      # API ルート
 │       ├── survey.ts          # 回答者向け API
@@ -62,10 +67,12 @@ src/
 
 - `npm run dev` で Vite 開発サーバーを起動（フロント + API を単一プロセスで提供、ポート 5173）
 - `@hono/vite-dev-server` により Hono API が Vite のミドルウェアとして動作
-- Prisma スキーマは `prisma/schema.prisma`
+- Prisma スキーマは `prisma/schema.prisma`、CLI 設定は `prisma.config.ts`
+- Prisma Client は `src/generated/prisma/` に生成（`.gitignore` 済み）
 - 環境変数は `.env` に `DATABASE_URL` を設定（`.env.example` 参照）
+- DB は [Prisma Postgres](https://console.prisma.io)（`@prisma/adapter-pg` で直接接続）
 
 ## Vercel デプロイ
 
 - `vercel.ts`（`@vercel/config`）の rewrites で `/api/*` を Serverless Function、それ以外を SPA にルーティング
-- `vercel-build` スクリプトで `prisma generate && vite build` を実行
+- `build` スクリプト（`prisma generate && vite build`）を Vercel もローカルも共通で使用
