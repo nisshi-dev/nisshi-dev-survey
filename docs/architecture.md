@@ -5,6 +5,8 @@
 | レイヤー | 技術 | 役割 |
 |---|---|---|
 | フロントエンド | React + Vite | SPA。回答画面と管理画面を提供 |
+| ルーティング | react-router-dom v7（Declarative mode） | `<BrowserRouter>` + `<Routes>` による SPA ルーティング |
+| データ取得 | SWR（`useSWR` / `useSWRMutation`） | キャッシュ付きデータフェッチ・ミューテーション |
 | バックエンド | Hono | REST API サーバー |
 | DB | PostgreSQL + Prisma | データ永続化 |
 | デプロイ | Vercel | ホスティング + Serverless Functions |

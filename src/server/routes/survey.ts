@@ -10,9 +10,7 @@ app.get("/:id", async (c) => {
   return c.json({
     id,
     title: "サンプルアンケート",
-    questions: [
-      { id: "q1", type: "text", label: "ご意見をお聞かせください" },
-    ],
+    questions: [{ id: "q1", type: "text", label: "ご意見をお聞かせください" }],
   });
 });
 
