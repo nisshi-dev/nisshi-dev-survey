@@ -8,7 +8,10 @@
     "build": "prisma generate && vite build",
     "preview": "vite preview",
     "check": "ultracite check",
-    "fix": "ultracite fix"
+    "fix": "ultracite fix",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@heroui/react": "3.0.0-beta.6",
@@ -34,10 +37,12 @@
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "5.1.4",
+    "@vitest/coverage-v8": "^4.0.18",
     "globals": "17.3.0",
     "prisma": "7.4.0",
     "typescript": "5.x",
     "ultracite": "7.2.0",
-    "vite": "7.3.1"
+    "vite": "7.3.1",
+    "vitest": "^4.0.18"
   }
 }

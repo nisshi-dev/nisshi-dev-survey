@@ -12,6 +12,7 @@
 | データ取得 | SWR（`useSWR` / `useSWRMutation`） | キャッシュ付きデータフェッチ・ミューテーション |
 | バックエンド | Hono | REST API サーバー |
 | DB | Prisma Postgres + Prisma ORM 7 | マネージド PostgreSQL（`@prisma/adapter-pg` で直接接続） |
+| テスト | Vitest 4.x + @vitest/coverage-v8 | TDD ベースのユニットテスト・カバレッジ |
 | デプロイ | Vercel | ホスティング + Serverless Functions |
 
 ## プロジェクト構造
