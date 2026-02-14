@@ -1,4 +1,4 @@
-# Hitokoto — プロジェクト概要
+# Hitokoto — 要件定義・仕様
 
 ## 何をするアプリか
 
@@ -29,31 +29,37 @@ Hitokoto は **Google Forms の軽量版** のようなアンケート収集ア�
 2. アンケートに回答して送信
 3. 完了
 
-## 技術スタック
+## 画面一覧
 
-| レイヤー | 技術 | 役割 |
+### 回答者向け
+
+| パス | 画面 | 説明 |
 |---|---|---|
-| フロントエンド | React + Vite | SPA。回答画面と管理画面を提供 |
-| バックエンド | Hono | REST API サーバー |
-| DB | PostgreSQL + Prisma | データ永続化 |
-| デプロイ | Vercel | ホスティング + Serverless Functions |
+| `/survey/:id` | アンケート回答ページ | 質問を表示し、回答を送信する |
+| `/survey/:id/complete` | 回答完了ページ | 送信完了のメッセージを表示 |
+
+### 管理者向け
+
+| パス | 画面 | 説明 |
+|---|---|---|
+| `/admin/login` | ログインページ | メール + パスワードで認証 |
+| `/admin` | ダッシュボード | アンケート一覧・回答閲覧 |
 
 ## データモデル
 
-```
-Survey 1 ──→ * Response
-  アンケート      回答
-
-AdminUser 1 ──→ * Session
-  管理者           ログインセッション
-```
-
 | モデル | 説明 |
 |---|---|
-| Survey | アンケート。タイトルと質問定義（JSON）を持つ |
-| Response | 回答。どのアンケートに対する回答かを surveyId で紐付け |
-| AdminUser | 管理者アカウント。メールアドレスとパスワードハッシュ |
+| Survey | アンケート。タイトルと質問定義を持つ |
+| Response | 回答。どのアンケートに対する回答かを紐付け |
+| AdminUser | 管理者アカウント。メールアドレスとパスワード |
 | Session | ログインセッション。有効期限付き |
+
+### リレーション
+
+```
+Survey 1 ──→ * Response
+AdminUser 1 ──→ * Session
+```
 
 ## 認証方式
 
@@ -61,34 +67,3 @@ AdminUser 1 ──→ * Session
 |---|---|
 | 回答者 | 認証なし。URL を知っていれば誰でも回答可能 |
 | 管理者 | メール + パスワード → セッション Cookie |
-
-## URL 設計
-
-### 回答者向け（フロントエンド）
-
-| パス | 画面 |
-|---|---|
-| `/survey/:id` | アンケート回答ページ |
-| `/survey/:id/complete` | 回答完了ページ |
-
-### 管理者向け（フロントエンド）
-
-| パス | 画面 |
-|---|---|
-| `/admin/login` | ログインページ |
-| `/admin` | ダッシュボード |
-
-### API
-
-| メソッド | パス | 説明 |
-|---|---|---|
-| GET | `/api/health` | ヘルスチェック |
-| GET | `/api/survey/:id` | アンケート取得 |
-| POST | `/api/survey/:id/submit` | 回答送信 |
-| POST | `/api/admin/auth/login` | ログイン |
-| POST | `/api/admin/auth/logout` | ログアウト |
-| GET | `/api/admin/auth/me` | セッション確認 |
-| GET | `/api/admin/surveys` | アンケート一覧 |
-| POST | `/api/admin/surveys` | アンケート作成 |
-| GET | `/api/admin/surveys/:id` | アンケート詳細 |
-| GET | `/api/admin/surveys/:id/responses` | 回答一覧 |

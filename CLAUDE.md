@@ -2,39 +2,13 @@
 
 Google Forms の軽量版。アンケートを作成し、固定 URL を共有して回答を集める。
 
-詳細は [docs/overview.md](docs/overview.md) を参照。
+## docs
 
-## 技術スタック
-
-- フロントエンド: React SPA (Vite)
-- バックエンド: Hono
-- DB: PostgreSQL + Prisma
-- デプロイ: Vercel
-
-## プロジェクト構造
-
-```
-src/
-├── server/          # Hono API サーバー
-│   ├── index.ts     # エントリポイント（/api ベース）
-│   ├── lib/db.ts    # Prisma クライアント
-│   ├── middleware/   # 認証ミドルウェア等
-│   └── routes/      # API ルート
-│       ├── survey.ts          # 回答者向け API
-│       └── admin/             # 管理者向け API
-│           ├── auth.ts
-│           └── surveys.ts
-└── client/          # React SPA
-    ├── main.tsx     # エントリポイント
-    ├── App.tsx      # ルーティング定義
-    ├── survey/      # 回答者向けページ
-    └── admin/       # 管理画面ページ
-```
-
-## データモデル
-
-- Survey → Response（1対多）: アンケートと回答
-- AdminUser → Session（1対多）: 管理者とログインセッション
+| ドキュメント | 内容 |
+|---|---|
+| [docs/overview.md](docs/overview.md) | 要件定義・仕様 |
+| [docs/architecture.md](docs/architecture.md) | アーキテクチャ・技術仕様 |
+| [docs/git-guidelines.md](docs/git-guidelines.md) | Git ガイドライン |
 
 ## 開発コマンド
 
@@ -42,12 +16,10 @@ src/
 - `npm run build` — フロントエンドのビルド
 - `npm run vercel-build` — Vercel 用ビルド（prisma generate 含む）
 
-## Git ガイドライン
+## ドキュメント管理
 
-[docs/git-guidelines.md](docs/git-guidelines.md) を参照。
-
-## 開発時の注意
-
-- API は `/api` プレフィックス付き。Vite の proxy で開発時は 5173 → 3000 に転送される
-- Prisma スキーマは `prisma/schema.prisma`
-- 環境変数は `.env` に `DATABASE_URL` を設定（`.env.example` 参照）
+- 詳細なドキュメントは `docs/` に置く。CLAUDE.md には概要とリンクのみ記載する
+- コード変更時に、関連する CLAUDE.md や docs/ の記述が実態と合っているか確認し、古くなっていれば更新する
+  - 例: API ルート追加 → docs/architecture.md の API 一覧を更新
+  - 例: データモデル変更 → docs/overview.md のデータモデル節を更新
+  - 例: 開発コマンド変更 → CLAUDE.md の開発コマンド節を更新
