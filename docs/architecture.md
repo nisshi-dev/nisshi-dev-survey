@@ -58,8 +58,8 @@ src/
 
 ## 開発環境
 
-- `npm run dev` でフロント (Vite:5173) とバック (Hono:3000) を同時起動
-- Vite の proxy 設定で `/api/*` へのリクエストを 5173 → 3000 に転送
+- `npm run dev` で Vite 開発サーバーを起動（フロント + API を単一プロセスで提供、ポート 5173）
+- `@hono/vite-dev-server` により Hono API が Vite のミドルウェアとして動作
 - Prisma スキーマは `prisma/schema.prisma`
 - 環境変数は `.env` に `DATABASE_URL` を設定（`.env.example` 参照）
 

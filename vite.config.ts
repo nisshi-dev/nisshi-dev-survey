@@ -1,20 +1,19 @@
-import { defineConfig } from "vite";
+import devServer from "@hono/vite-dev-server";
 import react from "@vitejs/plugin-react";
-import path from "path";
+import path from "node:path";
+import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    devServer({
+      entry: "src/server/index.ts",
+      injectClientScript: false,
+    }),
+  ],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
-  server: {
-    proxy: {
-      "/api": {
-        target: "http://localhost:3000",
-        changeOrigin: true,
-      },
+      "@": path.resolve(import.meta.dirname, "./src"),
     },
   },
 });

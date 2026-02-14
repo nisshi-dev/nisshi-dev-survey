@@ -13,7 +13,7 @@ Google Forms の軽量版。アンケートを作成し、固定 URL を共有�
 
 ## 開発コマンド
 
-- `npm run dev` — フロント (Vite:5173) + バック (Hono:3000) を同時起動
+- `npm run dev` — Vite 開発サーバー起動（フロント + API を単一プロセスで提供、ポート 5173）
 - `npm run build` — フロントエンドのビルド
 - `npm run vercel-build` — Vercel 用ビルド（prisma generate 含む）
 

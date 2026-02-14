@@ -20,11 +20,3 @@ app.route("/admin/auth", adminAuth);
 app.route("/admin/surveys", adminSurveys);
 
 export default app;
-
-// ローカル開発用
-if (process.env.NODE_ENV !== "production") {
-  const { serve } = await import("@hono/node-server");
-  serve({ fetch: app.fetch, port: 3000 }, (info) => {
-    console.log(`🔥 Hono server running at http://localhost:${info.port}`);
-  });
-}
