@@ -9,6 +9,7 @@
 | スタイリング | Tailwind CSS v4 + `@heroui/styles` | ユーティリティファースト CSS。`@tailwindcss/vite` で統合 |
 | アニメーション | motion | 軽量アニメーションライブラリ（Framer Motion の後継） |
 | ルーティング | react-router-dom v7（Declarative mode） | `<BrowserRouter>` + `<Routes>` による SPA ルーティング |
+| バリデーション | Valibot | スキーマベースの型安全なバリデーション・型ガード（SSoT） |
 | データ取得 | SWR（`useSWR` / `useSWRMutation`） | キャッシュ付きデータフェッチ・ミューテーション |
 | バックエンド | Hono | REST API サーバー |
 | DB | Prisma Postgres + Prisma ORM 7 | マネージド PostgreSQL（`@prisma/adapter-pg` で直接接続） |
@@ -24,6 +25,8 @@ prisma/
 prisma.config.ts     # Prisma CLI 設定（datasource URL 等）
 src/
 ├── generated/prisma/  # Prisma Client 生成コード（.gitignore 済み）
+├── shared/          # サーバー・クライアント共通コード
+│   └── schema/      # Valibot スキーマ + 導出型（SSoT）
 ├── server/          # Hono API サーバー
 │   ├── index.ts     # エントリポイント（/api ベース）
 │   ├── lib/db.ts    # Prisma クライアント（adapter-pg 直接接続）
