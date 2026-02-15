@@ -35,6 +35,7 @@ UI は **HeroUI v3 beta** + **Tailwind CSS v4** + **motion** で実装する。
 - `npm test` — Vitest をウォッチモードで起動
 - `npm run test:run` — テストを1回実行（CI 向け）
 - `npm run test:coverage` — カバレッジ付きでテストを実行
+- `npm run generate` — OpenAPI JSON 出力 + SWR hooks 生成（`npm run generate:openapi` + `npm run generate:client`）
 
 ## ドキュメント管理
 

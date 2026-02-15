@@ -1,6 +1,8 @@
+import { swaggerUI } from "@hono/swagger-ui";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { openAPIRouteHandler } from "hono-openapi";
 import adminAuth from "./routes/admin/auth";
 import adminSurveys from "./routes/admin/surveys";
 import survey from "./routes/survey";
@@ -19,5 +21,23 @@ app.route("/survey", survey);
 app.route("/admin/auth", adminAuth);
 // TODO: adminAuth middleware を追加
 app.route("/admin/surveys", adminSurveys);
+
+// OpenAPI JSON
+app.get(
+  "/doc",
+  openAPIRouteHandler(app, {
+    documentation: {
+      info: {
+        title: "nisshi-dev Survey API",
+        version: "1.0.0",
+        description: "アンケート作成・回答収集 API",
+      },
+      servers: [{ url: "/", description: "Local" }],
+    },
+  })
+);
+
+// Swagger UI
+app.get("/ui", swaggerUI({ url: "/api/doc" }));
 
 export default app;

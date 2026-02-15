@@ -11,6 +11,8 @@
 | ルーティング | react-router-dom v7（Declarative mode） | `<BrowserRouter>` + `<Routes>` による SPA ルーティング |
 | バリデーション | Valibot | スキーマベースの型安全なバリデーション・型ガード（SSoT） |
 | データ取得 | SWR（`useSWR` / `useSWRMutation`） | キャッシュ付きデータフェッチ・ミューテーション |
+| API ドキュメント | hono-openapi + @hono/swagger-ui | Valibot スキーマから OpenAPI 3.1 自動生成 + Swagger UI |
+| API クライアント生成 | Orval（@orval/swr） | OpenAPI → SWR hooks 自動生成 |
 | バックエンド | Hono | REST API サーバー |
 | DB | Prisma Postgres + Prisma ORM 7 | マネージド PostgreSQL（`@prisma/adapter-pg` で直接接続） |
 | テスト | Vitest 4.x + @vitest/coverage-v8 | TDD ベースのユニットテスト・カバレッジ |
@@ -70,6 +72,23 @@ src/
 | メソッド | パス | 説明 |
 |---|---|---|
 | GET | `/api/health` | ヘルスチェック |
+| GET | `/api/doc` | OpenAPI JSON |
+| GET | `/api/ui` | Swagger UI |
+
+## API ドキュメント生成フロー
+
+```
+Valibot スキーマ（SSoT: src/shared/schema/）
+  ├─→ hono-openapi: バリデーション + OpenAPI 3.1 自動生成
+  │     ├─→ /api/doc: OpenAPI JSON エンドポイント
+  │     └─→ /api/ui: Swagger UI（ブラウザで API テスト）
+  └─→ Orval: openapi.json → SWR hooks 自動生成（src/generated/api/）
+```
+
+- `npm run generate:openapi` — OpenAPI JSON をファイルに出力（`openapi.json`）
+- `npm run generate:client` — Orval で SWR hooks を生成（`src/generated/api/`）
+- `npm run generate` — 上記 2 つを順に実行
+- 生成物（`openapi.json`, `src/generated/`）は `.gitignore` 済み
 
 ## 開発環境
 

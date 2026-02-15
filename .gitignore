@@ -194,6 +194,9 @@ dist
 ### Prisma ###
 src/generated/
 
+### OpenAPI ###
+openapi.json
+
 ### Wrangler ###
 .wrangler/
 .env*
