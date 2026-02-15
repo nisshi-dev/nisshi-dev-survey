@@ -26,5 +26,6 @@ export const LogoutResponseSchema = object({
 
 /** GET /api/admin/auth/me — セッション確認レスポンス */
 export const MeResponseSchema = object({
-  message: string(),
+  id: string(),
+  email: pipe(string(), email()),
 });
