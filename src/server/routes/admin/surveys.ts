@@ -1,9 +1,12 @@
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
-import { IdParamSchema } from "@/shared/schema/common";
+import { safeParse } from "valibot";
+import { prisma } from "@/server/lib/db";
+import { ErrorResponseSchema, IdParamSchema } from "@/shared/schema/common";
 import {
   AdminSurveyResponseSchema,
   CreateSurveySchema,
+  QuestionsSchema,
   SurveyListResponseSchema,
   SurveyResponsesSchema,
 } from "@/shared/schema/survey";
@@ -26,9 +29,12 @@ app.get(
       },
     },
   }),
-  (c) => {
-    // TODO: Prisma でアンケート一覧取得
-    return c.json({ surveys: [] });
+  async (c) => {
+    const surveys = await prisma.survey.findMany({
+      select: { id: true, title: true },
+      orderBy: { createdAt: "desc" },
+    });
+    return c.json({ surveys });
   }
 );
 
@@ -49,9 +55,20 @@ app.post(
     },
   }),
   validator("json", CreateSurveySchema),
-  (c) => {
-    // TODO: Prisma でアンケート作成（c.req.valid("json") で取得）
-    return c.json({ message: "TODO: implement create survey" }, 201);
+  async (c) => {
+    const { title, questions } = c.req.valid("json");
+    const survey = await prisma.survey.create({
+      data: { title, questions },
+    });
+    const parsed = safeParse(QuestionsSchema, survey.questions);
+    return c.json(
+      {
+        id: survey.id,
+        title: survey.title,
+        questions: parsed.success ? parsed.output : [],
+      },
+      201
+    );
   }
 );
 
@@ -69,13 +86,29 @@ app.get(
           },
         },
       },
+      404: {
+        description: "見つからない",
+        content: {
+          "application/json": {
+            schema: resolver(ErrorResponseSchema),
+          },
+        },
+      },
     },
   }),
   validator("param", IdParamSchema),
-  (c) => {
+  async (c) => {
     const { id } = c.req.valid("param");
-    // TODO: Prisma でアンケート取得
-    return c.json({ id, message: "TODO: implement get survey" });
+    const survey = await prisma.survey.findUnique({ where: { id } });
+    if (!survey) {
+      return c.json({ error: "Survey not found" }, 404);
+    }
+    const parsed = safeParse(QuestionsSchema, survey.questions);
+    return c.json({
+      id: survey.id,
+      title: survey.title,
+      questions: parsed.success ? parsed.output : [],
+    });
   }
 );
 
@@ -93,13 +126,33 @@ app.get(
           },
         },
       },
+      404: {
+        description: "見つからない",
+        content: {
+          "application/json": {
+            schema: resolver(ErrorResponseSchema),
+          },
+        },
+      },
     },
   }),
   validator("param", IdParamSchema),
-  (c) => {
+  async (c) => {
     const { id } = c.req.valid("param");
-    // TODO: Prisma で回答一覧取得
-    return c.json({ surveyId: id, responses: [] });
+    const survey = await prisma.survey.findUnique({
+      where: { id },
+      include: { responses: { select: { id: true, answers: true } } },
+    });
+    if (!survey) {
+      return c.json({ error: "Survey not found" }, 404);
+    }
+    return c.json({
+      surveyId: survey.id,
+      responses: survey.responses.map((r) => ({
+        id: r.id,
+        answers: r.answers as Record<string, string | string[]>,
+      })),
+    });
   }
 );
 

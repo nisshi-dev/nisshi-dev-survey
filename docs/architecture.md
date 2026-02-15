@@ -50,22 +50,22 @@ src/
 
 ### 回答者向け（認証不要）
 
-| メソッド | パス | 説明 |
-|---|---|---|
-| GET | `/api/survey/:id` | アンケート取得 |
-| POST | `/api/survey/:id/submit` | 回答送信 |
+| メソッド | パス | 説明 | 状態 |
+|---|---|---|---|
+| GET | `/api/survey/:id` | アンケート取得（404 対応） | 実装済み |
+| POST | `/api/survey/:id/submit` | 回答送信（存在チェック付き） | 実装済み |
 
 ### 管理者向け（要認証）
 
-| メソッド | パス | 説明 |
-|---|---|---|
-| POST | `/api/admin/auth/login` | ログイン |
-| POST | `/api/admin/auth/logout` | ログアウト |
-| GET | `/api/admin/auth/me` | セッション確認 |
-| GET | `/api/admin/surveys` | アンケート一覧 |
-| POST | `/api/admin/surveys` | アンケート作成 |
-| GET | `/api/admin/surveys/:id` | アンケート詳細 |
-| GET | `/api/admin/surveys/:id/responses` | 回答一覧 |
+| メソッド | パス | 説明 | 状態 |
+|---|---|---|---|
+| POST | `/api/admin/auth/login` | ログイン（scrypt 検証 → Cookie 発行） | 実装済み |
+| POST | `/api/admin/auth/logout` | ログアウト（Session 削除 → Cookie 削除） | 実装済み |
+| GET | `/api/admin/auth/me` | セッション確認（ユーザー情報返却） | 実装済み |
+| GET | `/api/admin/surveys` | アンケート一覧（createdAt 降順） | 実装済み |
+| POST | `/api/admin/surveys` | アンケート作成 | 実装済み |
+| GET | `/api/admin/surveys/:id` | アンケート詳細（404 対応） | 実装済み |
+| GET | `/api/admin/surveys/:id/responses` | 回答一覧（404 対応） | 実装済み |
 
 ### その他
 
