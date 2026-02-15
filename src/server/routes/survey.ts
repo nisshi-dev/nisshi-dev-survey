@@ -1,7 +1,10 @@
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
-import { IdParamSchema } from "@/shared/schema/common";
+import { safeParse } from "valibot";
+import { prisma } from "@/server/lib/db";
+import { ErrorResponseSchema, IdParamSchema } from "@/shared/schema/common";
 import {
+  QuestionsSchema,
   SubmitAnswersSchema,
   SubmitSuccessResponseSchema,
   SurveyResponseSchema,
@@ -9,7 +12,6 @@ import {
 
 const app = new Hono();
 
-// アンケート取得
 app.get(
   "/:id",
   describeRoute({
@@ -24,24 +26,32 @@ app.get(
           },
         },
       },
+      404: {
+        description: "見つからない",
+        content: {
+          "application/json": {
+            schema: resolver(ErrorResponseSchema),
+          },
+        },
+      },
     },
   }),
   validator("param", IdParamSchema),
-  (c) => {
+  async (c) => {
     const { id } = c.req.valid("param");
-
-    // TODO: Prisma でアンケート取得
+    const survey = await prisma.survey.findUnique({ where: { id } });
+    if (!survey) {
+      return c.json({ error: "Survey not found" }, 404);
+    }
+    const parsed = safeParse(QuestionsSchema, survey.questions);
     return c.json({
-      id,
-      title: "サンプルアンケート",
-      questions: [
-        { id: "q1", type: "text" as const, label: "ご意見をお聞かせください" },
-      ],
+      id: survey.id,
+      title: survey.title,
+      questions: parsed.success ? parsed.output : [],
     });
   }
 );
 
-// 回答送信
 app.post(
   "/:id/submit",
   describeRoute({
@@ -56,6 +66,14 @@ app.post(
           },
         },
       },
+      404: {
+        description: "見つからない",
+        content: {
+          "application/json": {
+            schema: resolver(ErrorResponseSchema),
+          },
+        },
+      },
     },
   }),
   validator("param", IdParamSchema),
@@ -64,11 +82,15 @@ app.post(
     const { id } = c.req.valid("param");
     const { answers } = c.req.valid("json");
 
-    if (!answers) {
-      return c.json({ error: "Answers required" }, 400);
+    const survey = await prisma.survey.findUnique({ where: { id } });
+    if (!survey) {
+      return c.json({ error: "Survey not found" }, 404);
     }
 
-    // TODO: Prisma で回答保存
+    await prisma.response.create({
+      data: { surveyId: id, answers },
+    });
+
     return c.json({ success: true, surveyId: id });
   }
 );
