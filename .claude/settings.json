@@ -1,4 +1,51 @@
 {
+  "includeCoAuthoredBy": true,
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run dev)",
+      "Bash(npm run build)",
+      "Bash(npm run preview)",
+      "Bash(npm run test)",
+      "Bash(npm run test:*)",
+      "Bash(npm run preview:vercel)",
+      "Bash(npm run check)",
+      "Bash(npm run fix)",
+      "Bash(npm run rm:local-cache)",
+      "Bash(npm run upgrade:*)",
+      "Bash(gh *)",
+      "Bash(git status*)",
+      "Bash(git push*)",
+      "Bash(git fetch*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git merge-base*)",
+      "Bash(git branch*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(pkill:*)",
+      "Bash(find:*)",
+      "WebFetch",
+      "WebSearch"
+    ],
+    "deny": [
+      "Bash(sudo:*)",
+      "Bash(git reset:*)",
+      "Bash(git rebase:*)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Write(./.env)",
+      "Write(./.env.*)",
+      "Write(**/secrets/**)",
+      "Bash(wget:*)",
+      "Bash(rm -rf /)",
+      "Bash(rm -rf ~)",
+      "Bash(rm -rf ~/*)",
+      "Bash(rm -rf /*)"
+    ],
+    "defaultMode": "acceptEdits"
+  },
+  "enableAllProjectMcpServers": true,
   "hooks": {
     "PostToolUse": [
       {
