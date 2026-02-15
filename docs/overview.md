@@ -47,7 +47,7 @@ nisshi-dev Survey は **Google Forms の軽量版** のようなアンケート�
 
 | モデル | 説明 |
 |---|---|
-| Survey | アンケート。タイトル・説明（Markdown、任意）・質問定義を持つ |
+| Survey | アンケート。タイトル・説明（Markdown、任意）・ステータス（draft/active/completed）・質問定義を持つ |
 | Response | 回答。どのアンケートに対する回答かを紐付け |
 | AdminUser | 管理者アカウント。メールアドレスとパスワード |
 | Session | ログインセッション。有効期限付き |

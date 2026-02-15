@@ -24,12 +24,13 @@ describe("GET /survey/:id", () => {
     mockFindUnique.mockReset();
   });
 
-  test("アンケートを取得する", async () => {
+  test("active なアンケートを取得する", async () => {
     const questions = [{ type: "text", id: "q1", label: "ご意見" }];
     mockFindUnique.mockResolvedValue({
       id: "survey-1",
       title: "テストアンケート",
       description: "テスト説明",
+      status: "active",
       questions,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -54,6 +55,42 @@ describe("GET /survey/:id", () => {
     const body = await res.json();
     expect(body.error).toBe("Survey not found");
   });
+
+  test("draft のアンケートで 404 を返す", async () => {
+    mockFindUnique.mockResolvedValue({
+      id: "survey-1",
+      title: "テストアンケート",
+      description: null,
+      status: "draft",
+      questions: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const app = createApp();
+    const res = await app.request("/survey/survey-1");
+    expect(res.status).toBe(404);
+    const body = await res.json();
+    expect(body.error).toBe("Survey not found");
+  });
+
+  test("completed のアンケートで 404 を返す", async () => {
+    mockFindUnique.mockResolvedValue({
+      id: "survey-1",
+      title: "テストアンケート",
+      description: null,
+      status: "completed",
+      questions: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const app = createApp();
+    const res = await app.request("/survey/survey-1");
+    expect(res.status).toBe(404);
+    const body = await res.json();
+    expect(body.error).toBe("Survey not found");
+  });
 });
 
 describe("POST /survey/:id/submit", () => {
@@ -62,11 +99,12 @@ describe("POST /survey/:id/submit", () => {
     mockCreateResponse.mockReset();
   });
 
-  test("回答を送信する", async () => {
+  test("active なアンケートに回答を送信する", async () => {
     mockFindUnique.mockResolvedValue({
       id: "survey-1",
       title: "テストアンケート",
       description: null,
+      status: "active",
       questions: [{ type: "text", id: "q1", label: "ご意見" }],
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -96,6 +134,52 @@ describe("POST /survey/:id/submit", () => {
 
     const app = createApp();
     const res = await app.request("/survey/nonexistent/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answers: { q1: "回答" } }),
+    });
+
+    expect(res.status).toBe(404);
+    const body = await res.json();
+    expect(body.error).toBe("Survey not found");
+  });
+
+  test("draft のアンケートへの送信で 404 を返す", async () => {
+    mockFindUnique.mockResolvedValue({
+      id: "survey-1",
+      title: "テストアンケート",
+      description: null,
+      status: "draft",
+      questions: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const app = createApp();
+    const res = await app.request("/survey/survey-1/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answers: { q1: "回答" } }),
+    });
+
+    expect(res.status).toBe(404);
+    const body = await res.json();
+    expect(body.error).toBe("Survey not found");
+  });
+
+  test("completed のアンケートへの送信で 404 を返す", async () => {
+    mockFindUnique.mockResolvedValue({
+      id: "survey-1",
+      title: "テストアンケート",
+      description: null,
+      status: "completed",
+      questions: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const app = createApp();
+    const res = await app.request("/survey/survey-1/submit", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ answers: { q1: "回答" } }),

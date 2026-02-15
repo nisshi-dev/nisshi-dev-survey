@@ -40,7 +40,7 @@ app.get(
   async (c) => {
     const { id } = c.req.valid("param");
     const survey = await prisma.survey.findUnique({ where: { id } });
-    if (!survey) {
+    if (!survey || survey.status !== "active") {
       return c.json({ error: "Survey not found" }, 404);
     }
     const parsed = safeParse(QuestionsSchema, survey.questions);
@@ -84,7 +84,7 @@ app.post(
     const { answers } = c.req.valid("json");
 
     const survey = await prisma.survey.findUnique({ where: { id } });
-    if (!survey) {
+    if (!survey || survey.status !== "active") {
       return c.json({ error: "Survey not found" }, 404);
     }
 
