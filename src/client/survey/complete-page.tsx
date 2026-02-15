@@ -11,6 +11,7 @@ function AnimatedCheckmark() {
       transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
     >
       <motion.svg
+        aria-hidden="true"
         className="h-10 w-10 text-emerald-500"
         fill="none"
         stroke="currentColor"

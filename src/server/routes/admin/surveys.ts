@@ -56,15 +56,16 @@ app.post(
   }),
   validator("json", CreateSurveySchema),
   async (c) => {
-    const { title, questions } = c.req.valid("json");
+    const { title, description, questions } = c.req.valid("json");
     const survey = await prisma.survey.create({
-      data: { title, questions },
+      data: { title, description, questions },
     });
     const parsed = safeParse(QuestionsSchema, survey.questions);
     return c.json(
       {
         id: survey.id,
         title: survey.title,
+        description: survey.description,
         questions: parsed.success ? parsed.output : [],
       },
       201
@@ -107,6 +108,7 @@ app.get(
     return c.json({
       id: survey.id,
       title: survey.title,
+      description: survey.description,
       questions: parsed.success ? parsed.output : [],
     });
   }

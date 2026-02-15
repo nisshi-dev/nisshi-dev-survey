@@ -47,6 +47,7 @@ app.get(
     return c.json({
       id: survey.id,
       title: survey.title,
+      description: survey.description,
       questions: parsed.success ? parsed.output : [],
     });
   }

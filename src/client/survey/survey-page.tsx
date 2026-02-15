@@ -1,6 +1,7 @@
 import { Card, Skeleton } from "@heroui/react";
 import { motion } from "motion/react";
 import { useParams } from "react-router-dom";
+import { MarkdownRenderer } from "@/client/components/markdown-renderer";
 import { useGetApiSurveyById } from "@/generated/api/survey/survey";
 import type { Question } from "@/shared/schema/survey";
 import { SurveyForm } from "./survey-form";
@@ -102,6 +103,11 @@ export function SurveyPage() {
           <p className="text-muted text-sm">{questions.length}問のアンケート</p>
         </div>
       </header>
+      {survey.description && (
+        <div className="mx-auto w-full max-w-2xl border-border border-b px-4 py-4">
+          <MarkdownRenderer content={survey.description} />
+        </div>
+      )}
       <main className="mx-auto w-full max-w-2xl px-4 py-6">
         <SurveyForm questions={questions} surveyId={survey.id} />
       </main>
