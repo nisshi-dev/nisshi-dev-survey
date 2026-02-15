@@ -14,7 +14,8 @@
     "test:coverage": "vitest run --coverage",
     "generate:openapi": "tsx scripts/generate-openapi.ts",
     "generate:client": "orval",
-    "generate": "npm run generate:openapi && npm run generate:client"
+    "generate": "npm run generate:openapi && npm run generate:client",
+    "seed:admin": "tsx scripts/seed-admin.ts"
   },
   "dependencies": {
     "@heroui/react": "3.0.0-beta.6",

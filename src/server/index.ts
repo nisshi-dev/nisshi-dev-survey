@@ -3,7 +3,8 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { openAPIRouteHandler } from "hono-openapi";
-import adminAuth from "./routes/admin/auth";
+import { adminAuth } from "./middleware/admin-auth";
+import adminAuthRoutes from "./routes/admin/auth";
 import adminSurveys from "./routes/admin/surveys";
 import survey from "./routes/survey";
 
@@ -18,8 +19,8 @@ app.get("/health", (c) => c.json({ status: "ok" }));
 app.route("/survey", survey);
 
 // 管理画面向け API
-app.route("/admin/auth", adminAuth);
-// TODO: adminAuth middleware を追加
+app.route("/admin/auth", adminAuthRoutes);
+app.use("/admin/surveys/*", adminAuth);
 app.route("/admin/surveys", adminSurveys);
 
 // OpenAPI JSON
