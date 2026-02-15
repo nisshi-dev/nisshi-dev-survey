@@ -57,8 +57,10 @@ function NotFoundState() {
           <Card.Content className="py-12 text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted/10">
               <svg
+                aria-label="警告アイコン"
                 className="h-8 w-8 text-muted"
                 fill="none"
+                role="img"
                 stroke="currentColor"
                 strokeWidth={1.5}
                 viewBox="0 0 24 24"
