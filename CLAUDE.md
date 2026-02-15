@@ -30,15 +30,40 @@ UI は **HeroUI v3 beta** + **Tailwind CSS v4** + **motion** で実装する。
 
 ## 開発コマンド
 
+### 開発・ビルド
+
 - `npm run dev` — Vite 開発サーバー起動（フロント + API を単一プロセスで提供、ポート 5173）
-- `npm run build` — prisma generate + フロントエンドのビルド
+- `npm run build` — マイグレーション適用 + prisma generate + コード生成 + Vite ビルド
+- `npm run preview` — ビルド成果物のプレビュー
+
+### リント・フォーマット
+
+- `npm run check` — リント・フォーマットの検査
+- `npm run fix` — 自動修正
+
+### テスト
+
 - `npm test` — Vitest をウォッチモードで起動
 - `npm run test:run` — テストを1回実行（CI 向け）
 - `npm run test:coverage` — カバレッジ付きでテストを実行
-- `npm run generate` — OpenAPI JSON 出力 + SWR hooks 生成（`npm run generate:openapi` + `npm run generate:client`）
-- `npm run seed:admin` — 管理者ユーザー作成（`ADMIN_EMAIL`, `ADMIN_PASSWORD` 環境変数が必要）
-- `npm run db:migrate` — Prisma マイグレーション作成・適用（開発用）
+
+### データベース（`db:*`）
+
+- `npm run db:generate` — Prisma Client 生成
+- `npm run db:migrate` — マイグレーション作成・適用（開発用）
 - `npm run db:migrate:deploy` — マイグレーション適用のみ（本番/CI 用）
+- `npm run db:studio` — Prisma Studio 起動（ブラウザで DB を閲覧・編集）
+- `npm run db:seed` — 管理者ユーザー作成（`ADMIN_EMAIL`, `ADMIN_PASSWORD` 環境変数が必要）
+
+### コード生成（`generate:*`）
+
+- `npm run generate` — OpenAPI JSON 出力 + SWR hooks 生成
+- `npm run generate:openapi` — OpenAPI JSON をファイルに出力
+- `npm run generate:client` — Orval で SWR hooks を生成
+
+### ユーティリティ
+
+- `npm run clean` — ビルドキャッシュの削除（`dist/`, `node_modules/.cache/`）
 
 ## ドキュメント管理
 

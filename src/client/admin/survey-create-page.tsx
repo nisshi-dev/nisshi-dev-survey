@@ -1,3 +1,4 @@
+import { Button, Card, Form, Input, Label, TextField } from "@heroui/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePostApiAdminSurveys } from "@/generated/api/admin-surveys/admin-surveys";
@@ -56,76 +57,91 @@ export function SurveyCreatePage() {
   };
 
   return (
-    <div>
-      <h1>アンケート作成</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="title">タイトル</label>
-          <input
-            id="title"
-            onChange={(e) => setTitle(e.target.value)}
-            required
-            type="text"
-            value={title}
-          />
-        </div>
-
-        {questions.map((q, i) => (
-          <fieldset key={q.id}>
-            <div>
-              <label htmlFor={`label-${q.id}`}>質問文</label>
-              <input
-                id={`label-${q.id}`}
-                onChange={(e) => updateQuestion(i, "label", e.target.value)}
-                required
-                type="text"
-                value={q.label}
+    <div className="mx-auto max-w-2xl">
+      <h1 className="mb-6 font-bold text-2xl">アンケート作成</h1>
+      <Form onSubmit={handleSubmit}>
+        <Card className="w-full">
+          <Card.Content className="flex flex-col gap-6">
+            <TextField isRequired name="title">
+              <Label>タイトル</Label>
+              <Input
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="アンケートのタイトル..."
+                value={title}
               />
-            </div>
-            <div>
-              <label htmlFor={`type-${q.id}`}>タイプ</label>
-              <select
-                id={`type-${q.id}`}
-                onChange={(e) =>
-                  updateQuestion(
-                    i,
-                    "type",
-                    e.target.value as QuestionDraft["type"]
-                  )
-                }
-                value={q.type}
-              >
-                <option value="text">テキスト</option>
-                <option value="radio">ラジオ</option>
-                <option value="checkbox">チェックボックス</option>
-              </select>
-            </div>
-            {q.type !== "text" && (
-              <div>
-                <label htmlFor={`options-${q.id}`}>
-                  選択肢（カンマ区切り）
-                </label>
-                <input
-                  id={`options-${q.id}`}
-                  onChange={(e) => updateQuestion(i, "options", e.target.value)}
-                  type="text"
-                  value={q.options}
-                />
-              </div>
-            )}
-            <button onClick={() => removeQuestion(i)} type="button">
-              削除
-            </button>
-          </fieldset>
-        ))}
+            </TextField>
 
-        <button onClick={addQuestion} type="button">
-          質問を追加
-        </button>
-        <button disabled={isMutating} type="submit">
-          {isMutating ? "作成中..." : "作成する"}
-        </button>
-      </form>
+            {questions.map((q, i) => (
+              <Card
+                className="flex flex-col gap-4"
+                key={q.id}
+                variant="secondary"
+              >
+                <Card.Content className="flex flex-col gap-3">
+                  <TextField isRequired>
+                    <Label>質問文</Label>
+                    <Input
+                      onChange={(e) =>
+                        updateQuestion(i, "label", e.target.value)
+                      }
+                      placeholder="質問を入力..."
+                      value={q.label}
+                    />
+                  </TextField>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor={`type-${q.id}`}>タイプ</Label>
+                    <select
+                      className="input"
+                      id={`type-${q.id}`}
+                      onChange={(e) =>
+                        updateQuestion(
+                          i,
+                          "type",
+                          e.target.value as QuestionDraft["type"]
+                        )
+                      }
+                      value={q.type}
+                    >
+                      <option value="text">テキスト</option>
+                      <option value="radio">ラジオ</option>
+                      <option value="checkbox">チェックボックス</option>
+                    </select>
+                  </div>
+                  {q.type !== "text" && (
+                    <TextField>
+                      <Label>選択肢（カンマ区切り）</Label>
+                      <Input
+                        onChange={(e) =>
+                          updateQuestion(i, "options", e.target.value)
+                        }
+                        placeholder="選択肢1, 選択肢2, ..."
+                        value={q.options}
+                      />
+                    </TextField>
+                  )}
+                </Card.Content>
+                <Card.Footer>
+                  <Button
+                    onPress={() => removeQuestion(i)}
+                    size="sm"
+                    variant="danger"
+                  >
+                    削除
+                  </Button>
+                </Card.Footer>
+              </Card>
+            ))}
+          </Card.Content>
+          <Card.Footer className="flex gap-3">
+            <Button onPress={addQuestion} variant="secondary">
+              質問を追加
+            </Button>
+            <Button isPending={isMutating} type="submit">
+              {isMutating ? "作成中..." : "作成する"}
+            </Button>
+          </Card.Footer>
+        </Card>
+      </Form>
     </div>
   );
 }
