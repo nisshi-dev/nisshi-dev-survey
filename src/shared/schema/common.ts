@@ -1,10 +1,10 @@
-import { object, pipe, string, uuid } from "valibot";
+import { minLength, object, pipe, string } from "valibot";
 
 /**
- * 共通パスパラメータ: UUID 形式の :id
+ * 共通パスパラメータ: :id（cuid 形式）
  */
 export const IdParamSchema = object({
-  id: pipe(string(), uuid()),
+  id: pipe(string(), minLength(1)),
 });
 
 /**
