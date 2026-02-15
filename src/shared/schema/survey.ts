@@ -3,8 +3,11 @@ import {
   boolean,
   type InferOutput,
   literal,
+  maxLength,
   minLength,
+  nullable,
   object,
+  optional,
   pipe,
   record,
   string,
@@ -54,6 +57,7 @@ export type CheckboxQuestion = InferOutput<typeof CheckboxQuestionSchema>;
 /** POST /api/admin/surveys — アンケート作成リクエスト */
 export const CreateSurveySchema = object({
   title: pipe(string(), minLength(1)),
+  description: optional(pipe(string(), maxLength(10_000))),
   questions: QuestionsSchema,
 });
 export type CreateSurveyInput = InferOutput<typeof CreateSurveySchema>;
@@ -68,6 +72,7 @@ export type SubmitAnswersInput = InferOutput<typeof SubmitAnswersSchema>;
 export const SurveyResponseSchema = object({
   id: string(),
   title: string(),
+  description: optional(nullable(string())),
   questions: QuestionsSchema,
 });
 export type SurveyResponse = InferOutput<typeof SurveyResponseSchema>;
@@ -92,6 +97,7 @@ export const SurveyListResponseSchema = object({
 export const AdminSurveyResponseSchema = object({
   id: string(),
   title: string(),
+  description: optional(nullable(string())),
   questions: QuestionsSchema,
 });
 

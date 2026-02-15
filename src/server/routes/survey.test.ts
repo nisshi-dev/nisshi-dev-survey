@@ -29,6 +29,7 @@ describe("GET /survey/:id", () => {
     mockFindUnique.mockResolvedValue({
       id: "survey-1",
       title: "テストアンケート",
+      description: "テスト説明",
       questions,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -40,6 +41,7 @@ describe("GET /survey/:id", () => {
     const body = await res.json();
     expect(body.id).toBe("survey-1");
     expect(body.title).toBe("テストアンケート");
+    expect(body.description).toBe("テスト説明");
     expect(body.questions).toEqual(questions);
   });
 
@@ -64,6 +66,7 @@ describe("POST /survey/:id/submit", () => {
     mockFindUnique.mockResolvedValue({
       id: "survey-1",
       title: "テストアンケート",
+      description: null,
       questions: [{ type: "text", id: "q1", label: "ご意見" }],
       createdAt: new Date(),
       updatedAt: new Date(),

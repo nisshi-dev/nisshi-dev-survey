@@ -33,6 +33,7 @@ describe("GET /admin/surveys", () => {
       {
         id: "survey-1",
         title: "テストアンケート",
+        description: null,
         questions: [],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -59,6 +60,7 @@ describe("POST /admin/surveys", () => {
     mockCreate.mockResolvedValue({
       id: "survey-new",
       title: "新しいアンケート",
+      description: null,
       questions,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -77,6 +79,35 @@ describe("POST /admin/surveys", () => {
     expect(body.title).toBe("新しいアンケート");
     expect(body.questions).toEqual(questions);
   });
+
+  test("description 付きでアンケートを作成して 201 を返す", async () => {
+    const questions = [{ type: "text", id: "q1", label: "ご意見" }];
+    const description = "## 概要\nこのアンケートについて";
+    mockCreate.mockResolvedValue({
+      id: "survey-desc",
+      title: "説明付きアンケート",
+      description,
+      questions,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const app = createApp();
+    const res = await app.request("/admin/surveys", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "説明付きアンケート",
+        description,
+        questions,
+      }),
+    });
+
+    expect(res.status).toBe(201);
+    const body = await res.json();
+    expect(body.id).toBe("survey-desc");
+    expect(body.description).toBe(description);
+  });
 });
 
 describe("GET /admin/surveys/:id", () => {
@@ -89,6 +120,7 @@ describe("GET /admin/surveys/:id", () => {
     mockFindUnique.mockResolvedValue({
       id: "survey-1",
       title: "テストアンケート",
+      description: "テスト説明",
       questions,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -100,6 +132,7 @@ describe("GET /admin/surveys/:id", () => {
     const body = await res.json();
     expect(body.id).toBe("survey-1");
     expect(body.title).toBe("テストアンケート");
+    expect(body.description).toBe("テスト説明");
     expect(body.questions).toEqual(questions);
   });
 

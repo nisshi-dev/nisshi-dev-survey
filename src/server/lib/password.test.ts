@@ -6,8 +6,8 @@ describe("hashPassword", () => {
     const hash = await hashPassword("mypassword");
     const parts = hash.split(":");
     expect(parts).toHaveLength(2);
-    expect(parts[0]!.length).toBeGreaterThan(0);
-    expect(parts[1]!.length).toBeGreaterThan(0);
+    expect(parts[0]?.length).toBeGreaterThan(0);
+    expect(parts[1]?.length).toBeGreaterThan(0);
   });
 
   test("同じパスワードでも毎回異なるハッシュを生成する", async () => {

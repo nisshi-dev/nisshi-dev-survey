@@ -76,18 +76,20 @@ export function SurveyDetailPage() {
         <h2 className="mb-3 font-semibold text-lg">
           回答一覧（{responses.length}件）
         </h2>
-        {responsesLoading ? (
+        {responsesLoading && (
           <div className="flex items-center gap-2 py-4">
             <Spinner size="sm" />
             <p className="text-muted">回答を読み込み中...</p>
           </div>
-        ) : responses.length === 0 ? (
+        )}
+        {!responsesLoading && responses.length === 0 && (
           <Card>
             <Card.Content className="py-8 text-center">
               <p className="text-muted">まだ回答がありません。</p>
             </Card.Content>
           </Card>
-        ) : (
+        )}
+        {!responsesLoading && responses.length > 0 && (
           <Card>
             <Card.Content className="overflow-x-auto">
               <table className="w-full text-left text-sm">

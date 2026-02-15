@@ -68,6 +68,60 @@ describe("SurveyCreatePage", () => {
     expect(screen.getByLabelText("タイプ")).toBeDefined();
   });
 
+  test("説明欄（description）を表示し入力できる", async () => {
+    mockUseCreate.mockReturnValue({
+      trigger: vi.fn(),
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyCreatePage />
+      </MemoryRouter>
+    );
+
+    const textarea = screen.getByLabelText("説明（Markdown）");
+    expect(textarea).toBeDefined();
+
+    const user = userEvent.setup();
+    await user.type(textarea, "# テスト説明");
+    expect(textarea).toHaveProperty("value", "# テスト説明");
+  });
+
+  test("description を含めて送信する", async () => {
+    const triggerMock = vi.fn().mockResolvedValue({
+      data: {
+        id: "new-1",
+        title: "テスト",
+        description: "説明テスト",
+        questions: [],
+      },
+      status: 201,
+      headers: new Headers(),
+    });
+    mockUseCreate.mockReturnValue({
+      trigger: triggerMock,
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyCreatePage />
+      </MemoryRouter>
+    );
+
+    const user = userEvent.setup();
+    await user.type(screen.getByLabelText("タイトル"), "テスト");
+    await user.type(screen.getByLabelText("説明（Markdown）"), "説明テスト");
+    await user.click(screen.getByRole("button", { name: "質問を追加" }));
+    await user.type(screen.getByLabelText("質問文"), "お名前");
+    await user.click(screen.getByRole("button", { name: "作成する" }));
+
+    expect(triggerMock).toHaveBeenCalledWith(
+      expect.objectContaining({ description: "説明テスト" })
+    );
+  });
+
   test("送信時に trigger が呼ばれ、成功したらダッシュボードに遷移する", async () => {
     const triggerMock = vi.fn().mockResolvedValue({
       data: { id: "new-1", title: "テスト", questions: [] },

@@ -8,9 +8,10 @@ datasource db {
 }
 
 model Survey {
-  id        String     @id @default(cuid())
-  title     String
-  questions Json
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  questions   Json
   responses Response[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt

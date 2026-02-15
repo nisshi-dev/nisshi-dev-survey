@@ -6,10 +6,11 @@
 |---|---|---|
 | フロントエンド | React + Vite | SPA。回答画面と管理画面を提供 |
 | UI コンポーネント | HeroUI v3 beta | React Aria ベースのアクセシブルなコンポーネントライブラリ。beta 版のため破壊的変更の可能性あり |
-| スタイリング | Tailwind CSS v4 + `@heroui/styles` | ユーティリティファースト CSS。`@tailwindcss/vite` で統合 |
+| スタイリング | Tailwind CSS v4 + `@heroui/styles` + `@tailwindcss/typography` | ユーティリティファースト CSS。`@tailwindcss/vite` で統合。`prose` クラスで Markdown レンダリング |
 | アニメーション | motion | 軽量アニメーションライブラリ（Framer Motion の後継） |
 | ルーティング | react-router-dom v7（Declarative mode） | `<BrowserRouter>` + `<Routes>` による SPA ルーティング |
 | バリデーション | Valibot | スキーマベースの型安全なバリデーション・型ガード（SSoT） |
+| Markdown レンダリング | react-markdown + remark-gfm | アンケート説明文の Markdown 表示 |
 | データ取得 | SWR（`useSWR` / `useSWRMutation`） | キャッシュ付きデータフェッチ・ミューテーション |
 | API ドキュメント | hono-openapi + @hono/swagger-ui | Valibot スキーマから OpenAPI 3.1 自動生成 + Swagger UI |
 | API クライアント生成 | Orval（@orval/swr） | OpenAPI → SWR hooks 自動生成 |
