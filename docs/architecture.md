@@ -90,6 +90,27 @@ Valibot スキーマ（SSoT: src/shared/schema/）
 - `npm run generate` — 上記 2 つを順に実行
 - 生成物（`openapi.json`, `src/generated/`）は `.gitignore` 済み
 
+## 認証フロー
+
+```
+ブラウザ → POST /api/admin/auth/login (email, password)
+  → サーバー: AdminUser 検索 → scrypt でパスワード検証
+  → 成功: Session レコード作成 → Set-Cookie: session=<sessionId> (HttpOnly, SameSite=Lax)
+  → 失敗: 401 { error: "Invalid email or password" }
+
+ブラウザ → GET /api/admin/surveys/* (Cookie: session=<sessionId>)
+  → adminAuth ミドルウェア: Session 検索 → 期限チェック → c.set("user", { id, email })
+  → 有効: next() → ルートハンドラ実行
+  → 無効/なし: 401 { error: "Unauthorized" }
+
+ブラウザ → POST /api/admin/auth/logout (Cookie: session=<sessionId>)
+  → サーバー: Session レコード削除 → Cookie 削除
+```
+
+- パスワードハッシュ: `node:crypto` の `scrypt`（salt 16 bytes + key 64 bytes、`hex:hex` 形式）
+- セッション有効期限: 7 日間
+- Cookie: `HttpOnly`, `Secure`（本番のみ）, `SameSite=Lax`, `Path=/`
+
 ## 開発環境
 
 - `npm run dev` で Vite 開発サーバーを起動（フロント + API を単一プロセスで提供、ポート 5173）
