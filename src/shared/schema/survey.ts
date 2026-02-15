@@ -70,6 +70,14 @@ export const UpdateSurveyStatusSchema = object({
   status: SurveyStatusSchema,
 });
 
+/** PUT /api/admin/surveys/:id — アンケート内容更新リクエスト */
+export const UpdateSurveySchema = object({
+  title: pipe(string(), minLength(1)),
+  description: optional(pipe(string(), maxLength(10_000))),
+  questions: QuestionsSchema,
+});
+export type UpdateSurveyInput = InferOutput<typeof UpdateSurveySchema>;
+
 // ── API リクエスト / レスポンス ──
 
 /** POST /api/admin/surveys — アンケート作成リクエスト */

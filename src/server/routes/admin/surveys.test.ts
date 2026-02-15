@@ -229,6 +229,171 @@ describe("PATCH /admin/surveys/:id", () => {
   });
 });
 
+describe("PUT /admin/surveys/:id", () => {
+  beforeEach(() => {
+    mockFindUnique.mockReset();
+    mockUpdate.mockReset();
+  });
+
+  test("draft のアンケートの title, description, questions を更新できる", async () => {
+    const existingQuestions = [{ type: "text", id: "q1", label: "旧質問" }];
+    const newQuestions = [
+      { type: "radio", id: "q1", label: "新質問", options: ["A", "B"] },
+    ];
+    mockFindUnique.mockResolvedValue({
+      id: "survey-1",
+      title: "旧タイトル",
+      description: null,
+      status: "draft",
+      questions: existingQuestions,
+      createdAt: new Date("2026-02-15T00:00:00.000Z"),
+      updatedAt: new Date(),
+    });
+    mockUpdate.mockResolvedValue({
+      id: "survey-1",
+      title: "新タイトル",
+      description: "新しい説明",
+      status: "draft",
+      questions: newQuestions,
+      createdAt: new Date("2026-02-15T00:00:00.000Z"),
+      updatedAt: new Date(),
+    });
+
+    const app = createApp();
+    const res = await app.request("/admin/surveys/survey-1", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "新タイトル",
+        description: "新しい説明",
+        questions: newQuestions,
+      }),
+    });
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.title).toBe("新タイトル");
+    expect(body.description).toBe("新しい説明");
+    expect(body.questions).toEqual(newQuestions);
+  });
+
+  test("active のアンケートの title と description を更新できる（questions 同一）", async () => {
+    const questions = [{ type: "text", id: "q1", label: "質問" }];
+    mockFindUnique.mockResolvedValue({
+      id: "survey-1",
+      title: "旧タイトル",
+      description: null,
+      status: "active",
+      questions,
+      createdAt: new Date("2026-02-15T00:00:00.000Z"),
+      updatedAt: new Date(),
+    });
+    mockUpdate.mockResolvedValue({
+      id: "survey-1",
+      title: "新タイトル",
+      description: "説明追加",
+      status: "active",
+      questions,
+      createdAt: new Date("2026-02-15T00:00:00.000Z"),
+      updatedAt: new Date(),
+    });
+
+    const app = createApp();
+    const res = await app.request("/admin/surveys/survey-1", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "新タイトル",
+        description: "説明追加",
+        questions,
+      }),
+    });
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.title).toBe("新タイトル");
+    expect(body.description).toBe("説明追加");
+  });
+
+  test("active のアンケートで questions を変更すると 400 を返す", async () => {
+    const existingQuestions = [{ type: "text", id: "q1", label: "質問" }];
+    const newQuestions = [{ type: "text", id: "q1", label: "変更した質問" }];
+    mockFindUnique.mockResolvedValue({
+      id: "survey-1",
+      title: "タイトル",
+      description: null,
+      status: "active",
+      questions: existingQuestions,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const app = createApp();
+    const res = await app.request("/admin/surveys/survey-1", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "タイトル",
+        questions: newQuestions,
+      }),
+    });
+
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBe(
+      "Cannot modify questions for active or completed survey"
+    );
+  });
+
+  test("completed のアンケートで questions を変更すると 400 を返す", async () => {
+    const existingQuestions = [{ type: "text", id: "q1", label: "質問" }];
+    const newQuestions = [{ type: "text", id: "q2", label: "別の質問" }];
+    mockFindUnique.mockResolvedValue({
+      id: "survey-1",
+      title: "タイトル",
+      description: null,
+      status: "completed",
+      questions: existingQuestions,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const app = createApp();
+    const res = await app.request("/admin/surveys/survey-1", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "タイトル",
+        questions: newQuestions,
+      }),
+    });
+
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBe(
+      "Cannot modify questions for active or completed survey"
+    );
+  });
+
+  test("存在しないアンケートで 404 を返す", async () => {
+    mockFindUnique.mockResolvedValue(null);
+
+    const app = createApp();
+    const res = await app.request("/admin/surveys/nonexistent", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "タイトル",
+        questions: [{ type: "text", id: "q1", label: "質問" }],
+      }),
+    });
+
+    expect(res.status).toBe(404);
+    const body = await res.json();
+    expect(body.error).toBe("Survey not found");
+  });
+});
+
 describe("DELETE /admin/surveys/:id", () => {
   beforeEach(() => {
     mockFindUnique.mockReset();

@@ -66,6 +66,7 @@ src/
 | GET | `/api/admin/surveys` | アンケート一覧（createdAt 降順） | 実装済み |
 | POST | `/api/admin/surveys` | アンケート作成 | 実装済み |
 | GET | `/api/admin/surveys/:id` | アンケート詳細（404 対応） | 実装済み |
+| PUT | `/api/admin/surveys/:id` | アンケート内容更新（active/completed は質問変更不可） | 実装済み |
 | PATCH | `/api/admin/surveys/:id` | アンケートステータス更新（draft/active/completed） | 実装済み |
 | DELETE | `/api/admin/surveys/:id` | アンケート削除（completed は削除不可、レスポンスはカスケード削除） | 実装済み |
 | GET | `/api/admin/surveys/:id/responses` | 回答一覧（404 対応） | 実装済み |

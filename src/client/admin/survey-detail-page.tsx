@@ -97,6 +97,9 @@ export function SurveyDetailPage() {
       </div>
 
       <div className="flex gap-2">
+        <Button onPress={() => navigate(`/admin/surveys/${id}/edit`)} size="sm">
+          編集
+        </Button>
         {SURVEY_STATUSES.filter((s) => s !== currentStatus).map((s) => (
           <Button
             isDisabled={isMutating}
