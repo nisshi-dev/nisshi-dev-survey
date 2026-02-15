@@ -1,3 +1,4 @@
+import { Button } from "@heroui/react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { usePostApiAdminAuthLogout } from "@/generated/api/auth/auth";
 
@@ -11,19 +12,31 @@ export function AdminLayout() {
   };
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
-      <nav style={{ width: 240, padding: 16, borderRight: "1px solid #eee" }}>
-        <h2>nisshi-dev Survey</h2>
-        <ul style={{ listStyle: "none", padding: 0 }}>
-          <li>
-            <NavLink to="/admin">ダッシュボード</NavLink>
+    <div className="flex min-h-screen">
+      <nav className="flex w-60 flex-col border-border border-r bg-surface p-4">
+        <h2 className="mb-4 font-bold text-lg">nisshi-dev Survey</h2>
+        <ul className="flex flex-1 flex-col gap-1 p-0">
+          <li className="list-none">
+            <NavLink
+              className={({ isActive }) =>
+                `block rounded-lg px-3 py-2 text-sm transition-colors ${
+                  isActive
+                    ? "bg-accent/10 font-medium text-accent"
+                    : "text-foreground hover:bg-surface-secondary"
+                }`
+              }
+              end
+              to="/admin"
+            >
+              ダッシュボード
+            </NavLink>
           </li>
         </ul>
-        <button onClick={handleLogout} type="button">
+        <Button onPress={handleLogout} variant="ghost">
           ログアウト
-        </button>
+        </Button>
       </nav>
-      <main style={{ flex: 1, padding: 24 }}>
+      <main className="flex-1 p-6">
         <Outlet />
       </main>
     </div>

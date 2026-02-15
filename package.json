@@ -12,13 +12,15 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "generate:openapi": "tsx scripts/generate-openapi.ts",
-    "generate:client": "orval",
-    "generate": "npm run generate:openapi && npm run generate:client",
-    "seed:admin": "tsx scripts/seed-admin.ts",
+    "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
-    "rm:local-cache": "rm -r dist/ package-lock.json / node_modules/.cache/"
+    "db:studio": "prisma studio",
+    "db:seed": "tsx scripts/seed-admin.ts",
+    "generate": "npm run generate:openapi && npm run generate:client",
+    "generate:openapi": "tsx scripts/generate-openapi.ts",
+    "generate:client": "orval",
+    "clean": "rm -rf dist node_modules/.cache"
   },
   "dependencies": {
     "@heroui/react": "3.0.0-beta.6",
