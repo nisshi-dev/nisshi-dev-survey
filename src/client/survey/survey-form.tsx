@@ -1,53 +1,64 @@
 import { useNavigate } from "react-router-dom";
-import useSWRMutation from "swr/mutation";
+import { usePostApiSurveyByIdSubmit } from "@/generated/api/survey/survey";
+import type { Question } from "@/shared/schema/survey";
 
 interface Props {
-  survey: {
-    id: string;
-    title: string;
-    questions: { id: string; type: string; label: string }[];
-  };
+  surveyId: string;
+  questions: Question[];
 }
 
-async function submitSurvey(
-  url: string,
-  { arg }: { arg: Record<string, string> }
-) {
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ answers: arg }),
-  });
-  if (!res.ok) {
-    throw new Error("Submit failed");
-  }
-}
-
-export function SurveyForm({ survey }: Props) {
+export function SurveyForm({ surveyId, questions }: Props) {
   const navigate = useNavigate();
-  const { trigger, isMutating, error } = useSWRMutation(
-    `/api/survey/${survey.id}/submit`,
-    submitSurvey
-  );
+  const { trigger, isMutating, error } = usePostApiSurveyByIdSubmit(surveyId);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    const answers: Record<string, string> = {};
-    for (const [key, value] of fd.entries()) {
-      answers[key] = value as string;
+    const answers: Record<string, string | string[]> = {};
+    for (const q of questions) {
+      if (q.type === "checkbox") {
+        answers[q.id] = fd.getAll(q.id) as string[];
+      } else {
+        answers[q.id] = (fd.get(q.id) as string) ?? "";
+      }
     }
-    await trigger(answers);
-    navigate(`/survey/${survey.id}/complete`);
+    await trigger({ answers });
+    navigate(`/survey/${surveyId}/complete`);
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      {survey.questions.map((q) => (
-        <div key={q.id}>
-          <label htmlFor={q.id}>{q.label}</label>
-          <textarea id={q.id} name={q.id} required />
-        </div>
+      {questions.map((q) => (
+        <fieldset key={q.id}>
+          {q.type === "text" && (
+            <div>
+              <label htmlFor={q.id}>{q.label}</label>
+              <input id={q.id} name={q.id} required type="text" />
+            </div>
+          )}
+          {q.type === "radio" && (
+            <div>
+              <legend>{q.label}</legend>
+              {q.options.map((opt) => (
+                <label key={opt}>
+                  <input name={q.id} required type="radio" value={opt} />
+                  {opt}
+                </label>
+              ))}
+            </div>
+          )}
+          {q.type === "checkbox" && (
+            <div>
+              <legend>{q.label}</legend>
+              {q.options.map((opt) => (
+                <label key={opt}>
+                  <input name={q.id} type="checkbox" value={opt} />
+                  {opt}
+                </label>
+              ))}
+            </div>
+          )}
+        </fieldset>
       ))}
       {error && <p>送信に失敗しました。もう一度お試しください。</p>}
       <button disabled={isMutating} type="submit">

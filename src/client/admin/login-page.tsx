@@ -1,26 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import useSWRMutation from "swr/mutation";
-
-async function login(
-  url: string,
-  { arg }: { arg: { email: string; password: string } }
-) {
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(arg),
-  });
-  if (!res.ok) {
-    throw new Error("Login failed");
-  }
-}
+import { usePostApiAdminAuthLogin } from "@/generated/api/auth/auth";
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { trigger, isMutating, error } = useSWRMutation(
-    "/api/admin/auth/login",
-    login
-  );
+  const { trigger, isMutating, error } = usePostApiAdminAuthLogin();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
