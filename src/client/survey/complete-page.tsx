@@ -2,28 +2,71 @@ import { Button, Card } from "@heroui/react";
 import { motion } from "motion/react";
 import { Link } from "react-router-dom";
 
+function AnimatedCheckmark() {
+  return (
+    <motion.div
+      animate={{ scale: 1 }}
+      className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-950/30"
+      initial={{ scale: 0 }}
+      transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
+    >
+      <motion.svg
+        className="h-10 w-10 text-emerald-500"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2.5}
+        viewBox="0 0 24 24"
+      >
+        <motion.path
+          animate={{ pathLength: 1 }}
+          d="M5 13l4 4L19 7"
+          initial={{ pathLength: 0 }}
+          transition={{ duration: 0.4, delay: 0.5, ease: "easeOut" }}
+        />
+      </motion.svg>
+    </motion.div>
+  );
+}
+
 export function CompletePage() {
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
-      <motion.div
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md"
-        initial={{ opacity: 0, y: 20 }}
-        transition={{ duration: 0.4 }}
-      >
+      <div className="w-full max-w-md">
         <Card>
           <Card.Content className="py-12 text-center">
-            <p className="mb-2 text-4xl">&#x2705;</p>
-            <h1 className="mb-2 font-bold text-2xl">回答完了</h1>
-            <p className="text-muted">ご回答ありがとうございました。</p>
+            <AnimatedCheckmark />
+            <motion.h1
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-2 font-bold text-2xl"
+              initial={{ opacity: 0, y: 12 }}
+              transition={{ duration: 0.4, delay: 0.4 }}
+            >
+              回答完了
+            </motion.h1>
+            <motion.p
+              animate={{ opacity: 1, y: 0 }}
+              className="text-muted"
+              initial={{ opacity: 0, y: 12 }}
+              transition={{ duration: 0.4, delay: 0.5 }}
+            >
+              ご回答ありがとうございました。
+            </motion.p>
           </Card.Content>
           <Card.Footer className="justify-center">
-            <Button variant="secondary">
-              <Link to="/">トップに戻る</Link>
-            </Button>
+            <motion.div
+              animate={{ opacity: 1 }}
+              initial={{ opacity: 0 }}
+              transition={{ duration: 0.4, delay: 0.7 }}
+            >
+              <Button variant="secondary">
+                <Link to="/">トップに戻る</Link>
+              </Button>
+            </motion.div>
           </Card.Footer>
         </Card>
-      </motion.div>
+      </div>
     </div>
   );
 }
