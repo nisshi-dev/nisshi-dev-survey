@@ -10,6 +10,7 @@ export default defineConfig({
     react(),
     devServer({
       entry: "src/server/index.ts",
+      exclude: [/^(?!\/api\/)/],
       injectClientScript: false,
     }),
   ],
