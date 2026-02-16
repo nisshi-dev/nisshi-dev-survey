@@ -1,5 +1,6 @@
 import { Card, Link } from "@heroui/react";
 import { motion } from "motion/react";
+import { Navigate, useLocation } from "react-router-dom";
 
 function AnimatedCheckmark() {
   return (
@@ -31,6 +32,13 @@ function AnimatedCheckmark() {
 }
 
 export function CompletePage() {
+  const location = useLocation();
+  const state = location.state as { submitted?: boolean } | null;
+
+  if (!state?.submitted) {
+    return <Navigate replace to="/" />;
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-md">

@@ -1,5 +1,7 @@
 import { Button, Card, Chip, Spinner } from "@heroui/react";
 import { useNavigate, useParams } from "react-router-dom";
+import { ResponsePieChart } from "@/client/components/admin/response-pie-chart";
+import { TextResponseList } from "@/client/components/admin/text-response-list";
 import {
   useDeleteApiAdminSurveysById,
   useGetApiAdminSurveysById,
@@ -24,6 +26,21 @@ const statusActionLabels: Record<SurveyStatus, string> = {
   draft: "下書きに戻す",
   active: "受付中にする",
   completed: "完了にする",
+};
+
+const questionTypeLabels: Record<Question["type"], string> = {
+  text: "テキスト",
+  radio: "単一選択",
+  checkbox: "複数選択",
+};
+
+const questionTypeColors: Record<
+  Question["type"],
+  "default" | "accent" | "warning"
+> = {
+  text: "default",
+  radio: "accent",
+  checkbox: "warning",
 };
 
 export function SurveyDetailPage() {
@@ -134,20 +151,44 @@ export function SurveyDetailPage() {
 
       <div>
         <h2 className="mb-3 font-semibold text-lg">質問一覧</h2>
-        <div className="flex flex-col gap-2">
-          {questions.map((q) => (
-            <Card
-              className="flex-row items-center gap-3"
-              key={q.id}
-              variant="transparent"
-            >
-              <Chip>{q.type}</Chip>
-              <span>
-                {q.label}（{q.type}）
-              </span>
-            </Card>
-          ))}
-        </div>
+        <Card>
+          <Card.Content className="flex flex-col gap-0 p-0">
+            {questions.map((q, i) => (
+              <div
+                className="flex items-start gap-3 border-border/50 px-4 py-3 [&:not(:last-child)]:border-b"
+                key={q.id}
+              >
+                <span className="mt-0.5 font-mono text-muted text-xs">
+                  {i + 1}
+                </span>
+                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-sm">{q.label}</span>
+                    <Chip
+                      color={questionTypeColors[q.type]}
+                      size="sm"
+                      variant="soft"
+                    >
+                      {questionTypeLabels[q.type]}
+                    </Chip>
+                  </div>
+                  {(q.type === "radio" || q.type === "checkbox") && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {q.options.map((opt) => (
+                        <span
+                          className="rounded-md bg-surface-secondary px-2 py-0.5 text-muted text-xs"
+                          key={opt}
+                        >
+                          {opt}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </Card.Content>
+        </Card>
       </div>
 
       <div>
@@ -167,7 +208,34 @@ export function SurveyDetailPage() {
             </Card.Content>
           </Card>
         )}
-        {!responsesLoading && responses.length > 0 && (
+      </div>
+
+      {!responsesLoading && questions.length > 0 && (
+        <div>
+          <h2 className="mb-3 font-semibold text-lg">質問別分析</h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {questions.map((q) =>
+              q.type === "radio" || q.type === "checkbox" ? (
+                <ResponsePieChart
+                  key={q.id}
+                  question={q}
+                  responses={responses}
+                />
+              ) : (
+                <TextResponseList
+                  key={q.id}
+                  question={q}
+                  responses={responses}
+                />
+              )
+            )}
+          </div>
+        </div>
+      )}
+
+      {!responsesLoading && responses.length > 0 && (
+        <div>
+          <h2 className="mb-3 font-semibold text-lg">生データ</h2>
           <Card>
             <Card.Content className="overflow-x-auto">
               <table className="w-full text-left text-sm">
@@ -202,8 +270,8 @@ export function SurveyDetailPage() {
               </table>
             </Card.Content>
           </Card>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

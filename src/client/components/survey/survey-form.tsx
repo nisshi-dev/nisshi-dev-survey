@@ -43,7 +43,7 @@ export function SurveyForm({ surveyId, questions }: Props) {
         ? { answers, sendCopy: true, respondentEmail }
         : { answers }
     );
-    navigate(`/survey/${surveyId}/complete`);
+    navigate(`/survey/${surveyId}/complete`, { state: { submitted: true } });
   };
 
   return (

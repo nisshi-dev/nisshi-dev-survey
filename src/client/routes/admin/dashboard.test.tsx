@@ -119,6 +119,33 @@ describe("DashboardPage", () => {
     expect(link.getAttribute("href")).toBe("/admin/surveys/s1");
   });
 
+  test("空状態で説明テキストと新規作成リンクを表示する", () => {
+    mockUseSurveys.mockReturnValue({
+      data: {
+        data: { surveys: [] },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    expect(
+      screen.getByText(
+        "アンケートを作成して、チームやユーザーからフィードバックを集めましょう。"
+      )
+    ).toBeDefined();
+    const emptyLink = screen.getByRole("link", {
+      name: "最初のアンケートを作成",
+    });
+    expect(emptyLink.getAttribute("href")).toBe("/admin/surveys/new");
+  });
+
   test("ステータスチップを表示する", () => {
     mockUseSurveys.mockReturnValue({
       data: {
