@@ -116,6 +116,50 @@ describe("SurveyForm", () => {
     expect(triggerMock).toHaveBeenCalled();
   });
 
+  test("複数の radio 質問で選択が独立して保持される", async () => {
+    const triggerMock = vi.fn().mockResolvedValue({
+      data: { success: true, surveyId: "s1" },
+      status: 200,
+    });
+    const questions: Question[] = [
+      { type: "radio", id: "q1", label: "好きな色", options: ["赤", "青"] },
+      {
+        type: "radio",
+        id: "q2",
+        label: "好きな季節",
+        options: ["春", "夏"],
+      },
+    ];
+    mockUseSubmit.mockReturnValue({
+      trigger: triggerMock,
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyForm questions={questions} surveyId="s1" />
+      </MemoryRouter>
+    );
+
+    const user = userEvent.setup();
+    await user.click(screen.getByLabelText("赤"));
+    await user.click(screen.getByLabelText("春"));
+
+    // 2問目を選んでも1問目の選択が保持される
+    const red = screen.getByLabelText("赤") as HTMLInputElement;
+    const spring = screen.getByLabelText("春") as HTMLInputElement;
+    expect(red.checked).toBe(true);
+    expect(spring.checked).toBe(true);
+
+    // 送信時に両方の回答が含まれる
+    await user.click(screen.getByRole("button", { name: "回答を送信する" }));
+    expect(triggerMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        answers: { q1: "赤", q2: "春" },
+      })
+    );
+  });
+
   test("回答コピーのチェックボックスが表示される", () => {
     const questions: Question[] = [{ type: "text", id: "q1", label: "ご意見" }];
     mockUseSubmit.mockReturnValue({
