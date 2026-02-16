@@ -3,6 +3,16 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
+vi.mock("recharts", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("recharts")>();
+  return {
+    ...actual,
+    ResponsiveContainer: ({ children }: { children: React.ReactNode }) => (
+      <div>{children}</div>
+    ),
+  };
+});
+
 vi.mock("@/generated/api/admin-surveys/admin-surveys", () => ({
   useGetApiAdminSurveysById: vi.fn(),
   useGetApiAdminSurveysByIdResponses: vi.fn(),
@@ -138,8 +148,8 @@ describe("SurveyDetailPage", () => {
 
     renderWithRoute();
 
-    expect(screen.getByText("太郎")).toBeDefined();
-    expect(screen.getByText("花子")).toBeDefined();
+    expect(screen.getAllByText("太郎").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("花子").length).toBeGreaterThanOrEqual(1);
   });
 
   test("404 の場合はエラーメッセージを表示する", () => {
@@ -252,6 +262,91 @@ describe("SurveyDetailPage", () => {
     renderWithRoute();
 
     expect(screen.getByRole("button", { name: "削除" })).toBeDefined();
+  });
+
+  test("radio 質問で質問別分析セクションにグラフが表示される", () => {
+    mockUseSurvey.mockReturnValue({
+      data: {
+        data: {
+          id: "s1",
+          title: "テスト",
+          status: "active",
+          createdAt: "2026-02-15T00:00:00.000Z",
+          questions: [
+            {
+              type: "radio",
+              id: "q1",
+              label: "評価",
+              options: ["良い", "普通", "悪い"],
+            },
+          ],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    mockUseResponses.mockReturnValue({
+      data: {
+        data: {
+          surveyId: "s1",
+          responses: [
+            { id: "r1", answers: { q1: "良い" } },
+            { id: "r2", answers: { q1: "普通" } },
+          ],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    setupMocks();
+
+    renderWithRoute();
+
+    expect(screen.getByText("質問別分析")).toBeDefined();
+    expect(screen.getByText("良い: 1件")).toBeDefined();
+    expect(screen.getByText("普通: 1件")).toBeDefined();
+  });
+
+  test("text 質問で質問別分析セクションにテキスト回答リストが表示される", () => {
+    mockUseSurvey.mockReturnValue({
+      data: {
+        data: {
+          id: "s1",
+          title: "テスト",
+          status: "active",
+          createdAt: "2026-02-15T00:00:00.000Z",
+          questions: [{ type: "text", id: "q1", label: "ご意見" }],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    mockUseResponses.mockReturnValue({
+      data: {
+        data: {
+          surveyId: "s1",
+          responses: [
+            { id: "r1", answers: { q1: "良いサービス" } },
+            { id: "r2", answers: { q1: "改善希望" } },
+          ],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    setupMocks();
+
+    renderWithRoute();
+
+    expect(screen.getByText("質問別分析")).toBeDefined();
+    expect(screen.getAllByText("良いサービス").length).toBeGreaterThanOrEqual(
+      1
+    );
+    expect(screen.getAllByText("改善希望").length).toBeGreaterThanOrEqual(1);
   });
 
   test("completed のアンケートには削除ボタンを表示しない", () => {

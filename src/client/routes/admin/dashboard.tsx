@@ -43,8 +43,14 @@ export function DashboardPage() {
       </div>
       {surveys.length === 0 ? (
         <Card>
-          <Card.Content className="py-8 text-center">
+          <Card.Content className="flex flex-col items-center gap-4 py-12 text-center">
             <p className="text-muted">アンケートがまだありません。</p>
+            <p className="text-muted text-sm">
+              アンケートを作成して、チームやユーザーからフィードバックを集めましょう。
+            </p>
+            <Button variant="secondary">
+              <Link to="/admin/surveys/new">最初のアンケートを作成</Link>
+            </Button>
           </Card.Content>
         </Card>
       ) : (
@@ -66,7 +72,7 @@ export function DashboardPage() {
               <tbody>
                 {surveys.map((s) => (
                   <tr
-                    className="border-border/50 border-b last:border-b-0"
+                    className="border-border/50 border-b transition-colors last:border-b-0 hover:bg-surface-secondary"
                     key={s.id}
                   >
                     <td className="px-4 py-3">

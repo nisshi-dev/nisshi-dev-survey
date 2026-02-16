@@ -1,5 +1,7 @@
 import { Button, Card, Chip, Spinner } from "@heroui/react";
 import { useNavigate, useParams } from "react-router-dom";
+import { ResponsePieChart } from "@/client/components/admin/response-pie-chart";
+import { TextResponseList } from "@/client/components/admin/text-response-list";
 import {
   useDeleteApiAdminSurveysById,
   useGetApiAdminSurveysById,
@@ -167,7 +169,34 @@ export function SurveyDetailPage() {
             </Card.Content>
           </Card>
         )}
-        {!responsesLoading && responses.length > 0 && (
+      </div>
+
+      {!responsesLoading && questions.length > 0 && (
+        <div>
+          <h2 className="mb-3 font-semibold text-lg">質問別分析</h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {questions.map((q) =>
+              q.type === "radio" || q.type === "checkbox" ? (
+                <ResponsePieChart
+                  key={q.id}
+                  question={q}
+                  responses={responses}
+                />
+              ) : (
+                <TextResponseList
+                  key={q.id}
+                  question={q}
+                  responses={responses}
+                />
+              )
+            )}
+          </div>
+        </div>
+      )}
+
+      {!responsesLoading && responses.length > 0 && (
+        <div>
+          <h2 className="mb-3 font-semibold text-lg">生データ</h2>
           <Card>
             <Card.Content className="overflow-x-auto">
               <table className="w-full text-left text-sm">
@@ -202,8 +231,8 @@ export function SurveyDetailPage() {
               </table>
             </Card.Content>
           </Card>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
