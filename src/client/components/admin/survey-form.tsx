@@ -1,4 +1,15 @@
-import { Button, Card, Form, Input, Label, TextField } from "@heroui/react";
+import {
+  Button,
+  Card,
+  Form,
+  Input,
+  Label,
+  ListBox,
+  Select,
+  TextArea,
+  TextField,
+} from "@heroui/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState } from "react";
 import type { Question } from "@/shared/schema/survey";
 import { SurveyPreview } from "./survey-preview";
@@ -23,6 +34,12 @@ interface SurveyFormProps {
   isSubmitting: boolean;
   questionsDisabled?: boolean;
 }
+
+const questionTypeItems = [
+  { id: "text", label: "テキスト" },
+  { id: "radio", label: "単一選択" },
+  { id: "checkbox", label: "複数選択" },
+] as const;
 
 let nextId = 1;
 
@@ -108,91 +125,131 @@ export function SurveyForm({
         <Form onSubmit={handleSubmit}>
           <Card className="w-full">
             <Card.Content className="flex flex-col gap-6">
-              <TextField isRequired name="title">
-                <Label>タイトル</Label>
-                <Input
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="アンケートのタイトル..."
-                  value={title}
-                />
-              </TextField>
+              <fieldset className="flex flex-col gap-4">
+                <legend className="font-semibold text-base">基本情報</legend>
 
-              <div className="flex flex-col gap-1">
-                <Label htmlFor="description">説明（Markdown）</Label>
-                <textarea
-                  className="input min-h-24 resize-y"
-                  id="description"
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="アンケートの説明を Markdown で入力..."
-                  value={description}
-                />
-              </div>
+                <TextField isRequired name="title">
+                  <Label>タイトル</Label>
+                  <Input
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="アンケートのタイトル..."
+                    value={title}
+                  />
+                </TextField>
 
-              {questions.map((q, i) => (
-                <Card
-                  className="flex flex-col gap-4"
-                  key={q.id}
-                  variant="secondary"
-                >
-                  <Card.Content className="flex flex-col gap-3">
-                    <TextField isRequired>
-                      <Label>質問文</Label>
-                      <Input
-                        disabled={questionsDisabled}
-                        onChange={(e) =>
-                          updateQuestion(i, "label", e.target.value)
-                        }
-                        placeholder="質問を入力..."
-                        value={q.label}
-                      />
-                    </TextField>
-                    <div className="flex flex-col gap-1">
-                      <Label htmlFor={`type-${q.id}`}>タイプ</Label>
-                      <select
-                        className="input"
-                        disabled={questionsDisabled}
-                        id={`type-${q.id}`}
-                        onChange={(e) =>
-                          updateQuestion(
-                            i,
-                            "type",
-                            e.target.value as QuestionDraft["type"]
-                          )
-                        }
-                        value={q.type}
-                      >
-                        <option value="text">テキスト</option>
-                        <option value="radio">ラジオ</option>
-                        <option value="checkbox">チェックボックス</option>
-                      </select>
-                    </div>
-                    {q.type !== "text" && (
-                      <TextField>
-                        <Label>選択肢（カンマ区切り）</Label>
-                        <Input
-                          disabled={questionsDisabled}
-                          onChange={(e) =>
-                            updateQuestion(i, "options", e.target.value)
-                          }
-                          placeholder="選択肢1, 選択肢2, ..."
-                          value={q.options}
-                        />
-                      </TextField>
-                    )}
-                  </Card.Content>
-                  {!questionsDisabled && (
-                    <Card.Footer>
-                      <Button
-                        onPress={() => removeQuestion(i)}
-                        size="sm"
-                        variant="danger"
-                      >
-                        削除
-                      </Button>
-                    </Card.Footer>
-                  )}
-                </Card>
-              ))}
+                <div className="flex flex-col gap-1">
+                  <Label htmlFor="description">説明（Markdown）</Label>
+                  <TextArea
+                    className="min-h-24 resize-y"
+                    id="description"
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="アンケートの説明を Markdown で入力..."
+                    value={description}
+                  />
+                </div>
+              </fieldset>
+
+              <fieldset className="flex flex-col gap-4">
+                <legend className="font-semibold text-base">質問</legend>
+
+                <AnimatePresence initial={false}>
+                  {questions.map((q, i) => (
+                    <motion.div
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      initial={{ opacity: 0, height: 0 }}
+                      key={q.id}
+                      style={{ overflow: "hidden" }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Card className="flex flex-col gap-4" variant="secondary">
+                        <Card.Content className="flex flex-col gap-3">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-muted text-xs">
+                              {i + 1}
+                            </span>
+                          </div>
+                          <TextField isRequired>
+                            <Label>質問文</Label>
+                            <Input
+                              disabled={questionsDisabled}
+                              onChange={(e) =>
+                                updateQuestion(i, "label", e.target.value)
+                              }
+                              placeholder="質問を入力..."
+                              value={q.label}
+                            />
+                          </TextField>
+                          <Select
+                            aria-label="タイプ"
+                            isDisabled={questionsDisabled}
+                            onChange={(value) => {
+                              if (value) {
+                                updateQuestion(
+                                  i,
+                                  "type",
+                                  value as QuestionDraft["type"]
+                                );
+                              }
+                            }}
+                            value={q.type}
+                          >
+                            <Label>タイプ</Label>
+                            <Select.Trigger>
+                              <Select.Value />
+                              <Select.Indicator />
+                            </Select.Trigger>
+                            <Select.Popover>
+                              <ListBox>
+                                {questionTypeItems.map((item) => (
+                                  <ListBox.Item
+                                    id={item.id}
+                                    key={item.id}
+                                    textValue={item.label}
+                                  >
+                                    {item.label}
+                                    <ListBox.ItemIndicator />
+                                  </ListBox.Item>
+                                ))}
+                              </ListBox>
+                            </Select.Popover>
+                          </Select>
+                          {q.type !== "text" && (
+                            <TextField>
+                              <Label>選択肢（カンマ区切り）</Label>
+                              <Input
+                                disabled={questionsDisabled}
+                                onChange={(e) =>
+                                  updateQuestion(i, "options", e.target.value)
+                                }
+                                placeholder="選択肢1, 選択肢2, ..."
+                                value={q.options}
+                              />
+                            </TextField>
+                          )}
+                        </Card.Content>
+                        {!questionsDisabled && (
+                          <Card.Footer>
+                            <Button
+                              onPress={() => removeQuestion(i)}
+                              size="sm"
+                              variant="danger"
+                            >
+                              削除
+                            </Button>
+                          </Card.Footer>
+                        )}
+                      </Card>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+
+                {questions.length === 0 && (
+                  <p className="py-4 text-center text-muted text-sm">
+                    質問がありません。「質問を追加」ボタンで追加してください。
+                  </p>
+                )}
+              </fieldset>
             </Card.Content>
             <Card.Footer className="flex gap-3">
               {!questionsDisabled && (
