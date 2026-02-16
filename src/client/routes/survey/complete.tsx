@@ -1,6 +1,5 @@
-import { Button, Card } from "@heroui/react";
+import { Card, Link } from "@heroui/react";
 import { motion } from "motion/react";
-import { Link } from "react-router-dom";
 
 function AnimatedCheckmark() {
   return (
@@ -58,12 +57,18 @@ export function CompletePage() {
           <Card.Footer className="justify-center">
             <motion.div
               animate={{ opacity: 1 }}
+              className="flex flex-col items-center gap-2"
               initial={{ opacity: 0 }}
               transition={{ duration: 0.4, delay: 0.7 }}
             >
-              <Button variant="secondary">
-                <Link to="/">トップに戻る</Link>
-              </Button>
+              <Link href="https://workshop.nisshi.dev/">
+                nisshi-dev工房公式サイト（整備中）
+                <Link.Icon />
+              </Link>
+              <Link href="https://nisshi.dev">
+                nisshi-dev個人サイト
+                <Link.Icon />
+              </Link>
             </motion.div>
           </Card.Footer>
         </Card>

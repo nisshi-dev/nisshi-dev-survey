@@ -9,9 +9,16 @@ vi.mock("@/server/lib/db", () => ({
   },
 }));
 
+vi.mock("@/server/lib/email", () => ({
+  sendResponseCopyEmail: vi.fn().mockResolvedValue(undefined),
+}));
+
 const { prisma } = await import("@/server/lib/db");
 const mockFindUnique = vi.mocked(prisma.survey.findUnique);
 const mockCreateResponse = vi.mocked(prisma.response.create);
+
+const { sendResponseCopyEmail } = await import("@/server/lib/email");
+const mockSendEmail = vi.mocked(sendResponseCopyEmail);
 
 function createApp() {
   const app = new Hono();
@@ -97,6 +104,8 @@ describe("POST /survey/:id/submit", () => {
   beforeEach(() => {
     mockFindUnique.mockReset();
     mockCreateResponse.mockReset();
+    mockSendEmail.mockReset();
+    mockSendEmail.mockResolvedValue(undefined);
   });
 
   test("active なアンケートに回答を送信する", async () => {
@@ -188,5 +197,162 @@ describe("POST /survey/:id/submit", () => {
     expect(res.status).toBe(404);
     const body = await res.json();
     expect(body.error).toBe("Survey not found");
+  });
+
+  test("sendCopy なし（後方互換）で sendResponseCopyEmail を呼ばない", async () => {
+    mockFindUnique.mockResolvedValue({
+      id: "survey-1",
+      title: "テストアンケート",
+      description: null,
+      status: "active",
+      questions: [{ type: "text", id: "q1", label: "ご意見" }],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    mockCreateResponse.mockResolvedValue({
+      id: "resp-1",
+      surveyId: "survey-1",
+      answers: { q1: "良い" },
+      createdAt: new Date(),
+    });
+
+    const app = createApp();
+    const res = await app.request("/survey/survey-1/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answers: { q1: "良い" } }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(mockSendEmail).not.toHaveBeenCalled();
+  });
+
+  test("sendCopy: false で sendResponseCopyEmail を呼ばない", async () => {
+    mockFindUnique.mockResolvedValue({
+      id: "survey-1",
+      title: "テストアンケート",
+      description: null,
+      status: "active",
+      questions: [{ type: "text", id: "q1", label: "ご意見" }],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    mockCreateResponse.mockResolvedValue({
+      id: "resp-1",
+      surveyId: "survey-1",
+      answers: { q1: "良い" },
+      createdAt: new Date(),
+    });
+
+    const app = createApp();
+    const res = await app.request("/survey/survey-1/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        answers: { q1: "良い" },
+        sendCopy: false,
+      }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(mockSendEmail).not.toHaveBeenCalled();
+  });
+
+  test("sendCopy: true + メールなしで 400 を返す", async () => {
+    mockFindUnique.mockResolvedValue({
+      id: "survey-1",
+      title: "テストアンケート",
+      description: null,
+      status: "active",
+      questions: [{ type: "text", id: "q1", label: "ご意見" }],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const app = createApp();
+    const res = await app.request("/survey/survey-1/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        answers: { q1: "良い" },
+        sendCopy: true,
+      }),
+    });
+
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBeDefined();
+  });
+
+  test("sendCopy: true + メールありで 200 + sendResponseCopyEmail 呼び出し", async () => {
+    const questions = [{ type: "text", id: "q1", label: "ご意見" }];
+    mockFindUnique.mockResolvedValue({
+      id: "survey-1",
+      title: "テストアンケート",
+      description: null,
+      status: "active",
+      questions,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    mockCreateResponse.mockResolvedValue({
+      id: "resp-1",
+      surveyId: "survey-1",
+      answers: { q1: "良い" },
+      createdAt: new Date(),
+    });
+
+    const app = createApp();
+    const res = await app.request("/survey/survey-1/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        answers: { q1: "良い" },
+        sendCopy: true,
+        respondentEmail: "test@example.com",
+      }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(mockSendEmail).toHaveBeenCalledWith({
+      to: "test@example.com",
+      surveyTitle: "テストアンケート",
+      questions,
+      answers: { q1: "良い" },
+    });
+  });
+
+  test("メール送信失敗でもレスポンスは 200", async () => {
+    mockFindUnique.mockResolvedValue({
+      id: "survey-1",
+      title: "テストアンケート",
+      description: null,
+      status: "active",
+      questions: [{ type: "text", id: "q1", label: "ご意見" }],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    mockCreateResponse.mockResolvedValue({
+      id: "resp-1",
+      surveyId: "survey-1",
+      answers: { q1: "良い" },
+      createdAt: new Date(),
+    });
+    mockSendEmail.mockRejectedValue(new Error("Resend API error"));
+
+    const app = createApp();
+    const res = await app.request("/survey/survey-1/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        answers: { q1: "良い" },
+        sendCopy: true,
+        respondentEmail: "test@example.com",
+      }),
+    });
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.success).toBe(true);
   });
 });

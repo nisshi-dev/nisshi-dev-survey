@@ -1,16 +1,13 @@
-import {
-  Button,
-  Card,
-  Form,
-  Input,
-  Label,
-  Spinner,
-  TextField,
-} from "@heroui/react";
+import { Button, Card, Form, Spinner } from "@heroui/react";
 import { motion } from "motion/react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePostApiSurveyByIdSubmit } from "@/generated/api/survey/survey";
 import type { Question } from "@/shared/schema/survey";
+import { CheckboxQuestionField } from "./checkbox-question-field";
+import { EmailCopySection } from "./email-copy-section";
+import { RadioQuestionField } from "./radio-question-field";
+import { TextQuestionField } from "./text-question-field";
 
 interface Props {
   surveyId: string;
@@ -22,85 +19,30 @@ const fadeInUp = {
   animate: { opacity: 1, y: 0 },
 };
 
-function QuestionBadge({ index }: { index: number }) {
-  return (
-    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent/10 font-semibold text-accent text-xs">
-      {index}
-    </span>
-  );
-}
-
-function TextQuestionField({
-  question,
-  index,
-}: {
-  question: Extract<Question, { type: "text" }>;
-  index: number;
-}) {
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-2">
-        <QuestionBadge index={index} />
-        <span className="font-medium text-sm">{question.label}</span>
-      </div>
-      <TextField isRequired name={question.id}>
-        <Label className="sr-only">{question.label}</Label>
-        <Input placeholder="回答を入力..." />
-      </TextField>
-    </div>
-  );
-}
-
-function ChoiceQuestionField({
-  question,
-  index,
-}: {
-  question: Extract<Question, { type: "radio" | "checkbox" }>;
-  index: number;
-}) {
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-2">
-        <QuestionBadge index={index} />
-        <legend className="font-medium text-sm">{question.label}</legend>
-      </div>
-      <div className="flex flex-col gap-2">
-        {question.options.map((opt) => (
-          <label
-            className="flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3 transition-colors hover:border-accent/50 hover:bg-accent/5 has-[:checked]:border-accent has-[:checked]:bg-accent/10"
-            key={opt}
-          >
-            <input
-              className="accent-[var(--accent)]"
-              name={question.id}
-              required={question.type === "radio"}
-              type={question.type}
-              value={opt}
-            />
-            <span className="text-sm">{opt}</span>
-          </label>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export function SurveyForm({ surveyId, questions }: Props) {
   const navigate = useNavigate();
   const { trigger, isMutating, error } = usePostApiSurveyByIdSubmit(surveyId);
+  const [sendCopy, setSendCopy] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const fd = new FormData(e.currentTarget);
+    const formData = new FormData(e.currentTarget as HTMLFormElement);
+
     const answers: Record<string, string | string[]> = {};
     for (const q of questions) {
       if (q.type === "checkbox") {
-        answers[q.id] = fd.getAll(q.id) as string[];
+        answers[q.id] = formData.getAll(q.id) as string[];
       } else {
-        answers[q.id] = (fd.get(q.id) as string) ?? "";
+        answers[q.id] = (formData.get(q.id) as string) ?? "";
       }
     }
-    await trigger({ answers });
+
+    const respondentEmail = formData.get("respondentEmail") as string;
+    await trigger(
+      sendCopy && respondentEmail
+        ? { answers, sendCopy: true, respondentEmail }
+        : { answers }
+    );
     navigate(`/survey/${surveyId}/complete`);
   };
 
@@ -118,14 +60,15 @@ export function SurveyForm({ surveyId, questions }: Props) {
           >
             <Card className="w-full">
               <Card.Content>
-                <fieldset className="flex flex-col gap-2">
-                  {q.type === "text" && (
-                    <TextQuestionField index={i + 1} question={q} />
-                  )}
-                  {(q.type === "radio" || q.type === "checkbox") && (
-                    <ChoiceQuestionField index={i + 1} question={q} />
-                  )}
-                </fieldset>
+                {q.type === "text" && (
+                  <TextQuestionField index={i + 1} question={q} />
+                )}
+                {q.type === "radio" && (
+                  <RadioQuestionField index={i + 1} question={q} />
+                )}
+                {q.type === "checkbox" && (
+                  <CheckboxQuestionField index={i + 1} question={q} />
+                )}
               </Card.Content>
             </Card>
           </motion.div>
@@ -148,6 +91,23 @@ export function SurveyForm({ surveyId, questions }: Props) {
           transition={{
             duration: 0.4,
             delay: Math.min(questions.length * 0.1, 0.8),
+          }}
+        >
+          <Card className="w-full">
+            <Card.Content>
+              <EmailCopySection
+                onSendCopyChange={setSendCopy}
+                sendCopy={sendCopy}
+              />
+            </Card.Content>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          {...fadeInUp}
+          transition={{
+            duration: 0.4,
+            delay: Math.min((questions.length + 1) * 0.1, 0.8),
           }}
         >
           <Card className="w-full">
