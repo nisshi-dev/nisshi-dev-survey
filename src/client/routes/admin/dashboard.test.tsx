@@ -12,7 +12,7 @@ const { useGetApiAdminSurveys } = await import(
 );
 const mockUseSurveys = vi.mocked(useGetApiAdminSurveys);
 
-const { DashboardPage } = await import("./dashboard-page");
+const { DashboardPage } = await import("./dashboard");
 
 describe("DashboardPage", () => {
   afterEach(() => {

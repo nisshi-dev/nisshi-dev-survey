@@ -21,7 +21,7 @@ const mockUseResponses = vi.mocked(useGetApiAdminSurveysByIdResponses);
 const mockUsePatch = vi.mocked(usePatchApiAdminSurveysById);
 const mockUseDelete = vi.mocked(useDeleteApiAdminSurveysById);
 
-const { SurveyDetailPage } = await import("./survey-detail-page");
+const { SurveyDetailPage } = await import("./survey-detail");
 
 function renderWithRoute() {
   return render(

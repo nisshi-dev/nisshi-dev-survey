@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
+import { SurveyForm } from "@/client/components/admin/survey-form";
 import { usePostApiAdminSurveys } from "@/generated/api/admin-surveys/admin-surveys";
 import type { Question } from "@/shared/schema/survey";
-import { SurveyForm } from "./survey-form";
 
 export function SurveyCreatePage() {
   const navigate = useNavigate();

@@ -23,7 +23,7 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
-const { LoginPage } = await import("./login-page");
+const { LoginPage } = await import("./login");
 
 describe("LoginPage", () => {
   afterEach(() => {

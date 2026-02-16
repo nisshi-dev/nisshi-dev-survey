@@ -1,13 +1,13 @@
 import { Spinner } from "@heroui/react";
 import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import type { QuestionDraft } from "@/client/components/admin/survey-form";
+import { SurveyForm } from "@/client/components/admin/survey-form";
 import {
   useGetApiAdminSurveysById,
   usePutApiAdminSurveysById,
 } from "@/generated/api/admin-surveys/admin-surveys";
 import type { Question } from "@/shared/schema/survey";
-import type { QuestionDraft } from "./survey-form";
-import { SurveyForm } from "./survey-form";
 
 function questionsToDrafts(questions: Question[]): QuestionDraft[] {
   return questions.map((q) => {

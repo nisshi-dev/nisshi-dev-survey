@@ -25,7 +25,7 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
-const { SurveyCreatePage } = await import("./survey-create-page");
+const { SurveyCreatePage } = await import("./survey-create");
 
 describe("SurveyCreatePage", () => {
   afterEach(() => {
