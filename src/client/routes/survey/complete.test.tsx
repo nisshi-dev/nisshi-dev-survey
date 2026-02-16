@@ -20,26 +20,28 @@ describe("CompletePage", () => {
     expect(screen.getByText("ご回答ありがとうございました。")).toBeDefined();
   });
 
-  test("nisshi-dev工房へのリンクを表示する", () => {
+  test("nisshi-dev工房公式サイトへのリンクを表示する", () => {
     render(
       <MemoryRouter>
         <CompletePage />
       </MemoryRouter>
     );
 
-    const link = screen.getByRole("link", { name: "nisshi-dev工房" });
+    const link = screen.getByRole("link", {
+      name: /nisshi-dev工房公式サイト/,
+    });
     expect(link).toBeDefined();
-    expect(link.getAttribute("href")).toBe("https://nisshi-dev.com");
+    expect(link.getAttribute("href")).toBe("https://workshop.nisshi.dev/");
   });
 
-  test("nisshi.dev 個人サイトへのリンクを表示する", () => {
+  test("nisshi-dev 個人サイトへのリンクを表示する", () => {
     render(
       <MemoryRouter>
         <CompletePage />
       </MemoryRouter>
     );
 
-    const link = screen.getByRole("link", { name: "nisshi.dev" });
+    const link = screen.getByRole("link", { name: /nisshi-dev個人サイト/ });
     expect(link).toBeDefined();
     expect(link.getAttribute("href")).toBe("https://nisshi.dev");
   });

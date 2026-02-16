@@ -57,16 +57,16 @@ export function CompletePage() {
           <Card.Footer className="justify-center">
             <motion.div
               animate={{ opacity: 1 }}
-              className="flex gap-3"
+              className="flex flex-col items-center gap-2"
               initial={{ opacity: 0 }}
               transition={{ duration: 0.4, delay: 0.7 }}
             >
-              <Link href="https://nisshi-dev.com">
-                nisshi-dev工房
+              <Link href="https://workshop.nisshi.dev/">
+                nisshi-dev工房公式サイト（整備中）
                 <Link.Icon />
               </Link>
               <Link href="https://nisshi.dev">
-                nisshi.dev
+                nisshi-dev個人サイト
                 <Link.Icon />
               </Link>
             </motion.div>
