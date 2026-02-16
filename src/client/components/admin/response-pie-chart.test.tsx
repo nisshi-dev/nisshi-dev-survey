@@ -1,16 +1,6 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, test, vi } from "vitest";
-
-vi.mock("recharts", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("recharts")>();
-  return {
-    ...actual,
-    ResponsiveContainer: ({ children }: { children: React.ReactNode }) => (
-      <div data-testid="responsive-container">{children}</div>
-    ),
-  };
-});
+import { afterEach, describe, expect, test } from "vitest";
 
 const { ResponsePieChart } = await import("./response-pie-chart");
 

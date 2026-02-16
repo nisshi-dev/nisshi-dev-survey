@@ -3,16 +3,6 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-vi.mock("recharts", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("recharts")>();
-  return {
-    ...actual,
-    ResponsiveContainer: ({ children }: { children: React.ReactNode }) => (
-      <div>{children}</div>
-    ),
-  };
-});
-
 vi.mock("@/generated/api/admin-surveys/admin-surveys", () => ({
   useGetApiAdminSurveysById: vi.fn(),
   useGetApiAdminSurveysByIdResponses: vi.fn(),

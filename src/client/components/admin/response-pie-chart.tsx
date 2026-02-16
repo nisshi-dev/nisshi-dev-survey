@@ -1,5 +1,5 @@
 import { Card } from "@heroui/react";
-import { Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { Pie, PieChart, Tooltip } from "recharts";
 import type { CheckboxQuestion, RadioQuestion } from "@/shared/schema/survey";
 
 const COLORS = [
@@ -51,27 +51,23 @@ export function ResponsePieChart({ question, responses }: Props) {
       <Card.Header>
         <h3 className="font-semibold text-sm">{question.label}</h3>
       </Card.Header>
-      <Card.Content className="flex items-center gap-4">
+      <Card.Content>
         {totalAnswers === 0 ? (
-          <p className="w-full py-4 text-center text-muted text-sm">回答なし</p>
+          <p className="py-4 text-center text-muted text-sm">回答なし</p>
         ) : (
-          <>
-            <div className="h-40 w-40 shrink-0">
-              <ResponsiveContainer height="100%" width="100%">
-                <PieChart>
-                  <Pie
-                    cx="50%"
-                    cy="50%"
-                    data={data}
-                    dataKey="value"
-                    innerRadius={30}
-                    nameKey="name"
-                    outerRadius={70}
-                  />
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+          <div className="flex flex-row items-center gap-4">
+            <PieChart height={160} width={160}>
+              <Pie
+                cx="50%"
+                cy="50%"
+                data={data}
+                dataKey="value"
+                innerRadius={30}
+                nameKey="name"
+                outerRadius={70}
+              />
+              <Tooltip />
+            </PieChart>
             <ul className="flex flex-col gap-1 text-sm">
               {data.map((d, i) => (
                 <li className="flex items-center gap-2" key={d.name}>
@@ -83,7 +79,7 @@ export function ResponsePieChart({ question, responses }: Props) {
                 </li>
               ))}
             </ul>
-          </>
+          </div>
         )}
       </Card.Content>
     </Card>
