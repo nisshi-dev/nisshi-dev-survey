@@ -1,12 +1,13 @@
 import { Route, Routes } from "react-router-dom";
-import { AdminLayout } from "./admin/admin-layout";
-import { AuthGuard } from "./admin/auth-guard";
-import { DashboardPage } from "./admin/dashboard-page";
-import { LoginPage } from "./admin/login-page";
-import { SurveyCreatePage } from "./admin/survey-create-page";
-import { SurveyDetailPage } from "./admin/survey-detail-page";
-import { CompletePage } from "./survey/complete-page";
-import { SurveyPage } from "./survey/survey-page";
+import { AuthGuard } from "./components/admin/auth-guard";
+import { AdminLayout } from "./routes/admin/_layout";
+import { DashboardPage } from "./routes/admin/dashboard";
+import { LoginPage } from "./routes/admin/login";
+import { SurveyCreatePage } from "./routes/admin/survey-create";
+import { SurveyDetailPage } from "./routes/admin/survey-detail";
+import { SurveyEditPage } from "./routes/admin/survey-edit";
+import { CompletePage } from "./routes/survey/complete";
+import { SurveyPage } from "./routes/survey/respond";
 
 export function App() {
   return (
@@ -28,6 +29,7 @@ export function App() {
         <Route element={<DashboardPage />} index />
         <Route element={<SurveyCreatePage />} path="surveys/new" />
         <Route element={<SurveyDetailPage />} path="surveys/:id" />
+        <Route element={<SurveyEditPage />} path="surveys/:id/edit" />
       </Route>
     </Routes>
   );

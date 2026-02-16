@@ -42,12 +42,15 @@ nisshi-dev Survey は **Google Forms の軽量版** のようなアンケート�
 |---|---|---|
 | `/admin/login` | ログインページ | メール + パスワードで認証 |
 | `/admin` | ダッシュボード | アンケート一覧・回答閲覧 |
+| `/admin/surveys/new` | アンケート作成ページ | 新規アンケートを作成 |
+| `/admin/surveys/:id` | アンケート詳細ページ | 詳細表示・ステータス変更・削除 |
+| `/admin/surveys/:id/edit` | アンケート編集ページ | タイトル・説明・質問を編集（active/completed は質問変更不可） |
 
 ## データモデル
 
 | モデル | 説明 |
 |---|---|
-| Survey | アンケート。タイトル・説明（Markdown、任意）・質問定義を持つ |
+| Survey | アンケート。タイトル・説明（Markdown、任意）・ステータス（draft/active/completed）・質問定義を持つ |
 | Response | 回答。どのアンケートに対する回答かを紐付け |
 | AdminUser | 管理者アカウント。メールアドレスとパスワード |
 | Session | ログインセッション。有効期限付き |

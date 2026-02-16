@@ -1,3 +1,8 @@
 @import "tailwindcss";
 @import "@heroui/styles";
 @plugin "@tailwindcss/typography";
+
+:root {
+  --accent: oklch(0.696 0.17 162.48);
+  --accent-foreground: oklch(0.985 0 0);
+}

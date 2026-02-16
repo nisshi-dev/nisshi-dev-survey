@@ -11,16 +11,17 @@ model Survey {
   id          String     @id @default(cuid())
   title       String
   description String?
+  status      String     @default("draft")
   questions   Json
-  responses Response[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  responses   Response[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
 model Response {
   id        String   @id @default(cuid())
   surveyId  String
-  survey    Survey   @relation(fields: [surveyId], references: [id])
+  survey    Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
   answers   Json
   createdAt DateTime @default(now())
 

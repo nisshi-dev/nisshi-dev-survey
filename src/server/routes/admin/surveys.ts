@@ -9,6 +9,8 @@ import {
   QuestionsSchema,
   SurveyListResponseSchema,
   SurveyResponsesSchema,
+  UpdateSurveySchema,
+  UpdateSurveyStatusSchema,
 } from "@/shared/schema/survey";
 
 const app = new Hono();
@@ -31,10 +33,15 @@ app.get(
   }),
   async (c) => {
     const surveys = await prisma.survey.findMany({
-      select: { id: true, title: true },
+      select: { id: true, title: true, status: true, createdAt: true },
       orderBy: { createdAt: "desc" },
     });
-    return c.json({ surveys });
+    return c.json({
+      surveys: surveys.map((s) => ({
+        ...s,
+        createdAt: s.createdAt.toISOString(),
+      })),
+    });
   }
 );
 
@@ -66,6 +73,8 @@ app.post(
         id: survey.id,
         title: survey.title,
         description: survey.description,
+        status: survey.status,
+        createdAt: survey.createdAt.toISOString(),
         questions: parsed.success ? parsed.output : [],
       },
       201
@@ -109,8 +118,168 @@ app.get(
       id: survey.id,
       title: survey.title,
       description: survey.description,
+      status: survey.status,
+      createdAt: survey.createdAt.toISOString(),
       questions: parsed.success ? parsed.output : [],
     });
+  }
+);
+
+app.put(
+  "/:id",
+  describeRoute({
+    tags: ["Admin Surveys"],
+    summary: "アンケート内容更新",
+    responses: {
+      200: {
+        description: "成功",
+        content: {
+          "application/json": {
+            schema: resolver(AdminSurveyResponseSchema),
+          },
+        },
+      },
+      400: {
+        description: "質問変更不可",
+        content: {
+          "application/json": {
+            schema: resolver(ErrorResponseSchema),
+          },
+        },
+      },
+      404: {
+        description: "見つからない",
+        content: {
+          "application/json": {
+            schema: resolver(ErrorResponseSchema),
+          },
+        },
+      },
+    },
+  }),
+  validator("param", IdParamSchema),
+  validator("json", UpdateSurveySchema),
+  async (c) => {
+    const { id } = c.req.valid("param");
+    const { title, description, questions } = c.req.valid("json");
+    const existing = await prisma.survey.findUnique({ where: { id } });
+    if (!existing) {
+      return c.json({ error: "Survey not found" }, 404);
+    }
+    if (existing.status !== "draft") {
+      const existingJson = JSON.stringify(existing.questions);
+      const newJson = JSON.stringify(questions);
+      if (existingJson !== newJson) {
+        return c.json(
+          { error: "Cannot modify questions for active or completed survey" },
+          400
+        );
+      }
+    }
+    const survey = await prisma.survey.update({
+      where: { id },
+      data: { title, description, questions },
+    });
+    const parsed = safeParse(QuestionsSchema, survey.questions);
+    return c.json({
+      id: survey.id,
+      title: survey.title,
+      description: survey.description,
+      status: survey.status,
+      createdAt: survey.createdAt.toISOString(),
+      questions: parsed.success ? parsed.output : [],
+    });
+  }
+);
+
+app.patch(
+  "/:id",
+  describeRoute({
+    tags: ["Admin Surveys"],
+    summary: "アンケートステータス更新",
+    responses: {
+      200: {
+        description: "成功",
+        content: {
+          "application/json": {
+            schema: resolver(AdminSurveyResponseSchema),
+          },
+        },
+      },
+      404: {
+        description: "見つからない",
+        content: {
+          "application/json": {
+            schema: resolver(ErrorResponseSchema),
+          },
+        },
+      },
+    },
+  }),
+  validator("param", IdParamSchema),
+  validator("json", UpdateSurveyStatusSchema),
+  async (c) => {
+    const { id } = c.req.valid("param");
+    const { status } = c.req.valid("json");
+    const existing = await prisma.survey.findUnique({ where: { id } });
+    if (!existing) {
+      return c.json({ error: "Survey not found" }, 404);
+    }
+    const survey = await prisma.survey.update({
+      where: { id },
+      data: { status },
+    });
+    const parsed = safeParse(QuestionsSchema, survey.questions);
+    return c.json({
+      id: survey.id,
+      title: survey.title,
+      description: survey.description,
+      status: survey.status,
+      createdAt: survey.createdAt.toISOString(),
+      questions: parsed.success ? parsed.output : [],
+    });
+  }
+);
+
+app.delete(
+  "/:id",
+  describeRoute({
+    tags: ["Admin Surveys"],
+    summary: "アンケート削除",
+    responses: {
+      200: {
+        description: "削除成功",
+      },
+      400: {
+        description: "削除不可",
+        content: {
+          "application/json": {
+            schema: resolver(ErrorResponseSchema),
+          },
+        },
+      },
+      404: {
+        description: "見つからない",
+        content: {
+          "application/json": {
+            schema: resolver(ErrorResponseSchema),
+          },
+        },
+      },
+    },
+  }),
+  validator("param", IdParamSchema),
+  async (c) => {
+    const { id } = c.req.valid("param");
+    const survey = await prisma.survey.findUnique({ where: { id } });
+    if (!survey) {
+      return c.json({ error: "Survey not found" }, 404);
+    }
+    if (survey.status === "completed") {
+      return c.json({ error: "Completed survey cannot be deleted" }, 400);
+    }
+    await prisma.survey.delete({ where: { id } });
+    return c.json({ success: true });
   }
 );
 

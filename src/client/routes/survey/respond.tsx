@@ -2,9 +2,9 @@ import { Card, Skeleton } from "@heroui/react";
 import { motion } from "motion/react";
 import { useParams } from "react-router-dom";
 import { MarkdownRenderer } from "@/client/components/markdown-renderer";
+import { SurveyForm } from "@/client/components/survey/survey-form";
 import { useGetApiSurveyById } from "@/generated/api/survey/survey";
 import type { Question } from "@/shared/schema/survey";
-import { SurveyForm } from "./survey-form";
 
 function SkeletonCard() {
   return (

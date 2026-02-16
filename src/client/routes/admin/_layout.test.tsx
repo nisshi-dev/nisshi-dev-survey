@@ -23,7 +23,7 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
-const { AdminLayout } = await import("./admin-layout");
+const { AdminLayout } = await import("./_layout");
 
 describe("AdminLayout", () => {
   afterEach(() => {

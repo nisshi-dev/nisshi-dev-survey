@@ -12,7 +12,7 @@ const { useGetApiAdminSurveys } = await import(
 );
 const mockUseSurveys = vi.mocked(useGetApiAdminSurveys);
 
-const { DashboardPage } = await import("./dashboard-page");
+const { DashboardPage } = await import("./dashboard");
 
 describe("DashboardPage", () => {
   afterEach(() => {
@@ -39,8 +39,18 @@ describe("DashboardPage", () => {
       data: {
         data: {
           surveys: [
-            { id: "s1", title: "満足度アンケート" },
-            { id: "s2", title: "フィードバック" },
+            {
+              id: "s1",
+              title: "満足度アンケート",
+              status: "active",
+              createdAt: "2026-02-15T00:00:00.000Z",
+            },
+            {
+              id: "s2",
+              title: "フィードバック",
+              status: "draft",
+              createdAt: "2026-02-14T00:00:00.000Z",
+            },
           ],
         },
         status: 200,
@@ -84,7 +94,14 @@ describe("DashboardPage", () => {
     mockUseSurveys.mockReturnValue({
       data: {
         data: {
-          surveys: [{ id: "s1", title: "テストアンケート" }],
+          surveys: [
+            {
+              id: "s1",
+              title: "テストアンケート",
+              status: "draft",
+              createdAt: "2026-02-15T00:00:00.000Z",
+            },
+          ],
         },
         status: 200,
         headers: new Headers(),
@@ -100,5 +117,47 @@ describe("DashboardPage", () => {
 
     const link = screen.getByRole("link", { name: "テストアンケート" });
     expect(link.getAttribute("href")).toBe("/admin/surveys/s1");
+  });
+
+  test("ステータスチップを表示する", () => {
+    mockUseSurveys.mockReturnValue({
+      data: {
+        data: {
+          surveys: [
+            {
+              id: "s1",
+              title: "アンケート1",
+              status: "active",
+              createdAt: "2026-02-15T00:00:00.000Z",
+            },
+            {
+              id: "s2",
+              title: "アンケート2",
+              status: "draft",
+              createdAt: "2026-02-14T00:00:00.000Z",
+            },
+            {
+              id: "s3",
+              title: "アンケート3",
+              status: "completed",
+              createdAt: "2026-02-13T00:00:00.000Z",
+            },
+          ],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText("受付中")).toBeDefined();
+    expect(screen.getByText("下書き")).toBeDefined();
+    expect(screen.getByText("完了")).toBeDefined();
   });
 });

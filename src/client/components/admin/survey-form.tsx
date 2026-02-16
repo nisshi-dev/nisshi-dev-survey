@@ -1,25 +1,56 @@
 import { Button, Card, Form, Input, Label, TextField } from "@heroui/react";
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { usePostApiAdminSurveys } from "@/generated/api/admin-surveys/admin-surveys";
 import type { Question } from "@/shared/schema/survey";
 import { SurveyPreview } from "./survey-preview";
 
-interface QuestionDraft {
+export interface QuestionDraft {
   id: string;
   type: "text" | "radio" | "checkbox";
   label: string;
   options: string;
 }
 
+interface SurveyFormProps {
+  initialTitle?: string;
+  initialDescription?: string;
+  initialQuestions?: QuestionDraft[];
+  onSubmit: (data: {
+    title: string;
+    description: string | undefined;
+    questions: Question[];
+  }) => Promise<void>;
+  submitLabel: string;
+  isSubmitting: boolean;
+  questionsDisabled?: boolean;
+}
+
 let nextId = 1;
 
-export function SurveyCreatePage() {
-  const navigate = useNavigate();
-  const { trigger, isMutating } = usePostApiAdminSurveys();
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [questions, setQuestions] = useState<QuestionDraft[]>([]);
+function buildQuestions(drafts: QuestionDraft[]): Question[] {
+  return drafts.map((q) => {
+    if (q.type === "text") {
+      return { type: "text", id: q.id, label: q.label };
+    }
+    const options = q.options
+      .split(",")
+      .map((o) => o.trim())
+      .filter(Boolean);
+    return { type: q.type, id: q.id, label: q.label, options };
+  });
+}
+
+export function SurveyForm({
+  initialTitle = "",
+  initialDescription = "",
+  initialQuestions = [],
+  onSubmit,
+  submitLabel,
+  isSubmitting,
+  questionsDisabled = false,
+}: SurveyFormProps) {
+  const [title, setTitle] = useState(initialTitle);
+  const [description, setDescription] = useState(initialDescription);
+  const [questions, setQuestions] = useState<QuestionDraft[]>(initialQuestions);
 
   const addQuestion = () => {
     setQuestions((prev) => [
@@ -64,28 +95,16 @@ export function SurveyCreatePage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const builtQuestions: Question[] = questions.map((q) => {
-      if (q.type === "text") {
-        return { type: "text", id: q.id, label: q.label };
-      }
-      const options = q.options
-        .split(",")
-        .map((o) => o.trim())
-        .filter(Boolean);
-      return { type: q.type, id: q.id, label: q.label, options };
-    });
-    await trigger({
+    await onSubmit({
       title,
       description: description || undefined,
-      questions: builtQuestions,
+      questions: buildQuestions(questions),
     });
-    navigate("/admin");
   };
 
   return (
     <div className="flex h-full gap-6">
       <div className="min-w-0 flex-1 overflow-y-auto">
-        <h1 className="mb-6 font-bold text-2xl">アンケート作成</h1>
         <Form onSubmit={handleSubmit}>
           <Card className="w-full">
             <Card.Content className="flex flex-col gap-6">
@@ -119,6 +138,7 @@ export function SurveyCreatePage() {
                     <TextField isRequired>
                       <Label>質問文</Label>
                       <Input
+                        disabled={questionsDisabled}
                         onChange={(e) =>
                           updateQuestion(i, "label", e.target.value)
                         }
@@ -130,6 +150,7 @@ export function SurveyCreatePage() {
                       <Label htmlFor={`type-${q.id}`}>タイプ</Label>
                       <select
                         className="input"
+                        disabled={questionsDisabled}
                         id={`type-${q.id}`}
                         onChange={(e) =>
                           updateQuestion(
@@ -149,6 +170,7 @@ export function SurveyCreatePage() {
                       <TextField>
                         <Label>選択肢（カンマ区切り）</Label>
                         <Input
+                          disabled={questionsDisabled}
                           onChange={(e) =>
                             updateQuestion(i, "options", e.target.value)
                           }
@@ -158,24 +180,28 @@ export function SurveyCreatePage() {
                       </TextField>
                     )}
                   </Card.Content>
-                  <Card.Footer>
-                    <Button
-                      onPress={() => removeQuestion(i)}
-                      size="sm"
-                      variant="danger"
-                    >
-                      削除
-                    </Button>
-                  </Card.Footer>
+                  {!questionsDisabled && (
+                    <Card.Footer>
+                      <Button
+                        onPress={() => removeQuestion(i)}
+                        size="sm"
+                        variant="danger"
+                      >
+                        削除
+                      </Button>
+                    </Card.Footer>
+                  )}
                 </Card>
               ))}
             </Card.Content>
             <Card.Footer className="flex gap-3">
-              <Button onPress={addQuestion} variant="secondary">
-                質問を追加
-              </Button>
-              <Button isPending={isMutating} type="submit">
-                {isMutating ? "作成中..." : "作成する"}
+              {!questionsDisabled && (
+                <Button onPress={addQuestion} variant="secondary">
+                  質問を追加
+                </Button>
+              )}
+              <Button isPending={isSubmitting} type="submit">
+                {isSubmitting ? "保存中..." : submitLabel}
               </Button>
             </Card.Footer>
           </Card>
