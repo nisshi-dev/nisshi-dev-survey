@@ -111,8 +111,12 @@ describe("SurveyDetailPage", () => {
     renderWithRoute();
 
     expect(screen.getByText("満足度調査")).toBeDefined();
-    expect(screen.getByText("お名前（text）")).toBeDefined();
-    expect(screen.getByText("評価（radio）")).toBeDefined();
+    expect(screen.getAllByText("お名前").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("テキスト")).toBeDefined();
+    expect(screen.getAllByText("評価").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("単一選択")).toBeDefined();
+    expect(screen.getAllByText("良い").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("普通").length).toBeGreaterThanOrEqual(1);
   });
 
   test("回答一覧を表示する", () => {
