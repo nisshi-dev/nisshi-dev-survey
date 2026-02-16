@@ -2,8 +2,10 @@ import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import { safeParse } from "valibot";
 import { prisma } from "@/server/lib/db";
+import { sendResponseCopyEmail } from "@/server/lib/email";
 import { ErrorResponseSchema, IdParamSchema } from "@/shared/schema/common";
 import {
+  type Question,
   QuestionsSchema,
   SubmitAnswersSchema,
   SubmitSuccessResponseSchema,
@@ -67,6 +69,14 @@ app.post(
           },
         },
       },
+      400: {
+        description: "バリデーションエラー",
+        content: {
+          "application/json": {
+            schema: resolver(ErrorResponseSchema),
+          },
+        },
+      },
       404: {
         description: "見つからない",
         content: {
@@ -81,7 +91,14 @@ app.post(
   validator("json", SubmitAnswersSchema),
   async (c) => {
     const { id } = c.req.valid("param");
-    const { answers } = c.req.valid("json");
+    const { answers, sendCopy, respondentEmail } = c.req.valid("json");
+
+    if (sendCopy && !respondentEmail) {
+      return c.json(
+        { error: "respondentEmail is required when sendCopy is true" },
+        400
+      );
+    }
 
     const survey = await prisma.survey.findUnique({ where: { id } });
     if (!survey || survey.status !== "active") {
@@ -91,6 +108,19 @@ app.post(
     await prisma.response.create({
       data: { surveyId: id, answers },
     });
+
+    if (sendCopy && respondentEmail) {
+      const parsed = safeParse(QuestionsSchema, survey.questions);
+      const questions: Question[] = parsed.success ? parsed.output : [];
+      sendResponseCopyEmail({
+        to: respondentEmail,
+        surveyTitle: survey.title,
+        questions,
+        answers,
+      }).catch((err) => {
+        console.error("Failed to send response copy email:", err);
+      });
+    }
 
     return c.json({ success: true, surveyId: id });
   }

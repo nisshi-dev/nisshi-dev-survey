@@ -16,6 +16,7 @@
 | API クライアント生成 | Orval（@orval/swr） | OpenAPI → SWR hooks 自動生成 |
 | バックエンド | Hono | REST API サーバー |
 | DB | Prisma Postgres + Prisma ORM 7 | マネージド PostgreSQL（`@prisma/adapter-pg` で直接接続） |
+| メール送信 | Resend | 回答コピーメールのトランザクショナル送信 |
 | テスト | Vitest 4.x + @vitest/coverage-v8 | TDD ベースのユニットテスト・カバレッジ |
 | デプロイ | Vercel | ホスティング + Serverless Functions |
 
@@ -33,6 +34,7 @@ src/
 ├── server/          # Hono API サーバー
 │   ├── index.ts     # エントリポイント（/api ベース）
 │   ├── lib/db.ts    # Prisma クライアント（adapter-pg 直接接続）
+│   ├── lib/email.ts # メール送信ユーティリティ（Resend SDK）
 │   ├── middleware/   # 認証ミドルウェア等
 │   └── routes/      # API ルート
 │       ├── survey.ts          # 回答者向け API
@@ -54,7 +56,7 @@ src/
 | メソッド | パス | 説明 | 状態 |
 |---|---|---|---|
 | GET | `/api/survey/:id` | アンケート取得（status=active のみ、それ以外は 404） | 実装済み |
-| POST | `/api/survey/:id/submit` | 回答送信（status=active のみ、それ以外は 404） | 実装済み |
+| POST | `/api/survey/:id/submit` | 回答送信（status=active のみ、それ以外は 404）。`sendCopy: true` + `respondentEmail` 指定時に回答コピーメールを fire-and-forget で送信 | 実装済み |
 
 ### 管理者向け（要認証）
 
@@ -121,7 +123,10 @@ Valibot スキーマ（SSoT: src/shared/schema/）
 - `@hono/vite-dev-server` により Hono API が Vite のミドルウェアとして動作
 - Prisma スキーマは `prisma/schema.prisma`、CLI 設定は `prisma.config.ts`
 - Prisma Client は `src/generated/prisma/` に生成（`.gitignore` 済み）
-- 環境変数は `.env` に `DATABASE_URL` を設定（`.env.example` 参照）
+- 環境変数は `.env` に設定（`.env.example` 参照）
+  - `DATABASE_URL` — Prisma Postgres 接続 URL
+  - `RESEND_API_KEY` — Resend API キー（回答コピーメール送信に使用）
+  - `RESEND_FROM_EMAIL` — 送信元メールアドレス（未設定時は Resend サンドボックスの `onboarding@resend.dev`）
 - DB は [Prisma Postgres](https://console.prisma.io)（`@prisma/adapter-pg` で直接接続）
 
 ## UI 実装方針

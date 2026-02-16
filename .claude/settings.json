@@ -28,7 +28,10 @@
       "Bash(pkill:*)",
       "Bash(find:*)",
       "WebFetch",
-      "WebSearch"
+      "WebSearch",
+      "Read(./.env.example)",
+      "Edit(./.env.example)",
+      "Write(./.env.example)"
     ],
     "deny": [
       "Bash(sudo:*)",
@@ -38,6 +41,8 @@
       "Read(./.env.*)",
       "Write(./.env)",
       "Write(./.env.*)",
+      "Edit(./.env)",
+      "Edit(./.env.*)",
       "Write(**/secrets/**)",
       "Bash(wget:*)",
       "Bash(rm -rf /)",

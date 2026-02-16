@@ -1,13 +1,15 @@
 import {
   Button,
   Card,
+  Checkbox,
   Form,
   Input,
   Label,
   Spinner,
   TextField,
 } from "@heroui/react";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePostApiSurveyByIdSubmit } from "@/generated/api/survey/survey";
 import type { Question } from "@/shared/schema/survey";
@@ -88,6 +90,8 @@ function ChoiceQuestionField({
 export function SurveyForm({ surveyId, questions }: Props) {
   const navigate = useNavigate();
   const { trigger, isMutating, error } = usePostApiSurveyByIdSubmit(surveyId);
+  const [sendCopy, setSendCopy] = useState(false);
+  const [respondentEmail, setRespondentEmail] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -100,7 +104,9 @@ export function SurveyForm({ surveyId, questions }: Props) {
         answers[q.id] = (fd.get(q.id) as string) ?? "";
       }
     }
-    await trigger({ answers });
+    await trigger(
+      sendCopy ? { answers, sendCopy: true, respondentEmail } : { answers }
+    );
     navigate(`/survey/${surveyId}/complete`);
   };
 
@@ -148,6 +154,59 @@ export function SurveyForm({ surveyId, questions }: Props) {
           transition={{
             duration: 0.4,
             delay: Math.min(questions.length * 0.1, 0.8),
+          }}
+        >
+          <Card className="w-full">
+            <Card.Content>
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    id="send-copy"
+                    isSelected={sendCopy}
+                    onChange={setSendCopy}
+                  >
+                    <Checkbox.Control>
+                      <Checkbox.Indicator />
+                    </Checkbox.Control>
+                  </Checkbox>
+                  <Label htmlFor="send-copy">
+                    回答のコピーをメールで受け取る
+                  </Label>
+                </div>
+
+                <AnimatePresence initial={false}>
+                  {sendCopy && (
+                    <motion.div
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      initial={{ opacity: 0, height: 0 }}
+                      key="email-input"
+                      style={{ overflow: "hidden" }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <TextField
+                        isRequired
+                        name="respondentEmail"
+                        onChange={setRespondentEmail}
+                        type="email"
+                        value={respondentEmail}
+                      >
+                        <Label>メールアドレス</Label>
+                        <Input placeholder="example@mail.com" />
+                      </TextField>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </Card.Content>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          {...fadeInUp}
+          transition={{
+            duration: 0.4,
+            delay: Math.min((questions.length + 1) * 0.1, 0.8),
           }}
         >
           <Card className="w-full">

@@ -1,6 +1,7 @@
 import {
   array,
   boolean,
+  email,
   type InferOutput,
   literal,
   maxLength,
@@ -91,6 +92,8 @@ export type CreateSurveyInput = InferOutput<typeof CreateSurveySchema>;
 /** POST /api/survey/:id/submit — 回答送信リクエスト */
 export const SubmitAnswersSchema = object({
   answers: record(string(), union([string(), array(string())])),
+  sendCopy: optional(boolean()),
+  respondentEmail: optional(pipe(string(), email())),
 });
 export type SubmitAnswersInput = InferOutput<typeof SubmitAnswersSchema>;
 

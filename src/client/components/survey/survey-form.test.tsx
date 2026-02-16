@@ -115,4 +115,91 @@ describe("SurveyForm", () => {
 
     expect(triggerMock).toHaveBeenCalled();
   });
+
+  test("回答コピーのチェックボックスが表示される", () => {
+    const questions: Question[] = [{ type: "text", id: "q1", label: "ご意見" }];
+    mockUseSubmit.mockReturnValue({
+      trigger: vi.fn(),
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyForm questions={questions} surveyId="s1" />
+      </MemoryRouter>
+    );
+
+    expect(
+      screen.getByLabelText("回答のコピーをメールで受け取る")
+    ).toBeDefined();
+  });
+
+  test("チェックボックス OFF のときメール入力欄が非表示", () => {
+    const questions: Question[] = [{ type: "text", id: "q1", label: "ご意見" }];
+    mockUseSubmit.mockReturnValue({
+      trigger: vi.fn(),
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyForm questions={questions} surveyId="s1" />
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByLabelText("メールアドレス")).toBeNull();
+  });
+
+  test("チェックボックス ON のときメール入力欄が表示される", async () => {
+    const questions: Question[] = [{ type: "text", id: "q1", label: "ご意見" }];
+    mockUseSubmit.mockReturnValue({
+      trigger: vi.fn(),
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyForm questions={questions} surveyId="s1" />
+      </MemoryRouter>
+    );
+
+    const user = userEvent.setup();
+    await user.click(screen.getByLabelText("回答のコピーをメールで受け取る"));
+
+    expect(screen.getByLabelText("メールアドレス")).toBeDefined();
+  });
+
+  test("チェックボックス ON + メール入力で trigger に sendCopy と respondentEmail が含まれる", async () => {
+    const triggerMock = vi.fn().mockResolvedValue({
+      data: { success: true, surveyId: "s1" },
+      status: 200,
+    });
+    const questions: Question[] = [{ type: "text", id: "q1", label: "ご意見" }];
+    mockUseSubmit.mockReturnValue({
+      trigger: triggerMock,
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyForm questions={questions} surveyId="s1" />
+      </MemoryRouter>
+    );
+
+    const user = userEvent.setup();
+    await user.type(screen.getByLabelText("ご意見"), "良いです");
+    await user.click(screen.getByLabelText("回答のコピーをメールで受け取る"));
+    await user.type(
+      screen.getByLabelText("メールアドレス"),
+      "test@example.com"
+    );
+    await user.click(screen.getByRole("button", { name: "回答を送信する" }));
+
+    expect(triggerMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sendCopy: true,
+        respondentEmail: "test@example.com",
+      })
+    );
+  });
 });
