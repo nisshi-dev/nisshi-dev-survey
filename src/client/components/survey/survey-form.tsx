@@ -13,6 +13,7 @@ interface Props {
   surveyId: string;
   questions: Question[];
   params?: Record<string, string>;
+  dataEntryId?: string;
 }
 
 const fadeInUp = {
@@ -20,7 +21,12 @@ const fadeInUp = {
   animate: { opacity: 1, y: 0 },
 };
 
-export function SurveyForm({ surveyId, questions, params }: Props) {
+export function SurveyForm({
+  surveyId,
+  questions,
+  params,
+  dataEntryId,
+}: Props) {
   const navigate = useNavigate();
   const { trigger, isMutating, error } = usePostApiSurveyByIdSubmit(surveyId);
   const [sendCopy, setSendCopy] = useState(false);
@@ -43,6 +49,7 @@ export function SurveyForm({ surveyId, questions, params }: Props) {
     await trigger({
       answers,
       ...(hasParams && { params }),
+      ...(dataEntryId && { dataEntryId }),
       ...(sendCopy && respondentEmail && { sendCopy: true, respondentEmail }),
     });
     navigate(`/survey/${surveyId}/complete`, { state: { submitted: true } });

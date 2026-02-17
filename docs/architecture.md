@@ -82,9 +82,12 @@ src/
 
 | メソッド | パス | 説明 | 状態 |
 |---|---|---|---|
-| POST | `/api/data/surveys` | アンケート作成（データ投入用） | 実装済み |
-| GET | `/api/data/surveys/:id` | アンケート詳細取得 | 実装済み |
+| POST | `/api/data/surveys` | アンケート作成（`status` 指定可） | 実装済み |
+| GET | `/api/data/surveys` | アンケート一覧取得 | 実装済み |
+| GET | `/api/data/surveys/:id` | アンケート詳細取得（データエントリ一覧を含む） | 実装済み |
 | POST | `/api/data/surveys/:id/responses` | 回答一括投入（`dataEntryId` 対応） | 実装済み |
+| GET | `/api/data/surveys/:id/data-entries` | データエントリ一覧取得 | 実装済み |
+| POST | `/api/data/surveys/:id/data-entries` | データエントリ作成 | 実装済み |
 
 ### その他
 
@@ -140,6 +143,7 @@ Valibot スキーマ（SSoT: src/shared/schema/）
   - `DATABASE_URL` — Prisma Postgres 接続 URL
   - `RESEND_API_KEY` — Resend API キー（回答コピーメール送信に使用）
   - `RESEND_FROM_EMAIL` — 送信元メールアドレス（未設定時は Resend サンドボックスの `onboarding@resend.dev`）
+  - `SURVEY_API_KEY` — データ投入 API の認証キー（`X-API-Key` ヘッダーで送信）
 - DB は [Prisma Postgres](https://console.prisma.io)（`@prisma/adapter-pg` で直接接続）
 
 ## UI 実装方針

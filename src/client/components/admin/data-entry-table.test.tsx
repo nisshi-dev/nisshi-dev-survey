@@ -125,12 +125,13 @@ describe("DataEntryTable", () => {
     const user = userEvent.setup();
     const rows = screen.getAllByRole("row");
     // rows[0] = header, rows[1] = e1 (5回答), rows[2] = e2 (0回答)
-    const deleteButtons = within(rows[2]).getAllByRole("button");
-    const deleteButton = deleteButtons.find(
-      (b) => b.textContent === "削除" || b.getAttribute("aria-label") === "削除"
-    );
-    expect(deleteButton).toBeDefined();
-    await user.click(deleteButton!);
+    const deleteButton = within(rows[2])
+      .getAllByRole("button")
+      .find(
+        (b) =>
+          b.textContent === "削除" || b.getAttribute("aria-label") === "削除"
+      ) as HTMLElement;
+    await user.click(deleteButton);
 
     expect(onDelete).toHaveBeenCalledWith("e2");
   });
@@ -149,12 +150,13 @@ describe("DataEntryTable", () => {
 
     const rows = screen.getAllByRole("row");
     // rows[1] = e1 (5回答あり)
-    const deleteButtons = within(rows[1]).getAllByRole("button");
-    const deleteButton = deleteButtons.find(
-      (b) => b.textContent === "削除" || b.getAttribute("aria-label") === "削除"
-    );
-    expect(deleteButton).toBeDefined();
-    expect(deleteButton!.hasAttribute("disabled")).toBe(true);
+    const deleteButton = within(rows[1])
+      .getAllByRole("button")
+      .find(
+        (b) =>
+          b.textContent === "削除" || b.getAttribute("aria-label") === "削除"
+      ) as HTMLElement;
+    expect(deleteButton.hasAttribute("disabled")).toBe(true);
   });
 
   test("編集ボタンをクリックすると onEdit がエントリ付きで呼ばれる", async () => {
