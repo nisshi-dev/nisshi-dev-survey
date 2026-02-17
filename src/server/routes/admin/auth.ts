@@ -1,15 +1,15 @@
 import { Hono } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { describeRoute, resolver, validator } from "hono-openapi";
-import { prisma } from "@/server/lib/db";
-import { verifyPassword } from "@/server/lib/password";
 import {
   LoginRequestSchema,
   LoginResponseSchema,
   LogoutResponseSchema,
   MeResponseSchema,
-} from "@/shared/schema/auth";
-import { ErrorResponseSchema } from "@/shared/schema/common";
+} from "../../../shared/schema/auth.js";
+import { ErrorResponseSchema } from "../../../shared/schema/common.js";
+import { prisma } from "../../lib/db.js";
+import { verifyPassword } from "../../lib/password.js";
 
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 

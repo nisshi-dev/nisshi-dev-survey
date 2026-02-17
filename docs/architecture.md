@@ -33,6 +33,7 @@ src/
 │   └── schema/      # Valibot スキーマ + 導出型（SSoT）
 ├── server/          # Hono API サーバー
 │   ├── index.ts     # エントリポイント（/api ベース）
+│   ├── entry-vercel.ts # Vercel Serverless Function エントリ
 │   ├── lib/db.ts    # Prisma クライアント（adapter-pg 直接接続）
 │   ├── lib/email.ts # メール送信ユーティリティ（Resend SDK）
 │   ├── middleware/   # 認証ミドルウェア等
