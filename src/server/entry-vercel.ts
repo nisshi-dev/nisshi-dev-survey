@@ -1,2 +1,3 @@
-// biome-ignore lint/performance/noBarrelFile: Vercel serverless function entry point
-export { default } from "./index";
+import app from "./index.js";
+
+export default app;

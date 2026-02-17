@@ -1,8 +1,10 @@
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import { minLength, object, pipe, safeParse, string } from "valibot";
-import { prisma } from "@/server/lib/db";
-import { ErrorResponseSchema, IdParamSchema } from "@/shared/schema/common";
+import {
+  ErrorResponseSchema,
+  IdParamSchema,
+} from "../../../shared/schema/common.js";
 import {
   AdminSurveyResponseSchema,
   CreateDataEntrySchema,
@@ -17,7 +19,8 @@ import {
   UpdateDataEntrySchema,
   UpdateSurveySchema,
   UpdateSurveyStatusSchema,
-} from "@/shared/schema/survey";
+} from "../../../shared/schema/survey.js";
+import { prisma } from "../../lib/db.js";
 
 const EntryIdParamSchema = object({
   id: pipe(string(), minLength(1)),
