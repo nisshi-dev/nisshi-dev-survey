@@ -191,9 +191,6 @@ dist
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,node,git
 
-### Vercel Serverless Function (build output) ###
-api/
-
 ### Prisma ###
 src/generated/
 
