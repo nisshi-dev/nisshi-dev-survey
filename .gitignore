@@ -191,8 +191,10 @@ dist
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,node,git
 
-### Vercel Serverless Function (build output) ###
-api/
+### Vercel Serverless Function ###
+# api/index.ts はソースファイル。ビルド成果物は除外
+api/*.js
+api/*.svg
 
 ### Prisma ###
 src/generated/

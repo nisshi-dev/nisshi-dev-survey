@@ -27,13 +27,14 @@ prisma/
 ├── schema.prisma    # Prisma スキーマ定義
 └── migrations/      # マイグレーション履歴
 prisma.config.ts     # Prisma CLI 設定（datasource URL 等）
+api/
+└── index.ts           # Vercel Serverless Function エントリポイント（git コミット対象）
 src/
 ├── generated/prisma/  # Prisma Client 生成コード（.gitignore 済み）
 ├── shared/          # サーバー・クライアント共通コード
 │   └── schema/      # Valibot スキーマ + 導出型（SSoT）
 ├── server/          # Hono API サーバー
 │   ├── index.ts     # エントリポイント（/api ベース）
-│   ├── entry-vercel.ts # Vercel Serverless Function エントリ
 │   ├── lib/db.ts    # Prisma クライアント（adapter-pg 直接接続）
 │   ├── lib/email.ts # メール送信ユーティリティ（Resend SDK）
 │   ├── middleware/   # 認証ミドルウェア等
@@ -168,21 +169,21 @@ Valibot スキーマ（SSoT: src/shared/schema/）
 | `/api/(.*)` | `/api` | Serverless Function（API） |
 | `/(.*)` | `/index.html` | SPA（フロントエンド） |
 
-### API ビルド
+### API（Serverless Function）
 
-`vite build --ssr` で `src/server/entry-vercel.ts` をバンドルし、単一ファイル `api/index.js` を生成する:
+`api/index.ts` をソースファイルとして git にコミットし、Vercel の `@vercel/node` ランタイムに直接コンパイルさせる:
 
 ```
-src/server/entry-vercel.ts → vite build --ssr → api/index.js（Serverless Function）
+api/index.ts（ソースファイル）→ Vercel @vercel/node がコンパイル → Serverless Function
 ```
 
-- `entry-vercel.ts` は Hono アプリをデフォルトエクスポートする
+- `api/index.ts` は `src/server/index.js` を re-export するだけの薄いエントリポイント
 - Vercel の ESM ランタイムが `.fetch()` メソッドを検出し、Web Standards API モードで実行する
-- Vite がローカルコード・Prisma Client・パスエイリアスをすべてバンドル解決するため、ランタイムのモジュール解決問題を回避できる
-- `api/` はビルド成果物のため `.gitignore` 済み
+- GitHub Push トリガーのデプロイでも `api/index.ts` がソースファイルとして存在するため正しく動作する
+- Prisma v7 の `.ts` インポート問題は `scripts/fix-prisma-imports.mjs`（`db:generate` で自動実行）で `.js` に変換して回避
 
 ### ビルドコマンド
 
 ```
-prisma migrate deploy → prisma generate → generate（OpenAPI + SWR hooks）→ build:api（API バンドル）→ vite build（SPA）
+prisma migrate deploy → db:generate（prisma generate + fix-prisma-imports）→ generate（OpenAPI + SWR hooks）→ vite build（SPA）
 ```
