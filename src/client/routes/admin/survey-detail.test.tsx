@@ -663,6 +663,88 @@ describe("SurveyDetailPage", () => {
     expect(screen.getByText("回答一覧（3件）")).toBeDefined();
   });
 
+  test("params が空でも dataEntryId からフィルタできる", async () => {
+    mockUseSurvey.mockReturnValue({
+      data: {
+        data: {
+          id: "s1",
+          title: "テスト",
+          status: "active",
+          createdAt: "2026-02-15T00:00:00.000Z",
+          questions: [{ type: "text", id: "q1", label: "感想" }],
+          params: [{ key: "event", label: "イベント", visible: true }],
+          dataEntries: [
+            {
+              id: "e1",
+              surveyId: "s1",
+              values: { event: "GENkaigi" },
+              label: null,
+              responseCount: 2,
+              createdAt: "2026-02-15T00:00:00.000Z",
+            },
+            {
+              id: "e2",
+              surveyId: "s1",
+              values: { event: "RubyKaigi" },
+              label: null,
+              responseCount: 1,
+              createdAt: "2026-02-16T00:00:00.000Z",
+            },
+          ],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    mockUseResponses.mockReturnValue({
+      data: {
+        data: {
+          surveyId: "s1",
+          responses: [
+            {
+              id: "r1",
+              answers: { q1: "感想1" },
+              params: {},
+              dataEntryId: "e1",
+            },
+            {
+              id: "r2",
+              answers: { q1: "感想2" },
+              params: {},
+              dataEntryId: "e1",
+            },
+            {
+              id: "r3",
+              answers: { q1: "感想3" },
+              params: {},
+              dataEntryId: "e2",
+            },
+          ],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    setupMocks();
+
+    renderWithRoute();
+
+    const user = userEvent.setup();
+
+    // フィルタなしでは全件表示
+    expect(screen.getByText("回答一覧（3件）")).toBeDefined();
+
+    // イベント=GENkaigi でフィルタ → e1 の 2 件が表示される
+    await user.click(screen.getByRole("button", { name: "GENkaigi" }));
+    expect(screen.getByText("回答一覧（2件）")).toBeDefined();
+
+    // イベント=RubyKaigi でフィルタ → e2 の 1 件が表示される
+    await user.click(screen.getByRole("button", { name: "RubyKaigi" }));
+    expect(screen.getByText("回答一覧（1件）")).toBeDefined();
+  });
+
   test("生データテーブルにパラメータ列を表示する", () => {
     mockUseSurvey.mockReturnValue({
       data: {

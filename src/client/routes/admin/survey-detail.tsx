@@ -225,22 +225,31 @@ export function SurveyDetailPage() {
   const dataEntries = ((survey as Record<string, unknown>).dataEntries ??
     []) as DataEntry[];
 
-  const allResponses =
+  const rawResponses =
     responsesData && responsesData.status === 200
       ? responsesData.data.responses
       : [];
 
+  const allResponses = rawResponses.map((r) => {
+    const raw = (r as Record<string, unknown>).params as
+      | Record<string, string>
+      | undefined;
+    const hasResponseParams = raw && Object.keys(raw).length > 0;
+    const resolvedParams = hasResponseParams
+      ? raw
+      : (dataEntries.find(
+          (e) => e.id === (r as Record<string, unknown>).dataEntryId
+        )?.values ?? {});
+    return { ...r, params: resolvedParams };
+  });
+
   const hasActiveFilters = Object.values(paramFilters).some(Boolean);
   const responses = hasActiveFilters
-    ? allResponses.filter((r) => {
-        const params = ((r as Record<string, unknown>).params ?? {}) as Record<
-          string,
-          string
-        >;
-        return Object.entries(paramFilters).every(
-          ([key, value]) => !value || params[key] === value
-        );
-      })
+    ? allResponses.filter((r) =>
+        Object.entries(paramFilters).every(
+          ([key, value]) => !value || r.params[key] === value
+        )
+      )
     : allResponses;
 
   const baseUrl = `${window.location.origin}/survey/${survey.id}`;
