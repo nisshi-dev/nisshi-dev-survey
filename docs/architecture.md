@@ -48,6 +48,8 @@ src/
     ├── main.tsx     # エントリポイント
     ├── globals.css  # Tailwind CSS + HeroUI スタイル
     ├── app.tsx      # ルーティング定義
+    ├── lib/
+    │   └── api-fetcher.ts  # Orval 用カスタムフェッチャー（API URL 付与 + credentials）
     ├── survey/      # 回答者向けページ
     └── admin/       # 管理画面ページ
 ```
@@ -132,7 +134,7 @@ Valibot スキーマ（SSoT: src/shared/schema/）
 
 - パスワードハッシュ: `node:crypto` の `scrypt`（salt 16 bytes + key 64 bytes、`hex:hex` 形式）
 - セッション有効期限: 7 日間
-- Cookie: `HttpOnly`, `Secure`（本番のみ）, `SameSite=Lax`, `Path=/`
+- Cookie: `HttpOnly`, `Secure`（本番のみ）, `SameSite=None`（本番）/ `Lax`（ローカル）, `Path=/`
 
 ## 開発環境
 
@@ -145,6 +147,8 @@ Valibot スキーマ（SSoT: src/shared/schema/）
   - `RESEND_API_KEY` — Resend API キー（回答コピーメール送信に使用）
   - `RESEND_FROM_EMAIL` — 送信元メールアドレス（未設定時は Resend サンドボックスの `onboarding@resend.dev`）
   - `NISSHI_DEV_SURVEY_API_KEY` — データ投入 API の認証キー（`X-API-Key` ヘッダーで送信）
+  - `VITE_API_URL` — API サーバーの URL（本番: `https://api.survey.nisshi.dev`、ローカルは空）
+  - `ALLOWED_ORIGIN` — CORS 許可オリジン（本番: `https://survey.nisshi.dev`、ローカルは空）
 - DB は [Prisma Postgres](https://console.prisma.io)（`@prisma/adapter-pg` で直接接続）
 
 ## UI 実装方針
@@ -157,32 +161,30 @@ Valibot スキーマ（SSoT: src/shared/schema/）
 - スタイルのカスタマイズは Tailwind CSS ユーティリティクラスまたは HeroUI のテーマ変数で行う
 - HeroUI コンポーネントの実装時は `.claude/skills/heroui-react` のスクリプトで最新ドキュメントを参照する
 
-## Vercel デプロイ
+## Vercel デプロイ（分離構成）
 
-### ルーティング
+同一リポジトリから 2 つの Vercel プロジェクトとしてデプロイする。
 
-`vercel.json` の rewrites で URL を振り分ける:
-
-| パターン | 転送先 | 役割 |
+| | フロントエンド | API |
 |---|---|---|
-| `/api/(.*)` | `/api` | Serverless Function（API） |
-| `/(.*)` | `/index.html` | SPA（フロントエンド） |
+| Vercel プロジェクト | nisshi-dev-survey（既存） | 新規作成 |
+| ビルド | `npm run build`（SPA 静的ファイル） | `npm run build:api:vercel`（マイグレーション + バンドル済み Serverless Function） |
+| ドメイン | survey.nisshi.dev | api.survey.nisshi.dev |
 
-### API ビルド
+### フロントエンド
 
-`vite build --ssr` で `src/server/entry-vercel.ts` をバンドルし、単一ファイル `api/index.js` を生成する:
+- Framework Preset を **Vite** にすることで SPA フォールバックが自動適用される
+- `VITE_API_URL` 環境変数で API サーバーの URL を設定
+- Orval 生成の SWR hooks は `apiFetcher`（`src/client/lib/api-fetcher.ts`）経由で API を呼び出す
 
-```
-src/server/entry-vercel.ts → vite build --ssr → api/index.js（Serverless Function）
-```
+### API（Serverless Function）
 
-- `entry-vercel.ts` は Hono アプリをデフォルトエクスポートする
-- Vercel の ESM ランタイムが `.fetch()` メソッドを検出し、Web Standards API モードで実行する
-- Vite がローカルコード・Prisma Client・パスエイリアスをすべてバンドル解決するため、ランタイムのモジュール解決問題を回避できる
-- `api/` はビルド成果物のため `.gitignore` 済み
+- `build:api`（`vite build --ssr`）で Hono アプリをバンドルし `api/index.js` を生成
+- Vercel が `api/index.js` を Serverless Function として検出・実行
+- `ALLOWED_ORIGIN` 環境変数で CORS 許可オリジンを設定
+- Cookie は `SameSite=None; Secure` でクロスオリジン送信に対応
 
-### ビルドコマンド
+### ローカル開発
 
-```
-prisma migrate deploy → prisma generate → generate（OpenAPI + SWR hooks）→ build:api（API バンドル）→ vite build（SPA）
-```
+変更なし: `npm run dev` で Vite + Hono が同一プロセスで動作（ポート 5173）。
+`VITE_API_URL` と `ALLOWED_ORIGIN` は未設定のまま。

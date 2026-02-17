@@ -10,6 +10,12 @@ export default defineConfig({
       mode: "tags-split",
       schemas: "./src/generated/api/schemas",
       baseUrl: "",
+      override: {
+        mutator: {
+          path: "./src/client/lib/api-fetcher.ts",
+          name: "apiFetcher",
+        },
+      },
     },
   },
 });

@@ -65,7 +65,7 @@ app.post(
     setCookie(c, "session", session.id, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "Lax",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
       path: "/",
       maxAge: SESSION_MAX_AGE,
     });

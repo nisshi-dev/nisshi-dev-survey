@@ -13,7 +13,15 @@ import survey from "./routes/survey.js";
 const app = new Hono().basePath("/api");
 
 app.use("*", logger());
-app.use("*", cors());
+
+const allowedOrigin = process.env.ALLOWED_ORIGIN;
+app.use(
+  "*",
+  cors({
+    origin: allowedOrigin || "*",
+    credentials: !!allowedOrigin,
+  })
+);
 
 app.get("/health", (c) => c.json({ status: "ok" }));
 
