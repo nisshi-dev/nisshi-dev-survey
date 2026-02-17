@@ -20,7 +20,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "prisma migrate deploy && prisma generate && npm run generate && vite build",
+    "build": "prisma migrate deploy && prisma generate && npm run generate && npm run build:api && vite build",
+    "build:api": "vite build --ssr src/server/entry-vercel.ts --outDir api",
     "preview": "vite preview",
     "check": "ultracite check",
     "fix": "ultracite fix",
