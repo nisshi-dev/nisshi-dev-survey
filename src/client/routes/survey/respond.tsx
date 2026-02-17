@@ -8,8 +8,8 @@ import type { Question, SurveyParam } from "@/shared/schema/survey";
 
 interface DataEntry {
   id: string;
-  values: Record<string, string>;
   label: string | null;
+  values: Record<string, string>;
 }
 
 function SkeletonCard() {

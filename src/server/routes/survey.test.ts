@@ -105,6 +105,34 @@ describe("GET /survey/:id", () => {
     expect(body.error).toBe("Survey not found");
   });
 
+  test("allowOther: true の質問を含むアンケートを返す", async () => {
+    const questions = [
+      {
+        type: "radio",
+        id: "q1",
+        label: "好きな色",
+        options: ["赤", "青"],
+        allowOther: true,
+      },
+    ];
+    mockFindUnique.mockResolvedValue({
+      id: "survey-1",
+      title: "テストアンケート",
+      description: null,
+      status: "active",
+      questions,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      dataEntries: [],
+    } as never);
+
+    const app = createApp();
+    const res = await app.request("/survey/survey-1");
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.questions[0].allowOther).toBe(true);
+  });
+
   test("params 定義を含むアンケートを返す", async () => {
     const params = [{ key: "version", label: "バージョン", visible: true }];
     mockFindUnique.mockResolvedValue({

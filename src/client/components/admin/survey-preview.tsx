@@ -3,9 +3,9 @@ import { MarkdownRenderer } from "@/client/components/markdown-renderer";
 import type { Question } from "@/shared/schema/survey";
 
 interface Props {
-  title: string;
   description: string;
   questions: Question[];
+  title: string;
 }
 
 function QuestionBadge({ index }: { index: number }) {
@@ -36,16 +36,25 @@ function PreviewQuestionCard({
               回答を入力...
             </div>
           )}
-          {(question.type === "radio" || question.type === "checkbox") &&
-            question.options.map((opt) => (
-              <label
-                className="flex items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3"
-                key={opt}
-              >
-                <input disabled type={question.type} />
-                <span className="text-sm">{opt}</span>
-              </label>
-            ))}
+          {(question.type === "radio" || question.type === "checkbox") && (
+            <>
+              {question.options.map((opt) => (
+                <label
+                  className="flex items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3"
+                  key={opt}
+                >
+                  <input disabled type={question.type} />
+                  <span className="text-sm">{opt}</span>
+                </label>
+              ))}
+              {question.allowOther && (
+                <label className="flex items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3">
+                  <input disabled type={question.type} />
+                  <span className="text-sm">その他</span>
+                </label>
+              )}
+            </>
+          )}
         </div>
       </Card.Content>
     </Card>

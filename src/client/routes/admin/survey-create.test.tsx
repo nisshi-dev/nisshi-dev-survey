@@ -297,4 +297,23 @@ describe("SurveyCreatePage", () => {
       })
     );
   });
+
+  test("テキスト質問には「その他を追加」トグルが表示されない", async () => {
+    mockUseCreate.mockReturnValue({
+      trigger: vi.fn(),
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyCreatePage />
+      </MemoryRouter>
+    );
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: "質問を追加" }));
+
+    // デフォルトは text なので「その他を追加」は表示されない
+    expect(screen.queryByRole("switch", { name: "その他を追加" })).toBeNull();
+  });
 });

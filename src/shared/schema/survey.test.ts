@@ -10,6 +10,7 @@ import {
   DataEntryResponseSchema,
   DataEntryValuesSchema,
   DataSubmitResponsesSchema,
+  OTHER_VALUE,
   RadioQuestionSchema,
   SURVEY_STATUS_LABELS,
   SURVEY_STATUSES,
@@ -806,6 +807,98 @@ describe("CheckboxQuestionSchema required フィールド", () => {
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.output.required).toBe(false);
+    }
+  });
+});
+
+describe("OTHER_VALUE 定数", () => {
+  test("__other__ という文字列である", () => {
+    expect(OTHER_VALUE).toBe("__other__");
+  });
+});
+
+describe("RadioQuestionSchema allowOther フィールド", () => {
+  test("allowOther: true でバリデーション通過", () => {
+    const result = safeParse(RadioQuestionSchema, {
+      type: "radio",
+      id: "q1",
+      label: "質問",
+      options: ["A", "B"],
+      allowOther: true,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.output.allowOther).toBe(true);
+    }
+  });
+
+  test("allowOther: false でバリデーション通過", () => {
+    const result = safeParse(RadioQuestionSchema, {
+      type: "radio",
+      id: "q1",
+      label: "質問",
+      options: ["A", "B"],
+      allowOther: false,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.output.allowOther).toBe(false);
+    }
+  });
+
+  test("allowOther 省略時はデフォルト false", () => {
+    const result = safeParse(RadioQuestionSchema, {
+      type: "radio",
+      id: "q1",
+      label: "質問",
+      options: ["A", "B"],
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.output.allowOther).toBe(false);
+    }
+  });
+});
+
+describe("CheckboxQuestionSchema allowOther フィールド", () => {
+  test("allowOther: true でバリデーション通過", () => {
+    const result = safeParse(CheckboxQuestionSchema, {
+      type: "checkbox",
+      id: "q1",
+      label: "質問",
+      options: ["A", "B"],
+      allowOther: true,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.output.allowOther).toBe(true);
+    }
+  });
+
+  test("allowOther: false でバリデーション通過", () => {
+    const result = safeParse(CheckboxQuestionSchema, {
+      type: "checkbox",
+      id: "q1",
+      label: "質問",
+      options: ["A", "B"],
+      allowOther: false,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.output.allowOther).toBe(false);
+    }
+  });
+
+  test("allowOther 省略時はデフォルト false", () => {
+    const result = safeParse(CheckboxQuestionSchema, {
+      type: "checkbox",
+      id: "q1",
+      label: "質問",
+      options: ["A", "B"],
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.output.allowOther).toBe(false);
     }
   });
 });

@@ -16,35 +16,36 @@ import type { Question, SurveyParam } from "@/shared/schema/survey";
 import { SurveyPreview } from "./survey-preview";
 
 export interface QuestionDraft {
+  allowOther: boolean;
   id: string;
-  type: "text" | "radio" | "checkbox";
   label: string;
   options: string;
   required: boolean;
+  type: "text" | "radio" | "checkbox";
 }
 
 export interface ParamDraft {
   id: string;
   key: string;
+  keyManuallyEdited: boolean;
   label: string;
   visible: boolean;
-  keyManuallyEdited: boolean;
 }
 
 interface SurveyFormProps {
-  initialTitle?: string;
   initialDescription?: string;
-  initialQuestions?: QuestionDraft[];
   initialParams?: ParamDraft[];
+  initialQuestions?: QuestionDraft[];
+  initialTitle?: string;
+  isSubmitting: boolean;
   onSubmit: (data: {
     title: string;
     description: string | undefined;
     questions: Question[];
     params: SurveyParam[];
   }) => Promise<void>;
-  submitLabel: string;
-  isSubmitting: boolean;
   questionsDisabled?: boolean;
+  submitLabel: string;
 }
 
 const questionTypeItems = [
@@ -73,6 +74,7 @@ function buildQuestions(drafts: QuestionDraft[]): Question[] {
       label: q.label,
       options,
       required: q.required,
+      allowOther: q.allowOther,
     };
   });
 }
@@ -122,6 +124,7 @@ export function SurveyForm({
         label: "",
         options: "",
         required: false,
+        allowOther: false,
       },
     ]);
   };
@@ -139,6 +142,12 @@ export function SurveyForm({
   const toggleQuestionRequired = (index: number, value: boolean) => {
     setQuestions((prev) =>
       prev.map((q, i) => (i === index ? { ...q, required: value } : q))
+    );
+  };
+
+  const toggleAllowOther = (index: number, value: boolean) => {
+    setQuestions((prev) =>
+      prev.map((q, i) => (i === index ? { ...q, allowOther: value } : q))
     );
   };
 
@@ -206,6 +215,7 @@ export function SurveyForm({
           label: q.label || "質問未入力",
           options: options.length > 0 ? options : ["選択肢なし"],
           required: q.required,
+          allowOther: q.allowOther,
         };
       }),
     [questions]
@@ -341,6 +351,20 @@ export function SurveyForm({
                             </Switch.Control>
                             必須
                           </Switch>
+                          {q.type !== "text" && (
+                            <Switch
+                              isDisabled={questionsDisabled}
+                              isSelected={q.allowOther}
+                              onChange={(checked) =>
+                                toggleAllowOther(i, checked)
+                              }
+                            >
+                              <Switch.Control>
+                                <Switch.Thumb />
+                              </Switch.Control>
+                              その他を追加
+                            </Switch>
+                          )}
                         </Card.Content>
                         {!questionsDisabled && (
                           <Card.Footer>

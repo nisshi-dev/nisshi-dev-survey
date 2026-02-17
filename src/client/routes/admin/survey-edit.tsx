@@ -15,13 +15,22 @@ import type { Question, SurveyParam } from "@/shared/schema/survey";
 function questionsToDrafts(questions: Question[]): QuestionDraft[] {
   return questions.map((q) => {
     if (q.type === "text") {
-      return { id: q.id, type: "text" as const, label: q.label, options: "" };
+      return {
+        id: q.id,
+        type: "text" as const,
+        label: q.label,
+        options: "",
+        required: q.required ?? false,
+        allowOther: false,
+      };
     }
     return {
       id: q.id,
       type: q.type,
       label: q.label,
       options: q.options.join(", "),
+      required: q.required ?? false,
+      allowOther: q.allowOther ?? false,
     };
   });
 }

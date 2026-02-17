@@ -3,17 +3,17 @@ import { useState } from "react";
 import type { SurveyParam } from "@/shared/schema/survey";
 
 interface DataEntryFormModalProps {
-  isOpen: boolean;
-  onOpenChange: (isOpen: boolean) => void;
-  params: SurveyParam[];
-  initialValues?: Record<string, string>;
   initialLabel?: string;
+  initialValues?: Record<string, string>;
+  isOpen: boolean;
+  isSubmitting: boolean;
+  mode: "create" | "edit";
+  onOpenChange: (isOpen: boolean) => void;
   onSubmit: (data: {
     values: Record<string, string>;
     label: string | undefined;
   }) => Promise<void>;
-  isSubmitting: boolean;
-  mode: "create" | "edit";
+  params: SurveyParam[];
 }
 
 export function DataEntryFormModal({

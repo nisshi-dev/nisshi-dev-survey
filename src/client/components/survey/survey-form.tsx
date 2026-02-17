@@ -31,10 +31,10 @@ function findMissingRequiredAnswers(
 }
 
 interface Props {
-  surveyId: string;
-  questions: Question[];
-  params?: Record<string, string>;
   dataEntryId?: string;
+  params?: Record<string, string>;
+  questions: Question[];
+  surveyId: string;
 }
 
 const fadeInUp = {

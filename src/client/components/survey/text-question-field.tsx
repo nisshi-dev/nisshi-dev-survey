@@ -3,8 +3,8 @@ import type { Question } from "@/shared/schema/survey";
 import { QuestionBadge } from "./question-badge";
 
 interface Props {
-  question: Extract<Question, { type: "text" }>;
   index: number;
+  question: Extract<Question, { type: "text" }>;
 }
 
 export function TextQuestionField({ question, index }: Props) {

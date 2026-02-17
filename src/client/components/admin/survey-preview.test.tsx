@@ -60,4 +60,55 @@ describe("SurveyPreview", () => {
 
     expect(screen.getByText("タイトル未入力")).toBeDefined();
   });
+
+  test("allowOther: true のラジオ質問で「その他」が表示される", () => {
+    const questions: Question[] = [
+      {
+        type: "radio",
+        id: "q1",
+        label: "好きな色",
+        options: ["赤", "青"],
+        allowOther: true,
+      },
+    ];
+    render(
+      <SurveyPreview description="" questions={questions} title="テスト" />
+    );
+
+    expect(screen.getByText("その他")).toBeDefined();
+  });
+
+  test("allowOther: false のラジオ質問で「その他」が表示されない", () => {
+    const questions: Question[] = [
+      {
+        type: "radio",
+        id: "q1",
+        label: "好きな色",
+        options: ["赤", "青"],
+        allowOther: false,
+      },
+    ];
+    render(
+      <SurveyPreview description="" questions={questions} title="テスト" />
+    );
+
+    expect(screen.queryByText("その他")).toBeNull();
+  });
+
+  test("allowOther: true のチェックボックス質問で「その他」が表示される", () => {
+    const questions: Question[] = [
+      {
+        type: "checkbox",
+        id: "q1",
+        label: "好きな果物",
+        options: ["りんご", "みかん"],
+        allowOther: true,
+      },
+    ];
+    render(
+      <SurveyPreview description="" questions={questions} title="テスト" />
+    );
+
+    expect(screen.getByText("その他")).toBeDefined();
+  });
 });

@@ -14,9 +14,9 @@ import { Resend } from "resend";
 import type { Question } from "@/shared/schema/survey";
 
 interface ResponseCopyEmailProps {
-  surveyTitle: string;
-  questions: Question[];
   answers: Record<string, string | string[]>;
+  questions: Question[];
+  surveyTitle: string;
 }
 
 export function ResponseCopyEmail({
@@ -80,10 +80,10 @@ export async function buildResponseEmailHtml(
 }
 
 interface SendResponseCopyEmailParams {
-  to: string;
-  surveyTitle: string;
-  questions: Question[];
   answers: Record<string, string | string[]>;
+  questions: Question[];
+  surveyTitle: string;
+  to: string;
 }
 
 export async function sendResponseCopyEmail({

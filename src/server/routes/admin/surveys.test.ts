@@ -294,7 +294,7 @@ describe("PUT /admin/surveys/:id", () => {
     const body = await res.json();
     expect(body.title).toBe("新タイトル");
     expect(body.description).toBe("新しい説明");
-    // Valibot パースにより required: false がデフォルト追加される
+    // Valibot パースにより required: false, allowOther: false がデフォルト追加される
     expect(body.questions).toEqual([
       {
         type: "radio",
@@ -302,6 +302,7 @@ describe("PUT /admin/surveys/:id", () => {
         label: "新質問",
         options: ["A", "B"],
         required: false,
+        allowOther: false,
       },
     ]);
   });
