@@ -242,4 +242,78 @@ describe("SurveyCreatePage", () => {
     expect(triggerMock).toHaveBeenCalled();
     expect(navigateMock).toHaveBeenCalledWith("/admin");
   });
+
+  test("質問追加時にデフォルトで「任意」になっている", async () => {
+    mockUseCreate.mockReturnValue({
+      trigger: vi.fn(),
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyCreatePage />
+      </MemoryRouter>
+    );
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: "質問を追加" }));
+
+    const requiredSwitch = screen.getByRole("switch", {
+      name: "必須",
+    }) as HTMLInputElement;
+    expect(requiredSwitch).toBeDefined();
+    expect(requiredSwitch.checked).toBe(false);
+  });
+
+  test("必須トグルを ON にして送信すると required: true が含まれる", async () => {
+    const triggerMock = vi.fn().mockResolvedValue({
+      data: { id: "new-1", title: "テスト", questions: [] },
+      status: 201,
+      headers: new Headers(),
+    });
+    mockUseCreate.mockReturnValue({
+      trigger: triggerMock,
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyCreatePage />
+      </MemoryRouter>
+    );
+
+    const user = userEvent.setup();
+    await user.type(screen.getByLabelText("タイトル"), "テスト");
+    await user.click(screen.getByRole("button", { name: "質問を追加" }));
+    await user.type(screen.getByLabelText("質問文"), "お名前");
+    await user.click(screen.getByRole("switch", { name: "必須" }));
+    await user.click(screen.getByRole("button", { name: "作成する" }));
+
+    expect(triggerMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        questions: expect.arrayContaining([
+          expect.objectContaining({ required: true }),
+        ]),
+      })
+    );
+  });
+
+  test("テキスト質問には「その他を追加」トグルが表示されない", async () => {
+    mockUseCreate.mockReturnValue({
+      trigger: vi.fn(),
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyCreatePage />
+      </MemoryRouter>
+    );
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: "質問を追加" }));
+
+    // デフォルトは text なので「その他を追加」は表示されない
+    expect(screen.queryByRole("switch", { name: "その他を追加" })).toBeNull();
+  });
 });

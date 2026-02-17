@@ -102,7 +102,10 @@ describe("POST /admin/surveys", () => {
     expect(body.title).toBe("新しいアンケート");
     expect(body.status).toBe("draft");
     expect(body.createdAt).toBe(createdAt.toISOString());
-    expect(body.questions).toEqual(questions);
+    // Valibot パースにより required: false がデフォルト追加される
+    expect(body.questions).toEqual([
+      { type: "text", id: "q1", label: "ご意見", required: false },
+    ]);
   });
 
   test("description 付きでアンケートを作成して 201 を返す", async () => {
@@ -164,7 +167,10 @@ describe("GET /admin/surveys/:id", () => {
     expect(body.description).toBe("テスト説明");
     expect(body.status).toBe("active");
     expect(body.createdAt).toBe(createdAt.toISOString());
-    expect(body.questions).toEqual(questions);
+    // Valibot パースにより required: false がデフォルト追加される
+    expect(body.questions).toEqual([
+      { type: "text", id: "q1", label: "ご意見", required: false },
+    ]);
   });
 
   test("存在しないアンケートで 404 を返す", async () => {
@@ -288,7 +294,17 @@ describe("PUT /admin/surveys/:id", () => {
     const body = await res.json();
     expect(body.title).toBe("新タイトル");
     expect(body.description).toBe("新しい説明");
-    expect(body.questions).toEqual(newQuestions);
+    // Valibot パースにより required: false, allowOther: false がデフォルト追加される
+    expect(body.questions).toEqual([
+      {
+        type: "radio",
+        id: "q1",
+        label: "新質問",
+        options: ["A", "B"],
+        required: false,
+        allowOther: false,
+      },
+    ]);
   });
 
   test("active のアンケートの title と description を更新できる（questions 同一）", async () => {

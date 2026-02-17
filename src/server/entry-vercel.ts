@@ -1,4 +1,2 @@
-import { handle } from "hono/vercel";
-import app from "./index";
-
-export default handle(app);
+// biome-ignore lint/performance/noBarrelFile: Vercel serverless function entry point
+export { default } from "./index";

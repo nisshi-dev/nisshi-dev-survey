@@ -9,11 +9,32 @@ import { EmailCopySection } from "./email-copy-section";
 import { RadioQuestionField } from "./radio-question-field";
 import { TextQuestionField } from "./text-question-field";
 
+function findMissingRequiredAnswers(
+  questions: Question[],
+  answers: Record<string, string | string[]>
+): string[] {
+  const missingIds: string[] = [];
+  for (const q of questions) {
+    if (!q.required) {
+      continue;
+    }
+    const answer = answers[q.id];
+    if (q.type === "checkbox") {
+      if (!answer || (Array.isArray(answer) && answer.length === 0)) {
+        missingIds.push(q.id);
+      }
+    } else if (!answer || answer === "") {
+      missingIds.push(q.id);
+    }
+  }
+  return missingIds;
+}
+
 interface Props {
-  surveyId: string;
-  questions: Question[];
-  params?: Record<string, string>;
   dataEntryId?: string;
+  params?: Record<string, string>;
+  questions: Question[];
+  surveyId: string;
 }
 
 const fadeInUp = {
@@ -42,6 +63,10 @@ export function SurveyForm({
       } else {
         answers[q.id] = (formData.get(q.id) as string) ?? "";
       }
+    }
+
+    if (findMissingRequiredAnswers(questions, answers).length > 0) {
+      return;
     }
 
     const respondentEmail = formData.get("respondentEmail") as string;

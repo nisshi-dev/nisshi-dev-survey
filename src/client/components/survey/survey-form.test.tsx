@@ -356,4 +356,207 @@ describe("SurveyForm", () => {
     const callArgs = triggerMock.mock.calls[0][0];
     expect(callArgs.params).toBeUndefined();
   });
+
+  test("required: true の text 質問が未回答の場合、送信されない", async () => {
+    const triggerMock = vi.fn().mockResolvedValue({
+      data: { success: true, surveyId: "s1" },
+      status: 200,
+    });
+    const questions: Question[] = [
+      { type: "text", id: "q1", label: "お名前", required: true },
+    ];
+    mockUseSubmit.mockReturnValue({
+      trigger: triggerMock,
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyForm questions={questions} surveyId="s1" />
+      </MemoryRouter>
+    );
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: "回答を送信する" }));
+
+    expect(triggerMock).not.toHaveBeenCalled();
+  });
+
+  test("required: false の質問は未回答でも送信できる", async () => {
+    const triggerMock = vi.fn().mockResolvedValue({
+      data: { success: true, surveyId: "s1" },
+      status: 200,
+    });
+    const questions: Question[] = [
+      { type: "text", id: "q1", label: "お名前", required: false },
+    ];
+    mockUseSubmit.mockReturnValue({
+      trigger: triggerMock,
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyForm questions={questions} surveyId="s1" />
+      </MemoryRouter>
+    );
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: "回答を送信する" }));
+
+    expect(triggerMock).toHaveBeenCalled();
+  });
+
+  test("必須質問のラベルに必須マーク（*）が表示される", () => {
+    const questions: Question[] = [
+      { type: "text", id: "q1", label: "お名前", required: true },
+      { type: "text", id: "q2", label: "ご意見", required: false },
+    ];
+    mockUseSubmit.mockReturnValue({
+      trigger: vi.fn(),
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyForm questions={questions} surveyId="s1" />
+      </MemoryRouter>
+    );
+
+    // 必須マーク: 必須質問のラベル近くに "*" が表示される
+    const allNameLabels = screen.getAllByText("お名前", { exact: false });
+    const visibleNameLabel = allNameLabels.find(
+      (el) => !el.classList.contains("sr-only")
+    );
+    expect(visibleNameLabel?.textContent).toContain("*");
+    // 任意の質問にはアスタリスクがない
+    const allOpinionLabels = screen.getAllByText("ご意見", { exact: false });
+    const visibleOpinionLabel = allOpinionLabels.find(
+      (el) => !el.classList.contains("sr-only")
+    );
+    expect(visibleOpinionLabel?.textContent).not.toContain("*");
+  });
+
+  test("allowOther: true のラジオ質問で「その他」ラジオが表示される", () => {
+    const questions: Question[] = [
+      {
+        type: "radio",
+        id: "q1",
+        label: "好きな色",
+        options: ["赤", "青"],
+        allowOther: true,
+      },
+    ];
+    mockUseSubmit.mockReturnValue({
+      trigger: vi.fn(),
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyForm questions={questions} surveyId="s1" />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByLabelText("その他")).toBeDefined();
+  });
+
+  test("ラジオ「その他」を選択してテキスト入力し送信するとテキストが回答に含まれる", async () => {
+    const triggerMock = vi.fn().mockResolvedValue({
+      data: { success: true, surveyId: "s1" },
+      status: 200,
+    });
+    const questions: Question[] = [
+      {
+        type: "radio",
+        id: "q1",
+        label: "好きな色",
+        options: ["赤", "青"],
+        allowOther: true,
+      },
+    ];
+    mockUseSubmit.mockReturnValue({
+      trigger: triggerMock,
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyForm questions={questions} surveyId="s1" />
+      </MemoryRouter>
+    );
+
+    const user = userEvent.setup();
+    await user.click(screen.getByLabelText("その他"));
+    await user.type(screen.getByPlaceholderText("入力してください"), "緑");
+    await user.click(screen.getByRole("button", { name: "回答を送信する" }));
+
+    expect(triggerMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        answers: { q1: "緑" },
+      })
+    );
+  });
+
+  test("allowOther: true のチェックボックス質問で「その他」チェックが表示される", () => {
+    const questions: Question[] = [
+      {
+        type: "checkbox",
+        id: "q1",
+        label: "好きな果物",
+        options: ["りんご", "みかん"],
+        allowOther: true,
+      },
+    ];
+    mockUseSubmit.mockReturnValue({
+      trigger: vi.fn(),
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyForm questions={questions} surveyId="s1" />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByLabelText("その他")).toBeDefined();
+  });
+
+  test("チェックボックス 通常選択肢 + 「その他」にチェックし入力して送信すると両方含まれる", async () => {
+    const triggerMock = vi.fn().mockResolvedValue({
+      data: { success: true, surveyId: "s1" },
+      status: 200,
+    });
+    const questions: Question[] = [
+      {
+        type: "checkbox",
+        id: "q1",
+        label: "好きな果物",
+        options: ["りんご", "みかん"],
+        allowOther: true,
+      },
+    ];
+    mockUseSubmit.mockReturnValue({
+      trigger: triggerMock,
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyForm questions={questions} surveyId="s1" />
+      </MemoryRouter>
+    );
+
+    const user = userEvent.setup();
+    await user.click(screen.getByLabelText("りんご"));
+    await user.click(screen.getByLabelText("その他"));
+    await user.type(screen.getByPlaceholderText("入力してください"), "バナナ");
+    await user.click(screen.getByRole("button", { name: "回答を送信する" }));
+
+    expect(triggerMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        answers: { q1: ["りんご", "バナナ"] },
+      })
+    );
+  });
 });

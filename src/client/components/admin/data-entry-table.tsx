@@ -2,21 +2,21 @@ import { Button } from "@heroui/react";
 import type { SurveyParam } from "@/shared/schema/survey";
 
 export interface DataEntry {
+  createdAt: string;
   id: string;
-  surveyId: string;
-  values: Record<string, string>;
   label: string | null;
   responseCount: number;
-  createdAt: string;
+  surveyId: string;
+  values: Record<string, string>;
 }
 
 interface DataEntryTableProps {
-  surveyId: string;
-  params: SurveyParam[];
   entries: DataEntry[];
   onAdd: () => void;
-  onEdit: (entry: DataEntry) => void;
   onDelete: (entryId: string) => void;
+  onEdit: (entry: DataEntry) => void;
+  params: SurveyParam[];
+  surveyId: string;
 }
 
 export function DataEntryTable({

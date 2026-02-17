@@ -9,10 +9,7 @@
       "args": [
         "-y",
         "https://api.motion.dev/registry.tgz?package=motion-studio-mcp&version=latest"
-      ],
-      "env": {
-        "TOKEN": "852a91a58200a6aa31df643691042c2f67f62b0e1fac3f3d755db4edddfb7579"
-      }
+      ]
     },
     "ultracite": {
       "command": "npx",

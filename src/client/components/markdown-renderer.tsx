@@ -2,8 +2,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 interface Props {
-  content: string | null | undefined;
   className?: string;
+  content: string | null | undefined;
 }
 
 export function MarkdownRenderer({ content, className }: Props) {

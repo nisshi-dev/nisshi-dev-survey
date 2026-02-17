@@ -2,8 +2,8 @@ import { Checkbox, Input, Label, TextField } from "@heroui/react";
 import { AnimatePresence, motion } from "motion/react";
 
 interface Props {
-  sendCopy: boolean;
   onSendCopyChange: (value: boolean) => void;
+  sendCopy: boolean;
 }
 
 export function EmailCopySection({ sendCopy, onSendCopyChange }: Props) {
