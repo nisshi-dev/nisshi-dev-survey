@@ -191,16 +191,11 @@ dist
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,node,git
 
-### Prisma ###
+### Generated ###
 src/generated/
-
-### OpenAPI ###
 openapi.json
 
-### Wrangler ###
-.wrangler/
+### Env ###
 .env*
 !.env.example
-.dev.vars*
-!.dev.vars.example
 .vercel

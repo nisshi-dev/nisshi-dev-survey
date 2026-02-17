@@ -2,7 +2,7 @@ import { defineConfig } from "orval";
 
 export default defineConfig({
   survey: {
-    input: "./openapi.json",
+    input: process.env.OPENAPI_URL || "./openapi.json",
     output: {
       target: "./src/generated/api/index.ts",
       client: "swr",

@@ -12,7 +12,8 @@ function useHealthCheck() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/health")
+    const apiUrl = import.meta.env.VITE_API_URL || "";
+    fetch(`${apiUrl}/api/health`)
       .then((res) => res.json())
       .then((data: { status: string }) => {
         setStatus(data.status === "ok" ? "ok" : "error");

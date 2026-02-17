@@ -3,6 +3,16 @@
 Google Forms の軽量版。アンケートを作成し、固定 URL を共有して回答を集める。
 UI は **HeroUI v3 beta** + **Tailwind CSS v4** + **motion** で実装する。
 
+## アーキテクチャ
+
+フロントエンドとAPIは別リポジトリ・別 Vercel プロジェクトに分離されている。
+
+| | フロントエンド | API |
+|---|---|---|
+| リポジトリ | `nisshi-dev-survey`（本リポ） | `nisshi-dev-survey-api`（別リポ） |
+| ドメイン | survey.nisshi.dev | api.survey.nisshi.dev |
+| Framework | Vite | Other（Vite SSR ビルド） |
+
 ## docs
 
 | ドキュメント | 内容 |
@@ -32,8 +42,8 @@ UI は **HeroUI v3 beta** + **Tailwind CSS v4** + **motion** で実装する。
 
 ### 開発・ビルド
 
-- `npm run dev` — Vite 開発サーバー起動（フロント + API を単一プロセスで提供、ポート 5173）
-- `npm run build` — prisma generate + コード生成 + Vite ビルド
+- `npm run dev` — Vite 開発サーバー起動（ポート 5173、`/api` は localhost:3000 にプロキシ）
+- `npm run build` — Orval クライアント生成 + Vite ビルド
 - `npm run preview` — ビルド成果物のプレビュー
 
 ### リント・フォーマット
@@ -47,23 +57,30 @@ UI は **HeroUI v3 beta** + **Tailwind CSS v4** + **motion** で実装する。
 - `npm run test:run` — テストを1回実行（CI 向け）
 - `npm run test:coverage` — カバレッジ付きでテストを実行
 
-### データベース（`db:*`）
-
-- `npm run db:generate` — Prisma Client 生成
-- `npm run db:migrate` — マイグレーション作成・適用（開発用）
-- `npm run db:migrate:deploy` — マイグレーション適用のみ（本番/CI 用）
-- `npm run db:studio` — Prisma Studio 起動（ブラウザで DB を閲覧・編集）
-- `npm run db:seed` — 管理者ユーザー作成（`ADMIN_EMAIL`, `ADMIN_PASSWORD` 環境変数が必要）
-
 ### コード生成（`generate:*`）
 
-- `npm run generate` — OpenAPI JSON 出力 + SWR hooks 生成
-- `npm run generate:openapi` — OpenAPI JSON をファイルに出力
-- `npm run generate:client` — Orval で SWR hooks を生成
+- `npm run generate:client` — Orval で SWR hooks を生成（`openapi.json` から）
 
 ### ユーティリティ
 
 - `npm run clean` — ビルドキャッシュの削除（`dist/`, `node_modules/.cache/`）
+
+## 開発ワークフロー
+
+```
+ターミナル1（API）:
+  cd nisshi-dev-survey-api && npm run dev  # localhost:3000
+
+ターミナル2（フロント）:
+  cd nisshi-dev-survey && npm run dev      # localhost:5173 → /api proxy → :3000
+```
+
+API 変更時の型同期フロー:
+1. API リポで変更
+2. API リポで `npm run generate:openapi` → `openapi.json` 生成
+3. `openapi.json` をフロントリポにコピー
+4. フロントリポで `npm run generate:client` → SWR hooks 再生成
+5. `src/shared/schema/survey.ts` の型定義も必要に応じて同期
 
 ## ドキュメント管理
 
