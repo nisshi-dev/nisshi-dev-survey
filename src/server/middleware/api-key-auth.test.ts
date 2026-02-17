@@ -14,8 +14,8 @@ describe("apiKeyAuth middleware", () => {
     return app;
   }
 
-  test("SURVEY_API_KEY 未設定で 500 を返す", async () => {
-    vi.stubEnv("SURVEY_API_KEY", "");
+  test("NISSHI_DEV_SURVEY_API_KEY 未設定で 500 を返す", async () => {
+    vi.stubEnv("NISSHI_DEV_SURVEY_API_KEY", "");
     const app = createApp();
     const res = await app.request("/test");
     expect(res.status).toBe(500);
@@ -24,7 +24,7 @@ describe("apiKeyAuth middleware", () => {
   });
 
   test("X-API-Key ヘッダーなしで 401 を返す", async () => {
-    vi.stubEnv("SURVEY_API_KEY", "valid-key");
+    vi.stubEnv("NISSHI_DEV_SURVEY_API_KEY", "valid-key");
     const app = createApp();
     const res = await app.request("/test");
     expect(res.status).toBe(401);
@@ -33,7 +33,7 @@ describe("apiKeyAuth middleware", () => {
   });
 
   test("不正な API キーで 401 を返す", async () => {
-    vi.stubEnv("SURVEY_API_KEY", "valid-key");
+    vi.stubEnv("NISSHI_DEV_SURVEY_API_KEY", "valid-key");
     const app = createApp();
     const res = await app.request("/test", {
       headers: { "X-API-Key": "wrong-key" },
@@ -44,7 +44,7 @@ describe("apiKeyAuth middleware", () => {
   });
 
   test("正しい API キーで next() を実行する", async () => {
-    vi.stubEnv("SURVEY_API_KEY", "valid-key");
+    vi.stubEnv("NISSHI_DEV_SURVEY_API_KEY", "valid-key");
     const app = createApp();
     const res = await app.request("/test", {
       headers: { "X-API-Key": "valid-key" },

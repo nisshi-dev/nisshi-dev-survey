@@ -143,7 +143,7 @@ Valibot スキーマ（SSoT: src/shared/schema/）
   - `DATABASE_URL` — Prisma Postgres 接続 URL
   - `RESEND_API_KEY` — Resend API キー（回答コピーメール送信に使用）
   - `RESEND_FROM_EMAIL` — 送信元メールアドレス（未設定時は Resend サンドボックスの `onboarding@resend.dev`）
-  - `SURVEY_API_KEY` — データ投入 API の認証キー（`X-API-Key` ヘッダーで送信）
+  - `NISSHI_DEV_SURVEY_API_KEY` — データ投入 API の認証キー（`X-API-Key` ヘッダーで送信）
 - DB は [Prisma Postgres](https://console.prisma.io)（`@prisma/adapter-pg` で直接接続）
 
 ## UI 実装方針

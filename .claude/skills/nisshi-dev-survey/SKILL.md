@@ -32,7 +32,7 @@ description: nisshi-dev Survey のデータ投入 API を使ってアンケー�
 
 ## 前提条件
 
-- `SURVEY_API_KEY` 環境変数が Survey サーバーに設定されていること
+- `NISSHI_DEV_SURVEY_API_KEY` 環境変数が Survey サーバーに設定されていること
 - API Base URL: `http://localhost:5173/api/data`（ローカル開発時）
 
 ## 認証
@@ -40,7 +40,7 @@ description: nisshi-dev Survey のデータ投入 API を使ってアンケー�
 すべてのリクエストに `X-API-Key` ヘッダーが必要:
 
 ```
-X-API-Key: <SURVEY_API_KEY の値>
+X-API-Key: <NISSHI_DEV_SURVEY_API_KEY の値>
 ```
 
 ## データスキーマ
@@ -205,7 +205,7 @@ POST /api/data/surveys/:id/responses
 ```bash
 # 1. アンケート作成
 curl -X POST http://localhost:5173/api/data/surveys \
-  -H "X-API-Key: $SURVEY_API_KEY" \
+  -H "X-API-Key: $NISSHI_DEV_SURVEY_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "title": "テストアンケート",
@@ -216,13 +216,13 @@ curl -X POST http://localhost:5173/api/data/surveys \
 
 # 2. データエントリ作成
 curl -X POST http://localhost:5173/api/data/surveys/SURVEY_ID/data-entries \
-  -H "X-API-Key: $SURVEY_API_KEY" \
+  -H "X-API-Key: $NISSHI_DEV_SURVEY_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"values": {"event": "GENkaigi 2026"}, "label": "GENkaigi 2026"}'
 
 # 3. 回答一括送信（dataEntryId 付き）
 curl -X POST http://localhost:5173/api/data/surveys/SURVEY_ID/responses \
-  -H "X-API-Key: $SURVEY_API_KEY" \
+  -H "X-API-Key: $NISSHI_DEV_SURVEY_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "responses": [
@@ -233,7 +233,7 @@ curl -X POST http://localhost:5173/api/data/surveys/SURVEY_ID/responses \
 
 # 4. アンケート詳細確認（データエントリ・回答数含む）
 curl http://localhost:5173/api/data/surveys/SURVEY_ID \
-  -H "X-API-Key: $SURVEY_API_KEY"
+  -H "X-API-Key: $NISSHI_DEV_SURVEY_API_KEY"
 ```
 
 ## 質問設計のベストプラクティス
