@@ -1,9 +1,10 @@
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import { safeParse } from "valibot";
-import { prisma } from "@/server/lib/db";
-import { sendResponseCopyEmail } from "@/server/lib/email";
-import { ErrorResponseSchema, IdParamSchema } from "@/shared/schema/common";
+import {
+  ErrorResponseSchema,
+  IdParamSchema,
+} from "../../shared/schema/common.js";
 import {
   type Question,
   QuestionsSchema,
@@ -12,7 +13,9 @@ import {
   type SurveyParam,
   SurveyParamsSchema,
   SurveyResponseSchema,
-} from "@/shared/schema/survey";
+} from "../../shared/schema/survey.js";
+import { prisma } from "../lib/db.js";
+import { sendResponseCopyEmail } from "../lib/email.js";
 
 function parseSurveyParams(raw: unknown): SurveyParam[] {
   const result = safeParse(SurveyParamsSchema, raw);

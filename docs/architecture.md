@@ -33,6 +33,7 @@ src/
 │   └── schema/      # Valibot スキーマ + 導出型（SSoT）
 ├── server/          # Hono API サーバー
 │   ├── index.ts     # エントリポイント（/api ベース）
+│   ├── entry-vercel.ts # Vercel Serverless Function エントリ
 │   ├── lib/db.ts    # Prisma クライアント（adapter-pg 直接接続）
 │   ├── lib/email.ts # メール送信ユーティリティ（Resend SDK）
 │   ├── middleware/   # 認証ミドルウェア等
@@ -158,5 +159,30 @@ Valibot スキーマ（SSoT: src/shared/schema/）
 
 ## Vercel デプロイ
 
-- `vercel.ts`（`@vercel/config`）の rewrites で `/api/*` を Serverless Function、それ以外を SPA にルーティング
-- `build` スクリプト（`prisma generate && vite build`）を Vercel もローカルも共通で使用
+### ルーティング
+
+`vercel.json` の rewrites で URL を振り分ける:
+
+| パターン | 転送先 | 役割 |
+|---|---|---|
+| `/api/(.*)` | `/api` | Serverless Function（API） |
+| `/(.*)` | `/index.html` | SPA（フロントエンド） |
+
+### API ビルド
+
+`vite build --ssr` で `src/server/entry-vercel.ts` をバンドルし、単一ファイル `api/index.js` を生成する:
+
+```
+src/server/entry-vercel.ts → vite build --ssr → api/index.js（Serverless Function）
+```
+
+- `entry-vercel.ts` は Hono アプリをデフォルトエクスポートする
+- Vercel の ESM ランタイムが `.fetch()` メソッドを検出し、Web Standards API モードで実行する
+- Vite がローカルコード・Prisma Client・パスエイリアスをすべてバンドル解決するため、ランタイムのモジュール解決問題を回避できる
+- `api/` はビルド成果物のため `.gitignore` 済み
+
+### ビルドコマンド
+
+```
+prisma migrate deploy → prisma generate → generate（OpenAPI + SWR hooks）→ build:api（API バンドル）→ vite build（SPA）
+```

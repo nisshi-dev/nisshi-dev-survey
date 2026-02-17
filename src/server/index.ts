@@ -3,12 +3,12 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { openAPIRouteHandler } from "hono-openapi";
-import { adminAuth } from "./middleware/admin-auth";
-import { apiKeyAuth } from "./middleware/api-key-auth";
-import adminAuthRoutes from "./routes/admin/auth";
-import adminSurveys from "./routes/admin/surveys";
-import dataSurveys from "./routes/data/surveys";
-import survey from "./routes/survey";
+import { adminAuth } from "./middleware/admin-auth.js";
+import { apiKeyAuth } from "./middleware/api-key-auth.js";
+import adminAuthRoutes from "./routes/admin/auth.js";
+import adminSurveys from "./routes/admin/surveys.js";
+import dataSurveys from "./routes/data/surveys.js";
+import survey from "./routes/survey.js";
 
 const app = new Hono().basePath("/api");
 
