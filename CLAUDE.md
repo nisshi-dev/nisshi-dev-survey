@@ -33,7 +33,7 @@ UI は **HeroUI v3 beta** + **Tailwind CSS v4** + **motion** で実装する。
 ### 開発・ビルド
 
 - `npm run dev` — Vite 開発サーバー起動（フロント + API を単一プロセスで提供、ポート 5173）
-- `npm run build` — マイグレーション適用 + prisma generate + コード生成 + Vite ビルド
+- `npm run build` — prisma generate + コード生成 + Vite ビルド
 - `npm run preview` — ビルド成果物のプレビュー
 
 ### リント・フォーマット

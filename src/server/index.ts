@@ -14,14 +14,7 @@ const app = new Hono().basePath("/api");
 
 app.use("*", logger());
 
-const allowedOrigin = process.env.ALLOWED_ORIGIN;
-app.use(
-  "*",
-  cors({
-    origin: allowedOrigin || "*",
-    credentials: !!allowedOrigin,
-  })
-);
+app.use("*", cors());
 
 app.get("/health", (c) => c.json({ status: "ok" }));
 

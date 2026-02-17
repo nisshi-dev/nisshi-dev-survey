@@ -147,8 +147,8 @@ Valibot スキーマ（SSoT: src/shared/schema/）
   - `RESEND_API_KEY` — Resend API キー（回答コピーメール送信に使用）
   - `RESEND_FROM_EMAIL` — 送信元メールアドレス（未設定時は Resend サンドボックスの `onboarding@resend.dev`）
   - `NISSHI_DEV_SURVEY_API_KEY` — データ投入 API の認証キー（`X-API-Key` ヘッダーで送信）
-  - `VITE_API_URL` — API サーバーの URL（本番: `https://api.survey.nisshi.dev`、ローカルは空）
-  - `ALLOWED_ORIGIN` — CORS 許可オリジン（本番: `https://survey.nisshi.dev`、ローカルは空）
+  - `ADMIN_EMAIL` — 管理者ユーザーのメールアドレス（`db:seed` 用）
+  - `ADMIN_PASSWORD` — 管理者ユーザーのパスワード（`db:seed` 用）
 - DB は [Prisma Postgres](https://console.prisma.io)（`@prisma/adapter-pg` で直接接続）
 
 ## UI 実装方針
@@ -161,30 +161,14 @@ Valibot スキーマ（SSoT: src/shared/schema/）
 - スタイルのカスタマイズは Tailwind CSS ユーティリティクラスまたは HeroUI のテーマ変数で行う
 - HeroUI コンポーネントの実装時は `.claude/skills/heroui-react` のスクリプトで最新ドキュメントを参照する
 
-## Vercel デプロイ（分離構成）
+## Vercel デプロイ
 
-同一リポジトリから 2 つの Vercel プロジェクトとしてデプロイする。
+単一の Vercel プロジェクトとしてデプロイする。
 
-| | フロントエンド | API |
-|---|---|---|
-| Vercel プロジェクト | nisshi-dev-survey（既存） | 新規作成 |
-| ビルド | `npm run build`（SPA 静的ファイル） | `npm run build:api:vercel`（マイグレーション + バンドル済み Serverless Function） |
-| ドメイン | survey.nisshi.dev | api.survey.nisshi.dev |
-
-### フロントエンド
-
-- Framework Preset を **Vite** にすることで SPA フォールバックが自動適用される
-- `VITE_API_URL` 環境変数で API サーバーの URL を設定
-- Orval 生成の SWR hooks は `apiFetcher`（`src/client/lib/api-fetcher.ts`）経由で API を呼び出す
-
-### API（Serverless Function）
-
-- `build:api`（`vite build --ssr`）で Hono アプリをバンドルし `api/index.js` を生成
-- Vercel が `api/index.js` を Serverless Function として検出・実行
-- `ALLOWED_ORIGIN` 環境変数で CORS 許可オリジンを設定
-- Cookie は `SameSite=None; Secure` でクロスオリジン送信に対応
-
-### ローカル開発
-
-変更なし: `npm run dev` で Vite + Hono が同一プロセスで動作（ポート 5173）。
-`VITE_API_URL` と `ALLOWED_ORIGIN` は未設定のまま。
+- **Framework Preset:** Vite
+- **ビルドコマンド:** `npm run build`（Prisma Client 生成 + Orval API クライアント生成 + Vite ビルド）
+- **フロントエンド:** `vite build` の出力（`dist/`）を静的ファイルとして配信
+- **API:** `api/[[...route]].ts` を Vercel が Serverless Function として自動検出・実行
+- **SPA ルーティング:** `vercel.json` の `rewrites` でファイルシステムに一致しないパスを `index.html` にフォールバック
+- **Cookie:** `SameSite=Lax`（同一オリジンのためクロスサイト対応不要）
+- **Prisma Client:** `postinstall` スクリプトで `npm install` 時に自動生成
