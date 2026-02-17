@@ -167,7 +167,7 @@ Valibot スキーマ（SSoT: src/shared/schema/）
 | | フロントエンド | API |
 |---|---|---|
 | Vercel プロジェクト | nisshi-dev-survey（既存） | 新規作成 |
-| ビルド | `npm run build`（SPA 静的ファイル） | `prisma migrate deploy && prisma generate && npm run build:api`（バンドル済み Serverless Function） |
+| ビルド | `npm run build`（SPA 静的ファイル） | `npm run build:api:vercel`（マイグレーション + バンドル済み Serverless Function） |
 | ドメイン | survey.nisshi.dev | api.survey.nisshi.dev |
 
 ### フロントエンド
