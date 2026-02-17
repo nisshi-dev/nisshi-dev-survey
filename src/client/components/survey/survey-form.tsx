@@ -12,6 +12,7 @@ import { TextQuestionField } from "./text-question-field";
 interface Props {
   surveyId: string;
   questions: Question[];
+  params?: Record<string, string>;
 }
 
 const fadeInUp = {
@@ -19,7 +20,7 @@ const fadeInUp = {
   animate: { opacity: 1, y: 0 },
 };
 
-export function SurveyForm({ surveyId, questions }: Props) {
+export function SurveyForm({ surveyId, questions, params }: Props) {
   const navigate = useNavigate();
   const { trigger, isMutating, error } = usePostApiSurveyByIdSubmit(surveyId);
   const [sendCopy, setSendCopy] = useState(false);
@@ -38,11 +39,12 @@ export function SurveyForm({ surveyId, questions }: Props) {
     }
 
     const respondentEmail = formData.get("respondentEmail") as string;
-    await trigger(
-      sendCopy && respondentEmail
-        ? { answers, sendCopy: true, respondentEmail }
-        : { answers }
-    );
+    const hasParams = params && Object.keys(params).length > 0;
+    await trigger({
+      answers,
+      ...(hasParams && { params }),
+      ...(sendCopy && respondentEmail && { sendCopy: true, respondentEmail }),
+    });
     navigate(`/survey/${surveyId}/complete`, { state: { submitted: true } });
   };
 

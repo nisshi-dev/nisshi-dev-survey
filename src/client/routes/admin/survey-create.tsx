@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { SurveyForm } from "@/client/components/admin/survey-form";
 import { usePostApiAdminSurveys } from "@/generated/api/admin-surveys/admin-surveys";
-import type { Question } from "@/shared/schema/survey";
+import type { Question, SurveyParam } from "@/shared/schema/survey";
 
 export function SurveyCreatePage() {
   const navigate = useNavigate();
@@ -11,6 +11,7 @@ export function SurveyCreatePage() {
     title: string;
     description: string | undefined;
     questions: Question[];
+    params: SurveyParam[];
   }) => {
     await trigger(data);
     navigate("/admin");

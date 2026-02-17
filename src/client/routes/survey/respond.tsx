@@ -1,10 +1,10 @@
-import { Card, Skeleton } from "@heroui/react";
+import { Card, Chip, Skeleton } from "@heroui/react";
 import { motion } from "motion/react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { MarkdownRenderer } from "@/client/components/markdown-renderer";
 import { SurveyForm } from "@/client/components/survey/survey-form";
 import { useGetApiSurveyById } from "@/generated/api/survey/survey";
-import type { Question } from "@/shared/schema/survey";
+import type { Question, SurveyParam } from "@/shared/schema/survey";
 
 function SkeletonCard() {
   return (
@@ -85,6 +85,7 @@ function NotFoundState() {
 
 export function SurveyPage() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const { data, isLoading } = useGetApiSurveyById(id ?? "");
 
   if (isLoading || !data) {
@@ -96,6 +97,19 @@ export function SurveyPage() {
 
   const survey = data.data;
   const questions = survey.questions as Question[];
+  const surveyParams = (survey.params ?? []) as SurveyParam[];
+
+  const paramValues: Record<string, string> = {};
+  for (const p of surveyParams) {
+    const v = searchParams.get(p.key);
+    if (v) {
+      paramValues[p.key] = v;
+    }
+  }
+  const hasParamValues = Object.keys(paramValues).length > 0;
+  const visibleParams = surveyParams.filter(
+    (p) => p.visible && paramValues[p.key]
+  );
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -105,13 +119,29 @@ export function SurveyPage() {
           <p className="text-muted text-sm">{questions.length}問のアンケート</p>
         </div>
       </header>
+      {visibleParams.length > 0 && (
+        <div
+          className="mx-auto flex w-full max-w-2xl flex-wrap gap-2 border-border border-b px-4 py-3"
+          data-testid="survey-params"
+        >
+          {visibleParams.map((p) => (
+            <Chip key={p.key} size="sm" variant="soft">
+              {p.label}: {paramValues[p.key]}
+            </Chip>
+          ))}
+        </div>
+      )}
       {survey.description && (
         <div className="mx-auto w-full max-w-2xl border-border border-b px-4 py-4">
           <MarkdownRenderer content={survey.description} />
         </div>
       )}
       <main className="mx-auto w-full max-w-2xl px-4 py-6">
-        <SurveyForm questions={questions} surveyId={survey.id} />
+        <SurveyForm
+          params={hasParamValues ? paramValues : undefined}
+          questions={questions}
+          surveyId={survey.id}
+        />
       </main>
     </div>
   );

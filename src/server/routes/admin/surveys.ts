@@ -1,17 +1,33 @@
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
-import { safeParse } from "valibot";
+import { minLength, object, pipe, safeParse, string } from "valibot";
 import { prisma } from "@/server/lib/db";
 import { ErrorResponseSchema, IdParamSchema } from "@/shared/schema/common";
 import {
   AdminSurveyResponseSchema,
+  CreateDataEntrySchema,
   CreateSurveySchema,
+  DataEntryListResponseSchema,
+  DataEntryResponseSchema,
   QuestionsSchema,
   SurveyListResponseSchema,
+  type SurveyParam,
+  SurveyParamsSchema,
   SurveyResponsesSchema,
+  UpdateDataEntrySchema,
   UpdateSurveySchema,
   UpdateSurveyStatusSchema,
 } from "@/shared/schema/survey";
+
+const EntryIdParamSchema = object({
+  id: pipe(string(), minLength(1)),
+  entryId: pipe(string(), minLength(1)),
+});
+
+function parseSurveyParams(raw: unknown): SurveyParam[] {
+  const result = safeParse(SurveyParamsSchema, raw);
+  return result.success ? result.output : [];
+}
 
 const app = new Hono();
 
@@ -63,9 +79,9 @@ app.post(
   }),
   validator("json", CreateSurveySchema),
   async (c) => {
-    const { title, description, questions } = c.req.valid("json");
+    const { title, description, questions, params } = c.req.valid("json");
     const survey = await prisma.survey.create({
-      data: { title, description, questions },
+      data: { title, description, questions, ...(params && { params }) },
     });
     const parsed = safeParse(QuestionsSchema, survey.questions);
     return c.json(
@@ -76,6 +92,7 @@ app.post(
         status: survey.status,
         createdAt: survey.createdAt.toISOString(),
         questions: parsed.success ? parsed.output : [],
+        params: parseSurveyParams(survey.params),
       },
       201
     );
@@ -109,7 +126,15 @@ app.get(
   validator("param", IdParamSchema),
   async (c) => {
     const { id } = c.req.valid("param");
-    const survey = await prisma.survey.findUnique({ where: { id } });
+    const survey = await prisma.survey.findUnique({
+      where: { id },
+      include: {
+        dataEntries: {
+          include: { _count: { select: { responses: true } } },
+          orderBy: { createdAt: "asc" },
+        },
+      },
+    });
     if (!survey) {
       return c.json({ error: "Survey not found" }, 404);
     }
@@ -121,6 +146,15 @@ app.get(
       status: survey.status,
       createdAt: survey.createdAt.toISOString(),
       questions: parsed.success ? parsed.output : [],
+      params: parseSurveyParams(survey.params),
+      dataEntries: survey.dataEntries.map((e) => ({
+        id: e.id,
+        surveyId: e.surveyId,
+        values: e.values as Record<string, string>,
+        label: e.label,
+        responseCount: e._count.responses,
+        createdAt: e.createdAt.toISOString(),
+      })),
     });
   }
 );
@@ -161,7 +195,7 @@ app.put(
   validator("json", UpdateSurveySchema),
   async (c) => {
     const { id } = c.req.valid("param");
-    const { title, description, questions } = c.req.valid("json");
+    const { title, description, questions, params } = c.req.valid("json");
     const existing = await prisma.survey.findUnique({ where: { id } });
     if (!existing) {
       return c.json({ error: "Survey not found" }, 404);
@@ -178,7 +212,7 @@ app.put(
     }
     const survey = await prisma.survey.update({
       where: { id },
-      data: { title, description, questions },
+      data: { title, description, questions, ...(params && { params }) },
     });
     const parsed = safeParse(QuestionsSchema, survey.questions);
     return c.json({
@@ -188,6 +222,7 @@ app.put(
       status: survey.status,
       createdAt: survey.createdAt.toISOString(),
       questions: parsed.success ? parsed.output : [],
+      params: parseSurveyParams(survey.params),
     });
   }
 );
@@ -237,6 +272,7 @@ app.patch(
       status: survey.status,
       createdAt: survey.createdAt.toISOString(),
       questions: parsed.success ? parsed.output : [],
+      params: parseSurveyParams(survey.params),
     });
   }
 );
@@ -312,7 +348,16 @@ app.get(
     const { id } = c.req.valid("param");
     const survey = await prisma.survey.findUnique({
       where: { id },
-      include: { responses: { select: { id: true, answers: true } } },
+      include: {
+        responses: {
+          select: {
+            id: true,
+            answers: true,
+            params: true,
+            dataEntryId: true,
+          },
+        },
+      },
     });
     if (!survey) {
       return c.json({ error: "Survey not found" }, 404);
@@ -322,8 +367,236 @@ app.get(
       responses: survey.responses.map((r) => ({
         id: r.id,
         answers: r.answers as Record<string, string | string[]>,
+        params: (r.params ?? {}) as Record<string, string>,
+        dataEntryId: r.dataEntryId,
       })),
     });
+  }
+);
+
+// ── データエントリ CRUD ──
+
+app.get(
+  "/:id/data-entries",
+  describeRoute({
+    tags: ["Admin Surveys"],
+    summary: "データエントリ一覧取得",
+    responses: {
+      200: {
+        description: "成功",
+        content: {
+          "application/json": {
+            schema: resolver(DataEntryListResponseSchema),
+          },
+        },
+      },
+      404: {
+        description: "見つからない",
+        content: {
+          "application/json": {
+            schema: resolver(ErrorResponseSchema),
+          },
+        },
+      },
+    },
+  }),
+  validator("param", IdParamSchema),
+  async (c) => {
+    const { id } = c.req.valid("param");
+    const survey = await prisma.survey.findUnique({ where: { id } });
+    if (!survey) {
+      return c.json({ error: "Survey not found" }, 404);
+    }
+    const entries = await prisma.surveyDataEntry.findMany({
+      where: { surveyId: id },
+      include: { _count: { select: { responses: true } } },
+      orderBy: { createdAt: "asc" },
+    });
+    return c.json({
+      dataEntries: entries.map((e) => ({
+        id: e.id,
+        surveyId: e.surveyId,
+        values: e.values as Record<string, string>,
+        label: e.label,
+        responseCount: e._count.responses,
+        createdAt: e.createdAt.toISOString(),
+      })),
+    });
+  }
+);
+
+app.post(
+  "/:id/data-entries",
+  describeRoute({
+    tags: ["Admin Surveys"],
+    summary: "データエントリ作成",
+    responses: {
+      201: {
+        description: "作成成功",
+        content: {
+          "application/json": {
+            schema: resolver(DataEntryResponseSchema),
+          },
+        },
+      },
+      400: {
+        description: "バリデーションエラー",
+        content: {
+          "application/json": {
+            schema: resolver(ErrorResponseSchema),
+          },
+        },
+      },
+      404: {
+        description: "見つからない",
+        content: {
+          "application/json": {
+            schema: resolver(ErrorResponseSchema),
+          },
+        },
+      },
+    },
+  }),
+  validator("param", IdParamSchema),
+  validator("json", CreateDataEntrySchema),
+  async (c) => {
+    const { id } = c.req.valid("param");
+    const { values, label } = c.req.valid("json");
+
+    const survey = await prisma.survey.findUnique({ where: { id } });
+    if (!survey) {
+      return c.json({ error: "Survey not found" }, 404);
+    }
+
+    const params = parseSurveyParams(survey.params);
+    const paramKeys = new Set(params.map((p) => p.key));
+    const invalidKeys = Object.keys(values).filter((k) => !paramKeys.has(k));
+    if (invalidKeys.length > 0) {
+      return c.json(
+        {
+          error: `Invalid keys: ${invalidKeys.join(", ")}. Allowed keys: ${[...paramKeys].join(", ")}`,
+        },
+        400
+      );
+    }
+
+    const entry = await prisma.surveyDataEntry.create({
+      data: { surveyId: id, values, ...(label != null && { label }) },
+    });
+
+    return c.json(
+      {
+        id: entry.id,
+        surveyId: entry.surveyId,
+        values: entry.values as Record<string, string>,
+        label: entry.label,
+        responseCount: 0,
+        createdAt: entry.createdAt.toISOString(),
+      },
+      201
+    );
+  }
+);
+
+app.put(
+  "/:id/data-entries/:entryId",
+  describeRoute({
+    tags: ["Admin Surveys"],
+    summary: "データエントリ更新",
+    responses: {
+      200: {
+        description: "成功",
+        content: {
+          "application/json": {
+            schema: resolver(DataEntryResponseSchema),
+          },
+        },
+      },
+      404: {
+        description: "見つからない",
+        content: {
+          "application/json": {
+            schema: resolver(ErrorResponseSchema),
+          },
+        },
+      },
+    },
+  }),
+  validator("param", EntryIdParamSchema),
+  validator("json", UpdateDataEntrySchema),
+  async (c) => {
+    const { entryId } = c.req.valid("param");
+    const { values, label } = c.req.valid("json");
+
+    const existing = await prisma.surveyDataEntry.findUnique({
+      where: { id: entryId },
+      include: { survey: { select: { params: true } } },
+    });
+    if (!existing) {
+      return c.json({ error: "Data entry not found" }, 404);
+    }
+
+    const entry = await prisma.surveyDataEntry.update({
+      where: { id: entryId },
+      data: { values, label: label ?? null },
+    });
+
+    return c.json({
+      id: entry.id,
+      surveyId: entry.surveyId,
+      values: entry.values as Record<string, string>,
+      label: entry.label,
+      responseCount: 0,
+      createdAt: entry.createdAt.toISOString(),
+    });
+  }
+);
+
+app.delete(
+  "/:id/data-entries/:entryId",
+  describeRoute({
+    tags: ["Admin Surveys"],
+    summary: "データエントリ削除",
+    responses: {
+      200: {
+        description: "削除成功",
+      },
+      400: {
+        description: "削除不可",
+        content: {
+          "application/json": {
+            schema: resolver(ErrorResponseSchema),
+          },
+        },
+      },
+      404: {
+        description: "見つからない",
+        content: {
+          "application/json": {
+            schema: resolver(ErrorResponseSchema),
+          },
+        },
+      },
+    },
+  }),
+  validator("param", EntryIdParamSchema),
+  async (c) => {
+    const { entryId } = c.req.valid("param");
+
+    const existing = await prisma.surveyDataEntry.findUnique({
+      where: { id: entryId },
+      include: { _count: { select: { responses: true } } },
+    });
+    if (!existing) {
+      return c.json({ error: "Data entry not found" }, 404);
+    }
+
+    if (existing._count.responses > 0) {
+      return c.json({ error: "回答が紐づいているため削除できません" }, 400);
+    }
+
+    await prisma.surveyDataEntry.delete({ where: { id: entryId } });
+    return c.json({ success: true });
   }
 );
 

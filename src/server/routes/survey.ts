@@ -9,8 +9,15 @@ import {
   QuestionsSchema,
   SubmitAnswersSchema,
   SubmitSuccessResponseSchema,
+  type SurveyParam,
+  SurveyParamsSchema,
   SurveyResponseSchema,
 } from "@/shared/schema/survey";
+
+function parseSurveyParams(raw: unknown): SurveyParam[] {
+  const result = safeParse(SurveyParamsSchema, raw);
+  return result.success ? result.output : [];
+}
 
 const app = new Hono();
 
@@ -41,7 +48,15 @@ app.get(
   validator("param", IdParamSchema),
   async (c) => {
     const { id } = c.req.valid("param");
-    const survey = await prisma.survey.findUnique({ where: { id } });
+    const survey = await prisma.survey.findUnique({
+      where: { id },
+      include: {
+        dataEntries: {
+          select: { id: true, values: true, label: true },
+          orderBy: { createdAt: "asc" },
+        },
+      },
+    });
     if (!survey || survey.status !== "active") {
       return c.json({ error: "Survey not found" }, 404);
     }
@@ -51,6 +66,12 @@ app.get(
       title: survey.title,
       description: survey.description,
       questions: parsed.success ? parsed.output : [],
+      params: parseSurveyParams(survey.params),
+      dataEntries: survey.dataEntries.map((e) => ({
+        id: e.id,
+        values: e.values as Record<string, string>,
+        label: e.label,
+      })),
     });
   }
 );
@@ -91,7 +112,8 @@ app.post(
   validator("json", SubmitAnswersSchema),
   async (c) => {
     const { id } = c.req.valid("param");
-    const { answers, sendCopy, respondentEmail } = c.req.valid("json");
+    const { answers, params, dataEntryId, sendCopy, respondentEmail } =
+      c.req.valid("json");
 
     if (sendCopy && !respondentEmail) {
       return c.json(
@@ -105,8 +127,25 @@ app.post(
       return c.json({ error: "Survey not found" }, 404);
     }
 
+    let mergedParams = params;
+    if (dataEntryId) {
+      const entry = await prisma.surveyDataEntry.findUnique({
+        where: { id: dataEntryId },
+      });
+      if (!entry || entry.surveyId !== id) {
+        return c.json({ error: "Data entry not found" }, 404);
+      }
+      const entryValues = entry.values as Record<string, string>;
+      mergedParams = { ...entryValues, ...params };
+    }
+
     await prisma.response.create({
-      data: { surveyId: id, answers },
+      data: {
+        surveyId: id,
+        answers,
+        ...(mergedParams && { params: mergedParams }),
+        ...(dataEntryId && { dataEntryId }),
+      },
     });
 
     if (sendCopy && respondentEmail) {

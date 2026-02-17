@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
@@ -371,5 +372,156 @@ describe("SurveyDetailPage", () => {
     renderWithRoute();
 
     expect(screen.queryByRole("button", { name: "削除" })).toBeNull();
+  });
+
+  test("パラメータ定義がある場合、各パラメータの値入力フィールドを表示する", () => {
+    mockUseSurvey.mockReturnValue({
+      data: {
+        data: {
+          id: "s1",
+          title: "テスト",
+          status: "active",
+          createdAt: "2026-02-15T00:00:00.000Z",
+          questions: [{ type: "text", id: "q1", label: "お名前" }],
+          params: [
+            { key: "version", label: "バージョン", visible: true },
+            { key: "event_date", label: "イベント日", visible: false },
+          ],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    mockUseResponses.mockReturnValue({
+      data: {
+        data: { surveyId: "s1", responses: [] },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    setupMocks();
+
+    renderWithRoute();
+
+    expect(screen.getByLabelText("バージョン")).toBeDefined();
+    expect(screen.getByLabelText("イベント日")).toBeDefined();
+  });
+
+  test("パラメータ値を入力するとクエリパラメータ付きURLが動的に更新される", async () => {
+    mockUseSurvey.mockReturnValue({
+      data: {
+        data: {
+          id: "s1",
+          title: "テスト",
+          status: "active",
+          createdAt: "2026-02-15T00:00:00.000Z",
+          questions: [],
+          params: [{ key: "version", label: "バージョン", visible: true }],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    mockUseResponses.mockReturnValue({
+      data: {
+        data: { surveyId: "s1", responses: [] },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    setupMocks();
+
+    renderWithRoute();
+
+    const user = userEvent.setup();
+    await user.type(screen.getByLabelText("バージョン"), "v2");
+
+    const urlDisplay = screen.getByTestId("share-url");
+    expect(urlDisplay.textContent).toContain("?version=v2");
+  });
+
+  test("パラメータ定義がない場合はパラメータ入力欄を表示しない", () => {
+    mockUseSurvey.mockReturnValue({
+      data: {
+        data: {
+          id: "s1",
+          title: "テスト",
+          status: "active",
+          createdAt: "2026-02-15T00:00:00.000Z",
+          questions: [],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    mockUseResponses.mockReturnValue({
+      data: {
+        data: { surveyId: "s1", responses: [] },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    setupMocks();
+
+    renderWithRoute();
+
+    expect(screen.queryByTestId("param-url-builder")).toBeNull();
+  });
+
+  test("生データテーブルにパラメータ列を表示する", () => {
+    mockUseSurvey.mockReturnValue({
+      data: {
+        data: {
+          id: "s1",
+          title: "テスト",
+          status: "active",
+          createdAt: "2026-02-15T00:00:00.000Z",
+          questions: [{ type: "text", id: "q1", label: "お名前" }],
+          params: [{ key: "version", label: "バージョン", visible: true }],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    mockUseResponses.mockReturnValue({
+      data: {
+        data: {
+          surveyId: "s1",
+          responses: [
+            {
+              id: "r1",
+              answers: { q1: "太郎" },
+              params: { version: "v2" },
+            },
+            {
+              id: "r2",
+              answers: { q1: "花子" },
+              params: { version: "v3" },
+            },
+          ],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    setupMocks();
+
+    renderWithRoute();
+
+    const table = screen.getByRole("table");
+    expect(table).toBeDefined();
+    const headers = screen.getAllByRole("columnheader");
+    const headerTexts = headers.map((h) => h.textContent);
+    expect(headerTexts).toContain("バージョン");
+    expect(screen.getAllByText("v2").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("v3").length).toBeGreaterThanOrEqual(1);
   });
 });

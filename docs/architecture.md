@@ -38,8 +38,10 @@ src/
 │   ├── middleware/   # 認証ミドルウェア等
 │   └── routes/      # API ルート
 │       ├── survey.ts          # 回答者向け API
-│       └── admin/             # 管理者向け API
-│           ├── auth.ts
+│       ├── admin/             # 管理者向け API
+│       │   ├── auth.ts
+│       │   └── surveys.ts
+│       └── data/              # データ投入 API（API キー認証）
 │           └── surveys.ts
 └── client/          # React SPA
     ├── main.tsx     # エントリポイント
@@ -55,8 +57,8 @@ src/
 
 | メソッド | パス | 説明 | 状態 |
 |---|---|---|---|
-| GET | `/api/survey/:id` | アンケート取得（status=active のみ、それ以外は 404） | 実装済み |
-| POST | `/api/survey/:id/submit` | 回答送信（status=active のみ、それ以外は 404）。`sendCopy: true` + `respondentEmail` 指定時に回答コピーメールを fire-and-forget で送信 | 実装済み |
+| GET | `/api/survey/:id` | アンケート取得（status=active のみ、それ以外は 404）。パラメータ定義・データエントリ一覧を含む | 実装済み |
+| POST | `/api/survey/:id/submit` | 回答送信（status=active のみ、それ以外は 404）。`dataEntryId` でデータエントリに紐付け、`params` でパラメータ値を送信可能。`sendCopy: true` + `respondentEmail` 指定時に回答コピーメールを fire-and-forget で送信 | 実装済み |
 
 ### 管理者向け（要認証）
 
@@ -66,12 +68,23 @@ src/
 | POST | `/api/admin/auth/logout` | ログアウト（Session 削除 → Cookie 削除） | 実装済み |
 | GET | `/api/admin/auth/me` | セッション確認（ユーザー情報返却） | 実装済み |
 | GET | `/api/admin/surveys` | アンケート一覧（createdAt 降順） | 実装済み |
-| POST | `/api/admin/surveys` | アンケート作成 | 実装済み |
-| GET | `/api/admin/surveys/:id` | アンケート詳細（404 対応） | 実装済み |
-| PUT | `/api/admin/surveys/:id` | アンケート内容更新（active/completed は質問変更不可） | 実装済み |
+| POST | `/api/admin/surveys` | アンケート作成（パラメータ定義を含む） | 実装済み |
+| GET | `/api/admin/surveys/:id` | アンケート詳細（パラメータ定義・データエントリ一覧を含む、404 対応） | 実装済み |
+| PUT | `/api/admin/surveys/:id` | アンケート内容更新（active/completed は質問変更不可、パラメータはステータス問わず変更可能） | 実装済み |
 | PATCH | `/api/admin/surveys/:id` | アンケートステータス更新（draft/active/completed） | 実装済み |
 | DELETE | `/api/admin/surveys/:id` | アンケート削除（completed は削除不可、レスポンスはカスケード削除） | 実装済み |
-| GET | `/api/admin/surveys/:id/responses` | 回答一覧（404 対応） | 実装済み |
+| GET | `/api/admin/surveys/:id/responses` | 回答一覧（各回答のパラメータ値・dataEntryId を含む、404 対応） | 実装済み |
+| POST | `/api/admin/surveys/:id/data-entries` | データエントリ作成 | 実装済み |
+| PUT | `/api/admin/surveys/:id/data-entries/:entryId` | データエントリ更新 | 実装済み |
+| DELETE | `/api/admin/surveys/:id/data-entries/:entryId` | データエントリ削除（回答紐付きの場合は 400） | 実装済み |
+
+### データ投入 API（API キー認証）
+
+| メソッド | パス | 説明 | 状態 |
+|---|---|---|---|
+| POST | `/api/data/surveys` | アンケート作成（データ投入用） | 実装済み |
+| GET | `/api/data/surveys/:id` | アンケート詳細取得 | 実装済み |
+| POST | `/api/data/surveys/:id/responses` | 回答一括投入（`dataEntryId` 対応） | 実装済み |
 
 ### その他
 
