@@ -19,6 +19,27 @@ function parseSurveyParams(raw: unknown): SurveyParam[] {
   return result.success ? result.output : [];
 }
 
+function findMissingRequiredAnswers(
+  questions: Question[],
+  answers: Record<string, string | string[]>
+): string[] {
+  const missingIds: string[] = [];
+  for (const q of questions) {
+    if (!q.required) {
+      continue;
+    }
+    const answer = answers[q.id];
+    if (q.type === "checkbox") {
+      if (!answer || (Array.isArray(answer) && answer.length === 0)) {
+        missingIds.push(q.id);
+      }
+    } else if (!answer || answer === "") {
+      missingIds.push(q.id);
+    }
+  }
+  return missingIds;
+}
+
 const app = new Hono();
 
 app.get(
@@ -125,6 +146,22 @@ app.post(
     const survey = await prisma.survey.findUnique({ where: { id } });
     if (!survey || survey.status !== "active") {
       return c.json({ error: "Survey not found" }, 404);
+    }
+
+    const parsedQuestions = safeParse(QuestionsSchema, survey.questions);
+    if (parsedQuestions.success) {
+      const missingIds = findMissingRequiredAnswers(
+        parsedQuestions.output,
+        answers
+      );
+      if (missingIds.length > 0) {
+        return c.json(
+          {
+            error: `Required questions must be answered: ${missingIds.join(", ")}`,
+          },
+          400
+        );
+      }
     }
 
     let mergedParams = params;

@@ -12,9 +12,16 @@ export function RadioQuestionField({ question, index }: Props) {
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
         <QuestionBadge index={index} />
-        <span className="font-medium text-sm">{question.label}</span>
+        <span className="font-medium text-sm">
+          {question.label}
+          {question.required && <span className="ml-1 text-danger"> *</span>}
+        </span>
       </div>
-      <RadioGroup aria-label={question.label} isRequired name={question.id}>
+      <RadioGroup
+        aria-label={question.label}
+        isRequired={question.required}
+        name={question.id}
+      >
         {question.options.map((opt) => (
           <Radio key={opt} value={opt}>
             <Radio.Control>

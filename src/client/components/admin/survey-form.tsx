@@ -20,6 +20,7 @@ export interface QuestionDraft {
   type: "text" | "radio" | "checkbox";
   label: string;
   options: string;
+  required: boolean;
 }
 
 export interface ParamDraft {
@@ -60,13 +61,19 @@ let nextParamId = 1;
 function buildQuestions(drafts: QuestionDraft[]): Question[] {
   return drafts.map((q) => {
     if (q.type === "text") {
-      return { type: "text", id: q.id, label: q.label };
+      return { type: "text", id: q.id, label: q.label, required: q.required };
     }
     const options = q.options
       .split(",")
       .map((o) => o.trim())
       .filter(Boolean);
-    return { type: q.type, id: q.id, label: q.label, options };
+    return {
+      type: q.type,
+      id: q.id,
+      label: q.label,
+      options,
+      required: q.required,
+    };
   });
 }
 
@@ -109,7 +116,13 @@ export function SurveyForm({
   const addQuestion = () => {
     setQuestions((prev) => [
       ...prev,
-      { id: `q${nextId++}`, type: "text", label: "", options: "" },
+      {
+        id: `q${nextId++}`,
+        type: "text",
+        label: "",
+        options: "",
+        required: false,
+      },
     ]);
   };
 
@@ -120,6 +133,12 @@ export function SurveyForm({
   ) => {
     setQuestions((prev) =>
       prev.map((q, i) => (i === index ? { ...q, [field]: value } : q))
+    );
+  };
+
+  const toggleQuestionRequired = (index: number, value: boolean) => {
+    setQuestions((prev) =>
+      prev.map((q, i) => (i === index ? { ...q, required: value } : q))
     );
   };
 
@@ -170,7 +189,12 @@ export function SurveyForm({
     () =>
       questions.map((q) => {
         if (q.type === "text") {
-          return { type: "text", id: q.id, label: q.label || "質問未入力" };
+          return {
+            type: "text",
+            id: q.id,
+            label: q.label || "質問未入力",
+            required: q.required,
+          };
         }
         const options = q.options
           .split(",")
@@ -181,6 +205,7 @@ export function SurveyForm({
           id: q.id,
           label: q.label || "質問未入力",
           options: options.length > 0 ? options : ["選択肢なし"],
+          required: q.required,
         };
       }),
     [questions]
@@ -304,6 +329,18 @@ export function SurveyForm({
                               />
                             </TextField>
                           )}
+                          <Switch
+                            isDisabled={questionsDisabled}
+                            isSelected={q.required}
+                            onChange={(checked) =>
+                              toggleQuestionRequired(i, checked)
+                            }
+                          >
+                            <Switch.Control>
+                              <Switch.Thumb />
+                            </Switch.Control>
+                            必須
+                          </Switch>
                         </Card.Content>
                         {!questionsDisabled && (
                           <Card.Footer>
@@ -372,6 +409,9 @@ export function SurveyForm({
                               updateParam(i, "visible", checked)
                             }
                           >
+                            <Switch.Control>
+                              <Switch.Thumb />
+                            </Switch.Control>
                             回答者に表示
                           </Switch>
                         </Card.Content>

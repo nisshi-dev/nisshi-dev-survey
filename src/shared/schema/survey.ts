@@ -25,6 +25,7 @@ export const TextQuestionSchema = object({
   type: literal("text"),
   id: string(),
   label: string(),
+  required: optional(boolean(), false),
 });
 
 export const RadioQuestionSchema = object({
@@ -32,6 +33,7 @@ export const RadioQuestionSchema = object({
   id: string(),
   label: string(),
   options: array(string()),
+  required: optional(boolean(), false),
 });
 
 export const CheckboxQuestionSchema = object({
@@ -39,6 +41,7 @@ export const CheckboxQuestionSchema = object({
   id: string(),
   label: string(),
   options: array(string()),
+  required: optional(boolean(), false),
 });
 
 export const QuestionSchema = variant("type", [

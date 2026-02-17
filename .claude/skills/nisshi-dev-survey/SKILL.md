@@ -49,14 +49,16 @@ X-API-Key: <NISSHI_DEV_SURVEY_API_KEY の値>
 
 ```jsonc
 // テキスト入力
-{ "type": "text", "id": "q1", "label": "ご意見をお聞かせください" }
+{ "type": "text", "id": "q1", "label": "ご意見をお聞かせください", "required": false }
 
 // 単一選択（ラジオボタン）
-{ "type": "radio", "id": "q2", "label": "満足度は？", "options": ["満足", "普通", "不満"] }
+{ "type": "radio", "id": "q2", "label": "満足度は？", "options": ["満足", "普通", "不満"], "required": true }
 
 // 複数選択（チェックボックス）
-{ "type": "checkbox", "id": "q3", "label": "利用機能", "options": ["機能A", "機能B", "機能C"] }
+{ "type": "checkbox", "id": "q3", "label": "利用機能", "options": ["機能A", "機能B", "機能C"], "required": false }
 ```
+
+- `required`: 必須かどうか（省略時は `false`）。`true` の場合、回答フォームで未回答だと送信できない
 
 ### パラメータ（params）
 

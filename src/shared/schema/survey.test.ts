@@ -2,6 +2,7 @@ import { safeParse } from "valibot";
 import { describe, expect, test } from "vitest";
 import {
   AdminSurveyResponseSchema,
+  CheckboxQuestionSchema,
   CreateDataEntrySchema,
   CreateSurveySchema,
   DataCreateSurveySchema,
@@ -9,6 +10,7 @@ import {
   DataEntryResponseSchema,
   DataEntryValuesSchema,
   DataSubmitResponsesSchema,
+  RadioQuestionSchema,
   SURVEY_STATUS_LABELS,
   SURVEY_STATUSES,
   SubmitAnswersSchema,
@@ -18,6 +20,7 @@ import {
   SurveyResponseSchema,
   SurveyResponsesSchema,
   SurveyStatusSchema,
+  TextQuestionSchema,
   UpdateDataEntrySchema,
   UpdateSurveySchema,
   UpdateSurveyStatusSchema,
@@ -706,5 +709,103 @@ describe("SurveyResponsesSchema with dataEntryId", () => {
       ],
     });
     expect(result.success).toBe(true);
+  });
+});
+
+describe("TextQuestionSchema required フィールド", () => {
+  test("required: true でバリデーション通過", () => {
+    const result = safeParse(TextQuestionSchema, {
+      type: "text",
+      id: "q1",
+      label: "質問",
+      required: true,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.output.required).toBe(true);
+    }
+  });
+
+  test("required: false でバリデーション通過", () => {
+    const result = safeParse(TextQuestionSchema, {
+      type: "text",
+      id: "q1",
+      label: "質問",
+      required: false,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.output.required).toBe(false);
+    }
+  });
+
+  test("required 省略時はデフォルト false", () => {
+    const result = safeParse(TextQuestionSchema, {
+      type: "text",
+      id: "q1",
+      label: "質問",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.output.required).toBe(false);
+    }
+  });
+});
+
+describe("RadioQuestionSchema required フィールド", () => {
+  test("required: true でバリデーション通過", () => {
+    const result = safeParse(RadioQuestionSchema, {
+      type: "radio",
+      id: "q1",
+      label: "質問",
+      options: ["A", "B"],
+      required: true,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.output.required).toBe(true);
+    }
+  });
+
+  test("required 省略時はデフォルト false", () => {
+    const result = safeParse(RadioQuestionSchema, {
+      type: "radio",
+      id: "q1",
+      label: "質問",
+      options: ["A", "B"],
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.output.required).toBe(false);
+    }
+  });
+});
+
+describe("CheckboxQuestionSchema required フィールド", () => {
+  test("required: true でバリデーション通過", () => {
+    const result = safeParse(CheckboxQuestionSchema, {
+      type: "checkbox",
+      id: "q1",
+      label: "質問",
+      options: ["A", "B"],
+      required: true,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.output.required).toBe(true);
+    }
+  });
+
+  test("required 省略時はデフォルト false", () => {
+    const result = safeParse(CheckboxQuestionSchema, {
+      type: "checkbox",
+      id: "q1",
+      label: "質問",
+      options: ["A", "B"],
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.output.required).toBe(false);
+    }
   });
 });

@@ -201,7 +201,10 @@ app.put(
       return c.json({ error: "Survey not found" }, 404);
     }
     if (existing.status !== "draft") {
-      const existingJson = JSON.stringify(existing.questions);
+      const parsedExisting = safeParse(QuestionsSchema, existing.questions);
+      const existingJson = JSON.stringify(
+        parsedExisting.success ? parsedExisting.output : existing.questions
+      );
       const newJson = JSON.stringify(questions);
       if (existingJson !== newJson) {
         return c.json(

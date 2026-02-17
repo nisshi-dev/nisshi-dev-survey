@@ -53,7 +53,10 @@ describe("GET /survey/:id", () => {
     expect(body.id).toBe("survey-1");
     expect(body.title).toBe("テストアンケート");
     expect(body.description).toBe("テスト説明");
-    expect(body.questions).toEqual(questions);
+    // Valibot パースにより required: false がデフォルト追加される
+    expect(body.questions).toEqual([
+      { type: "text", id: "q1", label: "ご意見", required: false },
+    ]);
   });
 
   test("存在しないアンケートで 404 を返す", async () => {
@@ -338,10 +341,11 @@ describe("POST /survey/:id/submit", () => {
     });
 
     expect(res.status).toBe(200);
+    // Valibot パースにより required: false がデフォルト追加される
     expect(mockSendEmail).toHaveBeenCalledWith({
       to: "test@example.com",
       surveyTitle: "テストアンケート",
-      questions,
+      questions: [{ type: "text", id: "q1", label: "ご意見", required: false }],
       answers: { q1: "良い" },
     });
   });
@@ -538,5 +542,158 @@ describe("POST /survey/:id/submit with dataEntryId", () => {
     expect(res.status).toBe(404);
     const body = await res.json();
     expect(body.error).toBe("Data entry not found");
+  });
+});
+
+describe("POST /survey/:id/submit required validation", () => {
+  beforeEach(() => {
+    mockFindUnique.mockReset();
+    mockCreateResponse.mockReset();
+    mockSendEmail.mockReset();
+    mockSendEmail.mockResolvedValue(undefined);
+  });
+
+  test("required: true の text 質問に空回答で 400 を返す", async () => {
+    mockFindUnique.mockResolvedValue({
+      id: "survey-1",
+      title: "テストアンケート",
+      description: null,
+      status: "active",
+      questions: [{ type: "text", id: "q1", label: "お名前", required: true }],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const app = createApp();
+    const res = await app.request("/survey/survey-1/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answers: { q1: "" } }),
+    });
+
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toContain("q1");
+  });
+
+  test("required: true の radio 質問に空回答で 400 を返す", async () => {
+    mockFindUnique.mockResolvedValue({
+      id: "survey-1",
+      title: "テストアンケート",
+      description: null,
+      status: "active",
+      questions: [
+        {
+          type: "radio",
+          id: "q1",
+          label: "好きな色",
+          options: ["赤", "青"],
+          required: true,
+        },
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const app = createApp();
+    const res = await app.request("/survey/survey-1/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answers: { q1: "" } }),
+    });
+
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toContain("q1");
+  });
+
+  test("required: true の checkbox 質問に空配列で 400 を返す", async () => {
+    mockFindUnique.mockResolvedValue({
+      id: "survey-1",
+      title: "テストアンケート",
+      description: null,
+      status: "active",
+      questions: [
+        {
+          type: "checkbox",
+          id: "q1",
+          label: "好きな果物",
+          options: ["りんご", "みかん"],
+          required: true,
+        },
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const app = createApp();
+    const res = await app.request("/survey/survey-1/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answers: { q1: [] } }),
+    });
+
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toContain("q1");
+  });
+
+  test("required: false の質問に空回答でも正常に保存する", async () => {
+    mockFindUnique.mockResolvedValue({
+      id: "survey-1",
+      title: "テストアンケート",
+      description: null,
+      status: "active",
+      questions: [{ type: "text", id: "q1", label: "ご意見", required: false }],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    mockCreateResponse.mockResolvedValue({
+      id: "resp-1",
+      surveyId: "survey-1",
+      answers: { q1: "" },
+      createdAt: new Date(),
+    });
+
+    const app = createApp();
+    const res = await app.request("/survey/survey-1/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answers: { q1: "" } }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(mockCreateResponse).toHaveBeenCalled();
+  });
+
+  test("すべての必須質問に回答済みなら正常に保存する", async () => {
+    mockFindUnique.mockResolvedValue({
+      id: "survey-1",
+      title: "テストアンケート",
+      description: null,
+      status: "active",
+      questions: [
+        { type: "text", id: "q1", label: "お名前", required: true },
+        { type: "text", id: "q2", label: "ご意見", required: false },
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    mockCreateResponse.mockResolvedValue({
+      id: "resp-1",
+      surveyId: "survey-1",
+      answers: { q1: "太郎", q2: "" },
+      createdAt: new Date(),
+    });
+
+    const app = createApp();
+    const res = await app.request("/survey/survey-1/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answers: { q1: "太郎", q2: "" } }),
+    });
+
+    expect(res.status).toBe(200);
+    expect(mockCreateResponse).toHaveBeenCalled();
   });
 });
