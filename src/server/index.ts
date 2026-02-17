@@ -4,8 +4,10 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { openAPIRouteHandler } from "hono-openapi";
 import { adminAuth } from "./middleware/admin-auth";
+import { apiKeyAuth } from "./middleware/api-key-auth";
 import adminAuthRoutes from "./routes/admin/auth";
 import adminSurveys from "./routes/admin/surveys";
+import dataSurveys from "./routes/data/surveys";
 import survey from "./routes/survey";
 
 const app = new Hono().basePath("/api");
@@ -22,6 +24,10 @@ app.route("/survey", survey);
 app.route("/admin/auth", adminAuthRoutes);
 app.use("/admin/surveys/*", adminAuth);
 app.route("/admin/surveys", adminSurveys);
+
+// データ投入 API（API Key 認証）
+app.use("/data/*", apiKeyAuth);
+app.route("/data/surveys", dataSurveys);
 
 // OpenAPI JSON
 app.get(

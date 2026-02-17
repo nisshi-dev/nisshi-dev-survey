@@ -6,12 +6,13 @@ import {
   Label,
   ListBox,
   Select,
+  Switch,
   TextArea,
   TextField,
 } from "@heroui/react";
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState } from "react";
-import type { Question } from "@/shared/schema/survey";
+import type { Question, SurveyParam } from "@/shared/schema/survey";
 import { SurveyPreview } from "./survey-preview";
 
 export interface QuestionDraft {
@@ -21,14 +22,24 @@ export interface QuestionDraft {
   options: string;
 }
 
+export interface ParamDraft {
+  id: string;
+  key: string;
+  label: string;
+  visible: boolean;
+  keyManuallyEdited: boolean;
+}
+
 interface SurveyFormProps {
   initialTitle?: string;
   initialDescription?: string;
   initialQuestions?: QuestionDraft[];
+  initialParams?: ParamDraft[];
   onSubmit: (data: {
     title: string;
     description: string | undefined;
     questions: Question[];
+    params: SurveyParam[];
   }) => Promise<void>;
   submitLabel: string;
   isSubmitting: boolean;
@@ -41,7 +52,10 @@ const questionTypeItems = [
   { id: "checkbox", label: "複数選択" },
 ] as const;
 
+const NON_ASCII_RE = /[^\x20-\x7E]/;
+
 let nextId = 1;
+let nextParamId = 1;
 
 function buildQuestions(drafts: QuestionDraft[]): Question[] {
   return drafts.map((q) => {
@@ -56,10 +70,32 @@ function buildQuestions(drafts: QuestionDraft[]): Question[] {
   });
 }
 
+function generateKeyFromLabel(label: string): string {
+  const trimmed = label.trim();
+  if (!trimmed || NON_ASCII_RE.test(trimmed)) {
+    return "";
+  }
+  return trimmed
+    .toLowerCase()
+    .replace(/\s+/g, "_")
+    .replace(/[^a-z0-9_-]/g, "");
+}
+
+function buildParams(drafts: ParamDraft[]): SurveyParam[] {
+  return drafts
+    .filter((p) => p.key.trim() && p.label.trim())
+    .map((p) => ({
+      key: p.key.trim(),
+      label: p.label.trim(),
+      visible: p.visible,
+    }));
+}
+
 export function SurveyForm({
   initialTitle = "",
   initialDescription = "",
   initialQuestions = [],
+  initialParams = [],
   onSubmit,
   submitLabel,
   isSubmitting,
@@ -68,6 +104,7 @@ export function SurveyForm({
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
   const [questions, setQuestions] = useState<QuestionDraft[]>(initialQuestions);
+  const [params, setParams] = useState<ParamDraft[]>(initialParams);
 
   const addQuestion = () => {
     setQuestions((prev) => [
@@ -88,6 +125,45 @@ export function SurveyForm({
 
   const removeQuestion = (index: number) => {
     setQuestions((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const addParam = () => {
+    setParams((prev) => [
+      ...prev,
+      {
+        id: `p${nextParamId++}`,
+        key: "",
+        label: "",
+        visible: true,
+        keyManuallyEdited: false,
+      },
+    ]);
+  };
+
+  const updateParam = (
+    index: number,
+    field: keyof ParamDraft,
+    value: string | boolean
+  ) => {
+    setParams((prev) =>
+      prev.map((p, i) => {
+        if (i !== index) {
+          return p;
+        }
+        if (field === "key") {
+          return { ...p, key: value as string, keyManuallyEdited: true };
+        }
+        if (field === "label" && !p.keyManuallyEdited) {
+          const autoKey = generateKeyFromLabel(value as string);
+          return { ...p, label: value as string, key: autoKey };
+        }
+        return { ...p, [field]: value };
+      })
+    );
+  };
+
+  const removeParam = (index: number) => {
+    setParams((prev) => prev.filter((_, i) => i !== index));
   };
 
   const previewQuestions = useMemo<Question[]>(
@@ -116,6 +192,7 @@ export function SurveyForm({
       title,
       description: description || undefined,
       questions: buildQuestions(questions),
+      params: buildParams(params),
     });
   };
 
@@ -250,6 +327,74 @@ export function SurveyForm({
                   </p>
                 )}
               </fieldset>
+
+              <fieldset className="flex flex-col gap-4">
+                <legend className="font-semibold text-base">パラメータ</legend>
+
+                <AnimatePresence initial={false}>
+                  {params.map((p, i) => (
+                    <motion.div
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      initial={{ opacity: 0, height: 0 }}
+                      key={p.id}
+                      style={{ overflow: "hidden" }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Card className="flex flex-col gap-4" variant="secondary">
+                        <Card.Content className="flex flex-col gap-3">
+                          <TextField isRequired>
+                            <Label>項目名</Label>
+                            <Input
+                              onChange={(e) =>
+                                updateParam(i, "label", e.target.value)
+                              }
+                              placeholder="イベント名、バージョンなど..."
+                              value={p.label}
+                            />
+                          </TextField>
+                          <TextField isRequired>
+                            <Label>ID（半角英数字）</Label>
+                            <Input
+                              onChange={(e) =>
+                                updateParam(i, "key", e.target.value)
+                              }
+                              placeholder="version, event_name など..."
+                              value={p.key}
+                            />
+                            <p className="text-muted text-xs">
+                              URLパラメータに使用される識別子
+                            </p>
+                          </TextField>
+                          <Switch
+                            isSelected={p.visible}
+                            onChange={(checked) =>
+                              updateParam(i, "visible", checked)
+                            }
+                          >
+                            回答者に表示
+                          </Switch>
+                        </Card.Content>
+                        <Card.Footer>
+                          <Button
+                            onPress={() => removeParam(i)}
+                            size="sm"
+                            variant="danger"
+                          >
+                            削除
+                          </Button>
+                        </Card.Footer>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+
+                {params.length === 0 && (
+                  <p className="py-4 text-center text-muted text-sm">
+                    パラメータがありません。データエントリの項目（イベント名、バージョンなど）を定義できます。
+                  </p>
+                )}
+              </fieldset>
             </Card.Content>
             <Card.Footer className="flex gap-3">
               {!questionsDisabled && (
@@ -257,6 +402,9 @@ export function SurveyForm({
                   質問を追加
                 </Button>
               )}
+              <Button onPress={addParam} variant="secondary">
+                パラメータを追加
+              </Button>
               <Button isPending={isSubmitting} type="submit">
                 {isSubmitting ? "保存中..." : submitLabel}
               </Button>

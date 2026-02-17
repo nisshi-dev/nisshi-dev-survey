@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
@@ -8,6 +9,9 @@ vi.mock("@/generated/api/admin-surveys/admin-surveys", () => ({
   useGetApiAdminSurveysByIdResponses: vi.fn(),
   usePatchApiAdminSurveysById: vi.fn(),
   useDeleteApiAdminSurveysById: vi.fn(),
+  usePostApiAdminSurveysByIdDataEntries: vi.fn(),
+  usePutApiAdminSurveysByIdDataEntriesByEntryId: vi.fn(),
+  useDeleteApiAdminSurveysByIdDataEntriesByEntryId: vi.fn(),
 }));
 
 const {
@@ -15,11 +19,21 @@ const {
   useGetApiAdminSurveysByIdResponses,
   usePatchApiAdminSurveysById,
   useDeleteApiAdminSurveysById,
+  usePostApiAdminSurveysByIdDataEntries,
+  usePutApiAdminSurveysByIdDataEntriesByEntryId,
+  useDeleteApiAdminSurveysByIdDataEntriesByEntryId,
 } = await import("@/generated/api/admin-surveys/admin-surveys");
 const mockUseSurvey = vi.mocked(useGetApiAdminSurveysById);
 const mockUseResponses = vi.mocked(useGetApiAdminSurveysByIdResponses);
 const mockUsePatch = vi.mocked(usePatchApiAdminSurveysById);
 const mockUseDelete = vi.mocked(useDeleteApiAdminSurveysById);
+const mockUseCreateEntry = vi.mocked(usePostApiAdminSurveysByIdDataEntries);
+const mockUseUpdateEntry = vi.mocked(
+  usePutApiAdminSurveysByIdDataEntriesByEntryId
+);
+const mockUseDeleteEntry = vi.mocked(
+  useDeleteApiAdminSurveysByIdDataEntriesByEntryId
+);
 
 const { SurveyDetailPage } = await import("./survey-detail");
 
@@ -44,6 +58,18 @@ describe("SurveyDetailPage", () => {
       isMutating: false,
     } as never);
     mockUseDelete.mockReturnValue({
+      trigger: vi.fn(),
+      isMutating: false,
+    } as never);
+    mockUseCreateEntry.mockReturnValue({
+      trigger: vi.fn(),
+      isMutating: false,
+    } as never);
+    mockUseUpdateEntry.mockReturnValue({
+      trigger: vi.fn(),
+      isMutating: false,
+    } as never);
+    mockUseDeleteEntry.mockReturnValue({
       trigger: vi.fn(),
       isMutating: false,
     } as never);
@@ -371,5 +397,402 @@ describe("SurveyDetailPage", () => {
     renderWithRoute();
 
     expect(screen.queryByRole("button", { name: "削除" })).toBeNull();
+  });
+
+  test("パラメータ定義がある場合、データ管理セクションにデータエントリテーブルを表示する", () => {
+    mockUseSurvey.mockReturnValue({
+      data: {
+        data: {
+          id: "s1",
+          title: "テスト",
+          status: "active",
+          createdAt: "2026-02-15T00:00:00.000Z",
+          questions: [{ type: "text", id: "q1", label: "お名前" }],
+          params: [
+            { key: "version", label: "バージョン", visible: true },
+            { key: "event_date", label: "イベント日", visible: false },
+          ],
+          dataEntries: [
+            {
+              id: "e1",
+              surveyId: "s1",
+              values: { version: "v2", event_date: "2026-03-15" },
+              label: "テストイベント",
+              responseCount: 3,
+              createdAt: "2026-02-15T00:00:00.000Z",
+            },
+          ],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    mockUseResponses.mockReturnValue({
+      data: {
+        data: { surveyId: "s1", responses: [] },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    setupMocks();
+
+    renderWithRoute();
+
+    expect(screen.getByText("データ管理")).toBeDefined();
+    expect(screen.getAllByText("v2").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("テストイベント").length).toBeGreaterThan(0);
+  });
+
+  test("パラメータ定義がない場合、共有URLセクションを表示する", () => {
+    mockUseSurvey.mockReturnValue({
+      data: {
+        data: {
+          id: "s1",
+          title: "テスト",
+          status: "active",
+          createdAt: "2026-02-15T00:00:00.000Z",
+          questions: [],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    mockUseResponses.mockReturnValue({
+      data: {
+        data: { surveyId: "s1", responses: [] },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    setupMocks();
+
+    renderWithRoute();
+
+    expect(screen.getByText("共有 URL")).toBeDefined();
+    expect(screen.getByTestId("share-url")).toBeDefined();
+  });
+
+  test("パラメータ単位のフィルタを表示する", () => {
+    mockUseSurvey.mockReturnValue({
+      data: {
+        data: {
+          id: "s1",
+          title: "テスト",
+          status: "active",
+          createdAt: "2026-02-15T00:00:00.000Z",
+          questions: [{ type: "text", id: "q1", label: "感想" }],
+          params: [
+            { key: "event", label: "イベント", visible: true },
+            { key: "version", label: "バージョン", visible: true },
+          ],
+          dataEntries: [
+            {
+              id: "e1",
+              surveyId: "s1",
+              values: { event: "GENkaigi", version: "v1.0" },
+              label: null,
+              responseCount: 1,
+              createdAt: "2026-02-15T00:00:00.000Z",
+            },
+            {
+              id: "e2",
+              surveyId: "s1",
+              values: { event: "GENkaigi", version: "v2.0" },
+              label: null,
+              responseCount: 1,
+              createdAt: "2026-02-16T00:00:00.000Z",
+            },
+            {
+              id: "e3",
+              surveyId: "s1",
+              values: { event: "RubyKaigi", version: "v1.0" },
+              label: null,
+              responseCount: 1,
+              createdAt: "2026-02-17T00:00:00.000Z",
+            },
+          ],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    mockUseResponses.mockReturnValue({
+      data: {
+        data: {
+          surveyId: "s1",
+          responses: [
+            {
+              id: "r1",
+              answers: { q1: "感想1" },
+              params: { event: "GENkaigi", version: "v1.0" },
+              dataEntryId: "e1",
+            },
+            {
+              id: "r2",
+              answers: { q1: "感想2" },
+              params: { event: "GENkaigi", version: "v2.0" },
+              dataEntryId: "e2",
+            },
+            {
+              id: "r3",
+              answers: { q1: "感想3" },
+              params: { event: "RubyKaigi", version: "v1.0" },
+              dataEntryId: "e3",
+            },
+          ],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    setupMocks();
+
+    renderWithRoute();
+
+    // パラメータごとにフィルタラベルが表示される
+    expect(screen.getByText("イベント:")).toBeDefined();
+    expect(screen.getByText("バージョン:")).toBeDefined();
+
+    // 各パラメータのユニーク値がボタンとして表示される
+    expect(screen.getByRole("button", { name: "GENkaigi" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "RubyKaigi" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "v1.0" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "v2.0" })).toBeDefined();
+
+    // フィルタなしでは全件表示
+    expect(screen.getByText("回答一覧（3件）")).toBeDefined();
+  });
+
+  test("パラメータフィルタで回答を絞り込める", async () => {
+    mockUseSurvey.mockReturnValue({
+      data: {
+        data: {
+          id: "s1",
+          title: "テスト",
+          status: "active",
+          createdAt: "2026-02-15T00:00:00.000Z",
+          questions: [{ type: "text", id: "q1", label: "感想" }],
+          params: [
+            { key: "event", label: "イベント", visible: true },
+            { key: "version", label: "バージョン", visible: true },
+          ],
+          dataEntries: [
+            {
+              id: "e1",
+              surveyId: "s1",
+              values: { event: "GENkaigi", version: "v1.0" },
+              label: null,
+              responseCount: 1,
+              createdAt: "2026-02-15T00:00:00.000Z",
+            },
+            {
+              id: "e2",
+              surveyId: "s1",
+              values: { event: "GENkaigi", version: "v2.0" },
+              label: null,
+              responseCount: 1,
+              createdAt: "2026-02-16T00:00:00.000Z",
+            },
+            {
+              id: "e3",
+              surveyId: "s1",
+              values: { event: "RubyKaigi", version: "v1.0" },
+              label: null,
+              responseCount: 1,
+              createdAt: "2026-02-17T00:00:00.000Z",
+            },
+          ],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    mockUseResponses.mockReturnValue({
+      data: {
+        data: {
+          surveyId: "s1",
+          responses: [
+            {
+              id: "r1",
+              answers: { q1: "感想1" },
+              params: { event: "GENkaigi", version: "v1.0" },
+              dataEntryId: "e1",
+            },
+            {
+              id: "r2",
+              answers: { q1: "感想2" },
+              params: { event: "GENkaigi", version: "v2.0" },
+              dataEntryId: "e2",
+            },
+            {
+              id: "r3",
+              answers: { q1: "感想3" },
+              params: { event: "RubyKaigi", version: "v1.0" },
+              dataEntryId: "e3",
+            },
+          ],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    setupMocks();
+
+    renderWithRoute();
+
+    const user = userEvent.setup();
+
+    // イベント=GENkaigi でフィルタ → v1.0 と v2.0 の 2 件が表示される
+    await user.click(screen.getByRole("button", { name: "GENkaigi" }));
+    expect(screen.getByText("回答一覧（2件）")).toBeDefined();
+
+    // 「すべて」をクリックしてフィルタ解除
+    const allButtons = screen.getAllByRole("button", { name: "すべて" });
+    const firstAllButton = allButtons[0];
+    expect(firstAllButton).toBeDefined();
+    // イベントの「すべて」ボタンをクリック（最初のもの）
+    await user.click(firstAllButton as HTMLElement);
+    expect(screen.getByText("回答一覧（3件）")).toBeDefined();
+  });
+
+  test("params が空でも dataEntryId からフィルタできる", async () => {
+    mockUseSurvey.mockReturnValue({
+      data: {
+        data: {
+          id: "s1",
+          title: "テスト",
+          status: "active",
+          createdAt: "2026-02-15T00:00:00.000Z",
+          questions: [{ type: "text", id: "q1", label: "感想" }],
+          params: [{ key: "event", label: "イベント", visible: true }],
+          dataEntries: [
+            {
+              id: "e1",
+              surveyId: "s1",
+              values: { event: "GENkaigi" },
+              label: null,
+              responseCount: 2,
+              createdAt: "2026-02-15T00:00:00.000Z",
+            },
+            {
+              id: "e2",
+              surveyId: "s1",
+              values: { event: "RubyKaigi" },
+              label: null,
+              responseCount: 1,
+              createdAt: "2026-02-16T00:00:00.000Z",
+            },
+          ],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    mockUseResponses.mockReturnValue({
+      data: {
+        data: {
+          surveyId: "s1",
+          responses: [
+            {
+              id: "r1",
+              answers: { q1: "感想1" },
+              params: {},
+              dataEntryId: "e1",
+            },
+            {
+              id: "r2",
+              answers: { q1: "感想2" },
+              params: {},
+              dataEntryId: "e1",
+            },
+            {
+              id: "r3",
+              answers: { q1: "感想3" },
+              params: {},
+              dataEntryId: "e2",
+            },
+          ],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    setupMocks();
+
+    renderWithRoute();
+
+    const user = userEvent.setup();
+
+    // フィルタなしでは全件表示
+    expect(screen.getByText("回答一覧（3件）")).toBeDefined();
+
+    // イベント=GENkaigi でフィルタ → e1 の 2 件が表示される
+    await user.click(screen.getByRole("button", { name: "GENkaigi" }));
+    expect(screen.getByText("回答一覧（2件）")).toBeDefined();
+
+    // イベント=RubyKaigi でフィルタ → e2 の 1 件が表示される
+    await user.click(screen.getByRole("button", { name: "RubyKaigi" }));
+    expect(screen.getByText("回答一覧（1件）")).toBeDefined();
+  });
+
+  test("生データテーブルにパラメータ列を表示する", () => {
+    mockUseSurvey.mockReturnValue({
+      data: {
+        data: {
+          id: "s1",
+          title: "テスト",
+          status: "active",
+          createdAt: "2026-02-15T00:00:00.000Z",
+          questions: [{ type: "text", id: "q1", label: "お名前" }],
+          params: [{ key: "version", label: "バージョン", visible: true }],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    mockUseResponses.mockReturnValue({
+      data: {
+        data: {
+          surveyId: "s1",
+          responses: [
+            {
+              id: "r1",
+              answers: { q1: "太郎" },
+              params: { version: "v2" },
+            },
+            {
+              id: "r2",
+              answers: { q1: "花子" },
+              params: { version: "v3" },
+            },
+          ],
+        },
+        status: 200,
+        headers: new Headers(),
+      },
+      isLoading: false,
+    } as never);
+    setupMocks();
+
+    renderWithRoute();
+
+    const table = screen.getByRole("table");
+    expect(table).toBeDefined();
+    const headers = screen.getAllByRole("columnheader");
+    const headerTexts = headers.map((h) => h.textContent);
+    expect(headerTexts).toContain("バージョン");
+    expect(screen.getAllByText("v2").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("v3").length).toBeGreaterThanOrEqual(1);
   });
 });

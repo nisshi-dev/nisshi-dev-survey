@@ -8,22 +8,41 @@ datasource db {
 }
 
 model Survey {
-  id          String     @id @default(cuid())
+  id          String           @id @default(cuid())
   title       String
   description String?
-  status      String     @default("draft")
+  status      String           @default("draft")
   questions   Json
+  params      Json             @default("[]")
   responses   Response[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  dataEntries SurveyDataEntry[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 }
 
 model Response {
-  id        String   @id @default(cuid())
+  id          String           @id @default(cuid())
+  surveyId    String
+  survey      Survey           @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  answers     Json
+  params      Json             @default("{}")
+  dataEntryId String?
+  dataEntry   SurveyDataEntry? @relation(fields: [dataEntryId], references: [id])
+  createdAt   DateTime         @default(now())
+
+  @@index([surveyId])
+  @@index([dataEntryId])
+}
+
+model SurveyDataEntry {
+  id        String     @id @default(cuid())
   surveyId  String
-  survey    Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
-  answers   Json
-  createdAt DateTime @default(now())
+  survey    Survey     @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  values    Json       @default("{}")
+  label     String?
+  responses Response[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 
   @@index([surveyId])
 }

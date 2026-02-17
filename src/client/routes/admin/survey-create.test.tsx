@@ -122,6 +122,100 @@ describe("SurveyCreatePage", () => {
     );
   });
 
+  test("パラメータを追加して送信できる", async () => {
+    const triggerMock = vi.fn().mockResolvedValue({
+      data: {
+        id: "new-1",
+        title: "テスト",
+        questions: [],
+        params: [{ key: "version", label: "バージョン", visible: true }],
+      },
+      status: 201,
+      headers: new Headers(),
+    });
+    mockUseCreate.mockReturnValue({
+      trigger: triggerMock,
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyCreatePage />
+      </MemoryRouter>
+    );
+
+    const user = userEvent.setup();
+    await user.type(screen.getByLabelText("タイトル"), "テスト");
+    await user.click(screen.getByRole("button", { name: "質問を追加" }));
+    await user.type(screen.getByLabelText("質問文"), "お名前");
+
+    await user.click(screen.getByRole("button", { name: "パラメータを追加" }));
+    await user.type(screen.getByLabelText("ID（半角英数字）"), "version");
+    await user.type(screen.getByLabelText("項目名"), "バージョン");
+
+    await user.click(screen.getByRole("button", { name: "作成する" }));
+
+    expect(triggerMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        params: expect.arrayContaining([
+          expect.objectContaining({
+            key: "version",
+            label: "バージョン",
+          }),
+        ]),
+      })
+    );
+  });
+
+  test("項目名を入力すると ASCII の場合 ID が自動生成される", async () => {
+    mockUseCreate.mockReturnValue({
+      trigger: vi.fn(),
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyCreatePage />
+      </MemoryRouter>
+    );
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: "パラメータを追加" }));
+    await user.type(screen.getByLabelText("項目名"), "Event Name");
+
+    expect(screen.getByLabelText("ID（半角英数字）")).toHaveProperty(
+      "value",
+      "event_name"
+    );
+  });
+
+  test("ID を手動編集した後は自動生成されない", async () => {
+    mockUseCreate.mockReturnValue({
+      trigger: vi.fn(),
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyCreatePage />
+      </MemoryRouter>
+    );
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: "パラメータを追加" }));
+
+    const idInput = screen.getByLabelText("ID（半角英数字）");
+    await user.type(idInput, "custom_id");
+    await user.clear(idInput);
+
+    await user.type(screen.getByLabelText("項目名"), "Event Name");
+
+    expect(screen.getByLabelText("ID（半角英数字）")).toHaveProperty(
+      "value",
+      ""
+    );
+  });
+
   test("送信時に trigger が呼ばれ、成功したらダッシュボードに遷移する", async () => {
     const triggerMock = vi.fn().mockResolvedValue({
       data: { id: "new-1", title: "テスト", questions: [] },

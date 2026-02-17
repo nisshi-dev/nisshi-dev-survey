@@ -246,4 +246,114 @@ describe("SurveyForm", () => {
       })
     );
   });
+
+  test("params が渡された場合、送信時に trigger に params が含まれる", async () => {
+    const triggerMock = vi.fn().mockResolvedValue({
+      data: { success: true, surveyId: "s1" },
+      status: 200,
+    });
+    const questions: Question[] = [{ type: "text", id: "q1", label: "ご意見" }];
+    mockUseSubmit.mockReturnValue({
+      trigger: triggerMock,
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyForm
+          params={{ version: "v2", event_date: "2026-02-15" }}
+          questions={questions}
+          surveyId="s1"
+        />
+      </MemoryRouter>
+    );
+
+    const user = userEvent.setup();
+    await user.type(screen.getByLabelText("ご意見"), "テスト");
+    await user.click(screen.getByRole("button", { name: "回答を送信する" }));
+
+    expect(triggerMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        params: { version: "v2", event_date: "2026-02-15" },
+      })
+    );
+  });
+
+  test("dataEntryId が渡された場合、trigger に dataEntryId が含まれる", async () => {
+    const triggerMock = vi.fn().mockResolvedValue({
+      data: { success: true, surveyId: "s1" },
+      status: 200,
+    });
+    const questions: Question[] = [{ type: "text", id: "q1", label: "ご意見" }];
+    mockUseSubmit.mockReturnValue({
+      trigger: triggerMock,
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyForm dataEntryId="e1" questions={questions} surveyId="s1" />
+      </MemoryRouter>
+    );
+
+    const user = userEvent.setup();
+    await user.type(screen.getByLabelText("ご意見"), "テスト");
+    await user.click(screen.getByRole("button", { name: "回答を送信する" }));
+
+    expect(triggerMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        dataEntryId: "e1",
+      })
+    );
+  });
+
+  test("dataEntryId が渡されない場合、trigger に dataEntryId を含めない", async () => {
+    const triggerMock = vi.fn().mockResolvedValue({
+      data: { success: true, surveyId: "s1" },
+      status: 200,
+    });
+    const questions: Question[] = [{ type: "text", id: "q1", label: "ご意見" }];
+    mockUseSubmit.mockReturnValue({
+      trigger: triggerMock,
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyForm questions={questions} surveyId="s1" />
+      </MemoryRouter>
+    );
+
+    const user = userEvent.setup();
+    await user.type(screen.getByLabelText("ご意見"), "テスト");
+    await user.click(screen.getByRole("button", { name: "回答を送信する" }));
+
+    const callArgs = triggerMock.mock.calls[0][0];
+    expect(callArgs.dataEntryId).toBeUndefined();
+  });
+
+  test("params が空オブジェクトの場合は trigger に params を含めない", async () => {
+    const triggerMock = vi.fn().mockResolvedValue({
+      data: { success: true, surveyId: "s1" },
+      status: 200,
+    });
+    const questions: Question[] = [{ type: "text", id: "q1", label: "ご意見" }];
+    mockUseSubmit.mockReturnValue({
+      trigger: triggerMock,
+      isMutating: false,
+    } as never);
+
+    render(
+      <MemoryRouter>
+        <SurveyForm params={{}} questions={questions} surveyId="s1" />
+      </MemoryRouter>
+    );
+
+    const user = userEvent.setup();
+    await user.type(screen.getByLabelText("ご意見"), "テスト");
+    await user.click(screen.getByRole("button", { name: "回答を送信する" }));
+
+    const callArgs = triggerMock.mock.calls[0][0];
+    expect(callArgs.params).toBeUndefined();
+  });
 });
