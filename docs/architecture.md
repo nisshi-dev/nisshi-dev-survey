@@ -168,7 +168,7 @@ Valibot スキーマ（SSoT: src/shared/schema/）
 - **Framework Preset:** Vite
 - **ビルドコマンド:** `npm run build`（Prisma Client 生成 + Orval API クライアント生成 + Vite ビルド）
 - **フロントエンド:** `vite build` の出力（`dist/`）を静的ファイルとして配信
-- **API:** `api/[[...route]].ts` を Vercel が Serverless Function として自動検出・実行
-- **SPA ルーティング:** `vercel.json` の `rewrites` でファイルシステムに一致しないパスを `index.html` にフォールバック
+- **API:** `api/index.ts` を Vercel が Serverless Function として自動検出・実行（`hono/vercel` の `handle()` でラップ）
+- **ルーティング:** `vercel.json` の `rewrites` で `/api/*` を API ファンクションに、その他を SPA にフォールバック
 - **Cookie:** `SameSite=Lax`（同一オリジンのためクロスサイト対応不要）
 - **Prisma Client:** `postinstall` スクリプトで `npm install` 時に自動生成

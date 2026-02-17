@@ -1,12 +1,34 @@
 import { Card, Link } from "@heroui/react";
 import { motion } from "motion/react";
+import { useEffect, useState } from "react";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 16 },
   animate: { opacity: 1, y: 0 },
 };
 
+function useHealthCheck() {
+  const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/health")
+      .then((res) => res.json())
+      .then((data: { status: string }) => {
+        setStatus(data.status === "ok" ? "ok" : "error");
+      })
+      .catch((err: unknown) => {
+        setStatus("error");
+        setError(err instanceof Error ? err.message : "Unknown error");
+      });
+  }, []);
+
+  return { status, error };
+}
+
 export function LandingPage() {
+  const health = useHealthCheck();
+
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-lg">
@@ -40,7 +62,7 @@ export function LandingPage() {
               </p>
             </motion.div>
           </Card.Content>
-          <Card.Footer className="justify-center pb-8">
+          <Card.Footer className="flex-col items-center gap-4 pb-8">
             <motion.div
               {...fadeInUp}
               className="flex flex-col items-center gap-2"
@@ -55,6 +77,16 @@ export function LandingPage() {
                 <Link.Icon />
               </Link>
             </motion.div>
+            <motion.p
+              {...fadeInUp}
+              className="text-muted text-xs"
+              transition={{ duration: 0.4, delay: 0.4 }}
+            >
+              {health.status === "loading" && "API: checking..."}
+              {health.status === "ok" && "API: ok"}
+              {health.status === "error" &&
+                `API: Error${health.error ? ` (${health.error})` : ""}`}
+            </motion.p>
           </Card.Footer>
         </Card>
       </div>
