@@ -12,7 +12,7 @@ export function TextQuestionField({ question, index }: Props) {
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
         <QuestionBadge index={index} />
-        <span className="font-medium text-sm">
+        <span className="font-medium">
           {question.label}
           {question.required && <span className="ml-1 text-danger"> *</span>}
         </span>

@@ -73,16 +73,27 @@ function ResponseAnalysis({
   );
 }
 
+function SectionHeader({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="mb-3 flex items-center gap-2 font-bold text-lg tracking-tight">
+      <span className="h-4 w-0.5 rounded-full bg-accent" />
+      {children}
+    </h2>
+  );
+}
+
 function QuestionList({ questions }: { questions: Question[] }) {
   return (
     <Card>
       <Card.Content className="flex flex-col gap-0 p-0">
         {questions.map((q, i) => (
           <div
-            className="flex items-start gap-3 border-border/50 px-4 py-3 [&:not(:last-child)]:border-b"
+            className="flex items-start gap-3 border-border/50 px-4 py-3 transition-colors hover:bg-surface-secondary/50 [&:not(:last-child)]:border-b"
             key={q.id}
           >
-            <span className="mt-0.5 font-mono text-muted text-xs">{i + 1}</span>
+            <span className="mt-0.5 rounded bg-surface-secondary px-1.5 py-0.5 font-mono text-muted text-xs">
+              {i + 1}
+            </span>
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <div className="flex items-center gap-2">
                 <span className="font-medium text-sm">{q.label}</span>
@@ -130,7 +141,7 @@ function RawDataTable({
   return (
     <table className="w-full text-left text-sm">
       <thead>
-        <tr className="border-border border-b">
+        <tr className="border-border border-b bg-surface-secondary/50">
           {surveyParams.map((p) => (
             <th
               className="px-3 py-2 font-medium text-muted text-xs tracking-wider"
@@ -151,7 +162,10 @@ function RawDataTable({
       </thead>
       <tbody>
         {responses.map((r) => (
-          <tr className="border-border/50 border-b" key={r.id}>
+          <tr
+            className="border-border/50 border-b transition-colors even:bg-surface-secondary/30 hover:bg-surface-secondary/50"
+            key={r.id}
+          >
             {surveyParams.map((p) => {
               const params = (r.params ?? {}) as Record<string, string>;
               return (
@@ -203,9 +217,9 @@ export function SurveyDetailPage() {
 
   if (surveyLoading || !surveyData) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex flex-col items-center justify-center py-16">
         <Spinner aria-label="読み込み中" />
-        <p className="ml-2 text-muted">読み込み中...</p>
+        <p className="mt-3 text-muted text-sm">読み込み中...</p>
       </div>
     );
   }
@@ -335,6 +349,7 @@ export function SurveyDetailPage() {
         ))}
         {currentStatus !== "completed" && (
           <Button
+            className="ml-auto"
             isDisabled={isDeleting}
             onPress={handleDelete}
             size="sm"
@@ -347,7 +362,7 @@ export function SurveyDetailPage() {
 
       {hasParams ? (
         <div>
-          <h2 className="mb-3 font-bold text-lg tracking-tight">データ管理</h2>
+          <SectionHeader>データ管理</SectionHeader>
           <Card>
             <Card.Content>
               <DataEntryTable
@@ -388,9 +403,9 @@ export function SurveyDetailPage() {
       ) : (
         <Card>
           <Card.Content>
-            <p className="text-muted text-sm">共有 URL</p>
+            <p className="font-medium text-muted text-sm">共有 URL</p>
             <code
-              className="mt-1 block rounded-lg bg-surface-secondary px-3 py-2 text-sm"
+              className="mt-1 block rounded-lg border border-border/50 bg-surface-secondary px-3 py-2 text-sm"
               data-testid="share-url"
             >
               {baseUrl}
@@ -400,14 +415,12 @@ export function SurveyDetailPage() {
       )}
 
       <div>
-        <h2 className="mb-3 font-bold text-lg tracking-tight">質問一覧</h2>
+        <SectionHeader>質問一覧</SectionHeader>
         <QuestionList questions={questions} />
       </div>
 
       <div>
-        <h2 className="mb-3 font-bold text-lg tracking-tight">
-          回答一覧（{responses.length}件）
-        </h2>
+        <SectionHeader>回答一覧（{responses.length}件）</SectionHeader>
         {hasParams && dataEntries.length > 0 && (
           <div className="mb-3 flex flex-col gap-2">
             {surveyParams.map((param) => {
@@ -423,8 +436,8 @@ export function SurveyDetailPage() {
               }
               return (
                 <div className="flex items-center gap-2" key={param.key}>
-                  <span className="shrink-0 text-muted text-sm">
-                    {param.label}:
+                  <span className="w-20 shrink-0 border-border/50 border-r pr-2 font-medium text-muted text-sm">
+                    {param.label}
                   </span>
                   <div className="flex flex-wrap gap-1">
                     <Chip
@@ -477,15 +490,33 @@ export function SurveyDetailPage() {
           </div>
         )}
         {responsesLoading && (
-          <div className="flex items-center gap-2 py-4">
+          <div className="flex flex-col items-center justify-center py-8">
             <Spinner size="sm" />
-            <p className="text-muted">回答を読み込み中...</p>
+            <p className="mt-2 text-muted text-sm">回答を読み込み中...</p>
           </div>
         )}
         {!responsesLoading && responses.length === 0 && (
           <Card>
-            <Card.Content className="py-8 text-center">
-              <p className="text-muted">まだ回答がありません。</p>
+            <Card.Content className="py-12 text-center">
+              <svg
+                aria-label="回答なしアイコン"
+                className="mx-auto mb-3 h-10 w-10 text-muted/40"
+                fill="none"
+                role="img"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M20.25 7.5l-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m6 4.125l2.25 2.25m0 0l2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <p className="font-medium text-muted">まだ回答がありません</p>
+              <p className="mt-1 text-muted/60 text-sm">
+                回答が届くとここに表示されます。
+              </p>
             </Card.Content>
           </Card>
         )}
@@ -493,14 +524,14 @@ export function SurveyDetailPage() {
 
       {!responsesLoading && questions.length > 0 && (
         <div>
-          <h2 className="mb-3 font-bold text-lg tracking-tight">質問別分析</h2>
+          <SectionHeader>質問別分析</SectionHeader>
           <ResponseAnalysis questions={questions} responses={responses} />
         </div>
       )}
 
       {!responsesLoading && responses.length > 0 && (
         <div>
-          <h2 className="mb-3 font-bold text-lg tracking-tight">生データ</h2>
+          <SectionHeader>生データ</SectionHeader>
           <Card>
             <Card.Content className="overflow-x-auto">
               <RawDataTable

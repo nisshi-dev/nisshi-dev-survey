@@ -556,8 +556,8 @@ describe("SurveyDetailPage", () => {
     renderWithRoute();
 
     // パラメータごとにフィルタラベルが表示される
-    expect(screen.getByText("イベント:")).toBeDefined();
-    expect(screen.getByText("バージョン:")).toBeDefined();
+    expect(screen.getAllByText("イベント").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("バージョン").length).toBeGreaterThanOrEqual(1);
 
     // 各パラメータのユニーク値がボタンとして表示される
     expect(screen.getByRole("button", { name: "GENkaigi" })).toBeDefined();

@@ -110,13 +110,9 @@ export function SurveyForm({
 
         {error && (
           <motion.div {...fadeInUp} transition={{ duration: 0.3 }}>
-            <Card className="border-danger/20 bg-danger/5">
-              <Card.Content>
-                <p className="text-danger text-sm">
-                  送信に失敗しました。もう一度お試しください。
-                </p>
-              </Card.Content>
-            </Card>
+            <p className="rounded-lg bg-danger/5 px-4 py-3 text-danger text-sm">
+              送信に失敗しました。もう一度お試しください。
+            </p>
           </motion.div>
         )}
 
@@ -127,14 +123,12 @@ export function SurveyForm({
             delay: Math.min(questions.length * 0.1, 0.8),
           }}
         >
-          <Card className="w-full">
-            <Card.Content>
-              <EmailCopySection
-                onSendCopyChange={setSendCopy}
-                sendCopy={sendCopy}
-              />
-            </Card.Content>
-          </Card>
+          <div className="border-border/50 border-t pt-4">
+            <EmailCopySection
+              onSendCopyChange={setSendCopy}
+              sendCopy={sendCopy}
+            />
+          </div>
         </motion.div>
 
         <motion.div
@@ -144,18 +138,14 @@ export function SurveyForm({
             delay: Math.min((questions.length + 1) * 0.1, 0.8),
           }}
         >
-          <Card className="w-full">
-            <Card.Content>
-              <Button fullWidth isPending={isMutating} size="lg" type="submit">
-                {({ isPending }) => (
-                  <>
-                    {isPending ? <Spinner color="current" size="sm" /> : null}
-                    {isPending ? "送信中..." : "回答を送信する"}
-                  </>
-                )}
-              </Button>
-            </Card.Content>
-          </Card>
+          <Button fullWidth isPending={isMutating} size="lg" type="submit">
+            {({ isPending }) => (
+              <>
+                {isPending ? <Spinner color="current" size="sm" /> : null}
+                {isPending ? "送信中..." : "回答を送信する"}
+              </>
+            )}
+          </Button>
         </motion.div>
       </div>
     </Form>

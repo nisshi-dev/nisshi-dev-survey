@@ -68,9 +68,10 @@ export function DashboardPage() {
           <Card.Content className="flex flex-col items-center gap-4 py-16 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10">
               <svg
-                aria-hidden
+                aria-label="追加アイコン"
                 className="h-6 w-6 text-accent"
                 fill="none"
+                role="img"
                 stroke="currentColor"
                 strokeWidth={1.5}
                 viewBox="0 0 24 24"
