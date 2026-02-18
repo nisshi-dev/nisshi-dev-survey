@@ -7,6 +7,7 @@ import {
   Spinner,
   TextField,
 } from "@heroui/react";
+import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { usePostAdminAuthLogin } from "@/generated/api/auth/auth";
 
@@ -25,40 +26,57 @@ export function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
-        <Card.Header>
-          <Card.Title>nisshi-dev-survey 管理画面</Card.Title>
-          <Card.Description>
-            管理者アカウントでログインしてください
-          </Card.Description>
-        </Card.Header>
-        <Form onSubmit={handleSubmit}>
-          <Card.Content className="flex flex-col gap-4">
-            <TextField isRequired name="email" type="email">
-              <Label>メールアドレス</Label>
-              <Input placeholder="admin@example.com" />
-            </TextField>
-            <TextField isRequired name="password" type="password">
-              <Label>パスワード</Label>
-              <Input placeholder="••••••••" />
-            </TextField>
-            {error && (
-              <p className="text-danger text-sm">ログインに失敗しました。</p>
-            )}
-          </Card.Content>
-          <Card.Footer>
-            <Button fullWidth isPending={isMutating} type="submit">
-              {({ isPending }) => (
-                <>
-                  {isPending ? <Spinner color="current" size="sm" /> : null}
-                  {isPending ? "ログイン中..." : "ログイン"}
-                </>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden p-4">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.07]"
+        style={{
+          background:
+            "radial-gradient(ellipse at top, var(--accent) 0%, transparent 55%)",
+        }}
+      />
+
+      <motion.div
+        animate={{ opacity: 1, y: 0 }}
+        className="relative w-full max-w-sm"
+        initial={{ opacity: 0, y: 16 }}
+        transition={{ duration: 0.4 }}
+      >
+        <div className="mb-8 text-center">
+          <h1 className="font-bold text-2xl tracking-tight">
+            nisshi-dev-survey
+          </h1>
+          <p className="mt-1 text-muted text-sm">管理画面</p>
+        </div>
+
+        <Card>
+          <Form onSubmit={handleSubmit}>
+            <Card.Content className="flex flex-col gap-6">
+              <TextField isRequired name="email" type="email">
+                <Label>メールアドレス</Label>
+                <Input placeholder="admin@example.com" />
+              </TextField>
+              <TextField isRequired name="password" type="password">
+                <Label>パスワード</Label>
+                <Input placeholder="••••••••" />
+              </TextField>
+              {error && (
+                <p className="text-danger text-sm">ログインに失敗しました。</p>
               )}
-            </Button>
-          </Card.Footer>
-        </Form>
-      </Card>
+            </Card.Content>
+            <Card.Footer className="pt-4">
+              <Button fullWidth isPending={isMutating} type="submit">
+                {({ isPending }) => (
+                  <>
+                    {isPending ? <Spinner color="current" size="sm" /> : null}
+                    {isPending ? "ログイン中..." : "ログイン"}
+                  </>
+                )}
+              </Button>
+            </Card.Footer>
+          </Form>
+        </Card>
+      </motion.div>
     </div>
   );
 }

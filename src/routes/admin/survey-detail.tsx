@@ -1,6 +1,6 @@
 import { Button, Card, Chip, Spinner } from "@heroui/react";
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { DataEntryFormModal } from "@/components/admin/data-entry-form-modal";
 import {
   type DataEntry,
@@ -133,14 +133,17 @@ function RawDataTable({
         <tr className="border-border border-b">
           {surveyParams.map((p) => (
             <th
-              className="px-3 py-2 font-medium text-muted"
+              className="px-3 py-2 font-medium text-muted text-xs tracking-wider"
               key={`param-${p.key}`}
             >
               {p.label}
             </th>
           ))}
           {questions.map((q) => (
-            <th className="px-3 py-2 font-medium text-muted" key={q.id}>
+            <th
+              className="px-3 py-2 font-medium text-muted text-xs tracking-wider"
+              key={q.id}
+            >
               {q.label}
             </th>
           ))}
@@ -299,12 +302,20 @@ export function SurveyDetailPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center gap-3">
-        <h1 className="font-bold text-2xl">{survey.title}</h1>
-        <Chip color={statusColorMap[currentStatus]} size="sm" variant="soft">
-          {SURVEY_STATUS_LABELS[currentStatus]}
-        </Chip>
+    <div className="flex flex-col gap-8">
+      <div>
+        <Link
+          className="mb-2 inline-flex items-center gap-1 text-muted text-xs hover:text-foreground"
+          to="/admin"
+        >
+          <span aria-hidden>←</span> ダッシュボード
+        </Link>
+        <div className="flex items-center gap-3">
+          <h1 className="font-bold text-2xl tracking-tight">{survey.title}</h1>
+          <Chip color={statusColorMap[currentStatus]} size="sm" variant="soft">
+            {SURVEY_STATUS_LABELS[currentStatus]}
+          </Chip>
+        </div>
       </div>
 
       <div className="flex gap-2">
@@ -336,7 +347,7 @@ export function SurveyDetailPage() {
 
       {hasParams ? (
         <div>
-          <h2 className="mb-3 font-semibold text-lg">データ管理</h2>
+          <h2 className="mb-3 font-bold text-lg tracking-tight">データ管理</h2>
           <Card>
             <Card.Content>
               <DataEntryTable
@@ -389,12 +400,12 @@ export function SurveyDetailPage() {
       )}
 
       <div>
-        <h2 className="mb-3 font-semibold text-lg">質問一覧</h2>
+        <h2 className="mb-3 font-bold text-lg tracking-tight">質問一覧</h2>
         <QuestionList questions={questions} />
       </div>
 
       <div>
-        <h2 className="mb-3 font-semibold text-lg">
+        <h2 className="mb-3 font-bold text-lg tracking-tight">
           回答一覧（{responses.length}件）
         </h2>
         {hasParams && dataEntries.length > 0 && (
@@ -482,14 +493,14 @@ export function SurveyDetailPage() {
 
       {!responsesLoading && questions.length > 0 && (
         <div>
-          <h2 className="mb-3 font-semibold text-lg">質問別分析</h2>
+          <h2 className="mb-3 font-bold text-lg tracking-tight">質問別分析</h2>
           <ResponseAnalysis questions={questions} responses={responses} />
         </div>
       )}
 
       {!responsesLoading && responses.length > 0 && (
         <div>
-          <h2 className="mb-3 font-semibold text-lg">生データ</h2>
+          <h2 className="mb-3 font-bold text-lg tracking-tight">生データ</h2>
           <Card>
             <Card.Content className="overflow-x-auto">
               <RawDataTable

@@ -1,6 +1,6 @@
 import { Spinner } from "@heroui/react";
 import { useMemo } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import type { ParamDraft, QuestionDraft } from "@/components/admin/survey-form";
 import { SurveyForm } from "@/components/admin/survey-form";
 import {
@@ -88,8 +88,21 @@ export function SurveyEditPage() {
   };
 
   return (
-    <>
-      <h1 className="mb-6 font-bold text-2xl">アンケート編集</h1>
+    <div className="flex flex-col gap-8">
+      <div>
+        <Link
+          className="mb-2 inline-flex items-center gap-1 text-muted text-xs hover:text-foreground"
+          to={`/admin/surveys/${id}`}
+        >
+          <span aria-hidden>←</span> 詳細に戻る
+        </Link>
+        <h1 className="font-bold text-2xl tracking-tight">アンケート編集</h1>
+        <p className="mt-1 text-muted text-sm">
+          {isDraft
+            ? "タイトル・説明・質問・パラメータを編集できます"
+            : "受付中・完了済みのアンケートは質問の変更ができません"}
+        </p>
+      </div>
       <SurveyForm
         initialDescription={survey.description ?? ""}
         initialParams={initialParamDrafts}
@@ -100,6 +113,6 @@ export function SurveyEditPage() {
         questionsDisabled={!isDraft}
         submitLabel="保存する"
       />
-    </>
+    </div>
   );
 }
