@@ -2,15 +2,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { afterEach, describe, expect, test, vi } from "vitest";
-
-const signOutMock = vi.fn();
-
-vi.mock("@/lib/auth-client", () => ({
-  authClient: {
-    signOut: signOutMock,
-  },
-}));
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 const navigateMock = vi.fn();
 vi.mock("react-router-dom", async () => {
@@ -27,10 +19,17 @@ vi.mock("react-router-dom", async () => {
 const { AdminLayout } = await import("./_layout");
 
 describe("AdminLayout", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockResolvedValue({ ok: true });
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
   afterEach(() => {
     cleanup();
     navigateMock.mockClear();
-    signOutMock.mockClear();
+    vi.restoreAllMocks();
   });
 
   test("ナビゲーションにダッシュボードリンクを表示する", () => {
@@ -48,9 +47,7 @@ describe("AdminLayout", () => {
     expect(screen.getByText("子コンテンツ")).toBeDefined();
   });
 
-  test("ログアウトボタンをクリックすると signOut が呼ばれ /admin/login に遷移する", async () => {
-    signOutMock.mockResolvedValue({});
-
+  test("ログアウトボタンをクリックすると sign-out に POST され /admin/login に遷移する", async () => {
     render(
       <MemoryRouter initialEntries={["/admin"]}>
         <Routes>
@@ -67,10 +64,10 @@ describe("AdminLayout", () => {
     });
     await user.click(logoutButtons[0] as HTMLElement);
 
-    expect(signOutMock).toHaveBeenCalledWith({
-      fetchOptions: {
-        onSuccess: expect.any(Function),
-      },
+    expect(fetchMock).toHaveBeenCalledWith("/api/admin/auth/sign-out", {
+      method: "POST",
+      credentials: "include",
     });
+    expect(navigateMock).toHaveBeenCalledWith("/admin/login");
   });
 });

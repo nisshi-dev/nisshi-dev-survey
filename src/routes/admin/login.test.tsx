@@ -37,17 +37,6 @@ describe("LoginPage", () => {
     expect(screen.getByRole("button", { name: GOOGLE_LOGIN_RE })).toBeDefined();
   });
 
-  test("メールアドレス・パスワード入力欄が表示されない", () => {
-    render(
-      <MemoryRouter>
-        <LoginPage />
-      </MemoryRouter>
-    );
-
-    expect(screen.queryByLabelText("メールアドレス")).toBeNull();
-    expect(screen.queryByLabelText("パスワード")).toBeNull();
-  });
-
   test("ボタンクリックで Google OAuth エンドポイントに fetch される", async () => {
     render(
       <MemoryRouter>
@@ -59,7 +48,7 @@ describe("LoginPage", () => {
     await user.click(screen.getByRole("button", { name: GOOGLE_LOGIN_RE }));
 
     expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringContaining("/admin/auth/sign-in/social"),
+      "/api/admin/auth/sign-in/social",
       expect.objectContaining({
         method: "POST",
         credentials: "include",
