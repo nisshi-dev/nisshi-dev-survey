@@ -55,6 +55,7 @@
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "5.1.4",
     "@vitest/coverage-v8": "4.0.18",
+    "agentation": "^2.2.1",
     "globals": "17.3.0",
     "jsdom": "28.1.0",
     "orval": "8.4.0",
