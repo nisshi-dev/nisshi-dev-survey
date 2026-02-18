@@ -2,7 +2,7 @@ import { defineConfig } from "orval";
 
 export default defineConfig({
   survey: {
-    input: "./openapi.json",
+    input: process.env.OPENAPI_URL || "http://localhost:8787/doc",
     output: {
       target: "./src/generated/api/index.ts",
       client: "swr",
@@ -12,7 +12,7 @@ export default defineConfig({
       baseUrl: "",
       override: {
         mutator: {
-          path: "./src/client/lib/api-fetcher.ts",
+          path: "./src/lib/api-fetcher.ts",
           name: "apiFetcher",
         },
       },

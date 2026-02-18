@@ -3,6 +3,16 @@
 Google Forms の軽量版。アンケートを作成し、固定 URL を共有して回答を集める。
 UI は **HeroUI v3 beta** + **Tailwind CSS v4** + **motion** で実装する。
 
+## アーキテクチャ
+
+フロントエンドとAPIは別リポジトリに分離されている。
+
+| | フロントエンド | API |
+|---|---|---|
+| リポジトリ | `nisshi-dev-survey`（本リポ） | `nisshi-dev-survey-api`（別リポ） |
+| ドメイン | survey.nisshi.dev | nisshi-dev-survey-api.nisshi.workers.dev |
+| デプロイ先 | Vercel | Cloudflare Workers |
+
 ## docs
 
 | ドキュメント | 内容 |
@@ -11,7 +21,6 @@ UI は **HeroUI v3 beta** + **Tailwind CSS v4** + **motion** で実装する。
 | [docs/architecture.md](docs/architecture.md) | アーキテクチャ・技術仕様 |
 | [docs/git-guidelines.md](docs/git-guidelines.md) | Git ガイドライン |
 | [docs/coding-rules.md](docs/coding-rules.md) | コーディングルール（ultracite / Biome） |
-| [docs/validation.md](docs/validation.md) | バリデーション・型ガード方針（Valibot） |
 
 ## 開発手法: TDD（テスト駆動開発）
 
@@ -32,8 +41,8 @@ UI は **HeroUI v3 beta** + **Tailwind CSS v4** + **motion** で実装する。
 
 ### 開発・ビルド
 
-- `npm run dev` — Vite 開発サーバー起動（フロント + API を単一プロセスで提供、ポート 5173）
-- `npm run build` — マイグレーション適用 + prisma generate + コード生成 + Vite ビルド
+- `npm run dev` — Vite 開発サーバー起動（ポート 5173、`/api/*` → localhost:8787 にプロキシ、`/api` プレフィックスは自動除去）
+- `npm run build` — Orval クライアント生成 + Vite ビルド
 - `npm run preview` — ビルド成果物のプレビュー
 
 ### リント・フォーマット
@@ -47,23 +56,31 @@ UI は **HeroUI v3 beta** + **Tailwind CSS v4** + **motion** で実装する。
 - `npm run test:run` — テストを1回実行（CI 向け）
 - `npm run test:coverage` — カバレッジ付きでテストを実行
 
-### データベース（`db:*`）
-
-- `npm run db:generate` — Prisma Client 生成
-- `npm run db:migrate` — マイグレーション作成・適用（開発用）
-- `npm run db:migrate:deploy` — マイグレーション適用のみ（本番/CI 用）
-- `npm run db:studio` — Prisma Studio 起動（ブラウザで DB を閲覧・編集）
-- `npm run db:seed` — 管理者ユーザー作成（`ADMIN_EMAIL`, `ADMIN_PASSWORD` 環境変数が必要）
-
 ### コード生成（`generate:*`）
 
-- `npm run generate` — OpenAPI JSON 出力 + SWR hooks 生成
-- `npm run generate:openapi` — OpenAPI JSON をファイルに出力
-- `npm run generate:client` — Orval で SWR hooks を生成
+- `npm run generate:client` — Orval で SWR hooks を生成（ローカル API の `/doc` から取得、`OPENAPI_URL` で変更可能）
 
 ### ユーティリティ
 
 - `npm run clean` — ビルドキャッシュの削除（`dist/`, `node_modules/.cache/`）
+
+## 開発ワークフロー
+
+```
+ターミナル1（API）:
+  cd nisshi-dev-survey-api && npm run dev  # localhost:8787（wrangler dev）
+
+ターミナル2（フロント）:
+  cd nisshi-dev-survey && npm run dev      # localhost:5173 → /api/* proxy → :8787（/api を除去）
+```
+
+API 変更時の型同期フロー:
+1. API リポで変更
+2. API の開発サーバーを起動（`cd nisshi-dev-survey-api && npm run dev`）
+3. フロントリポで `npm run generate:client` → ローカル API の `/doc` から OpenAPI 仕様を取得し SWR hooks 再生成
+4. `src/types/survey.ts` の型定義も必要に応じて同期
+
+> Vercel ビルドでは環境変数 `OPENAPI_URL=https://nisshi-dev-survey-api.nisshi.workers.dev/doc` を設定
 
 ## ドキュメント管理
 
