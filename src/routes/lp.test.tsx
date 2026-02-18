@@ -94,6 +94,16 @@ describe("LandingPage", () => {
     });
   });
 
+  test("copyright を表示する", () => {
+    render(
+      <MemoryRouter>
+        <LandingPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText("© 2026 nisshi-dev")).toBeDefined();
+  });
+
   test("API ヘルスチェック失敗時に停止中を表示する", async () => {
     vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("Network error"));
 

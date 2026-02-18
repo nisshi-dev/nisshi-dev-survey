@@ -88,6 +88,9 @@ export function LandingPage() {
             </motion.p>
           </Card.Footer>
         </Card>
+        <p className="mt-4 text-center text-muted text-xs">
+          &copy; 2026 nisshi-dev
+        </p>
       </div>
     </div>
   );
