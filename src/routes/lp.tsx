@@ -8,7 +8,7 @@ function useHealthCheck() {
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
 
   useEffect(() => {
-    fetch(`${API_URL}/health`, { credentials: "include" })
+    fetch(`${API_URL}/health`)
       .then((res) => res.json())
       .then((data: { status: string }) => {
         setStatus(data.status === "ok" ? "ok" : "error");
