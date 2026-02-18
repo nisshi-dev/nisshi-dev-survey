@@ -79,9 +79,10 @@ Vercel ビルドでは環境変数 `OPENAPI_URL=https://nisshi-dev-survey-api.ni
 
 ## Vercel デプロイ
 
-- **Framework Preset:** Vite
+- **Framework Preset:** Vite（`vercel.json` で明示指定）
 - **ビルドコマンド:** `npm run build`（Orval API クライアント生成 + Vite ビルド）
-- **出力:** `dist/` を静的ファイルとして配信（SPA フォールバック自動設定）
+- **出力:** `dist/` を静的ファイルとして配信
+- **SPA フォールバック:** `vercel.json` の `rewrites` で全パスを `index.html` にフォールバック
 - **環境変数:**
   - `VITE_API_URL=https://nisshi-dev-survey-api.nisshi.workers.dev`
   - `OPENAPI_URL=https://nisshi-dev-survey-api.nisshi.workers.dev/doc`
