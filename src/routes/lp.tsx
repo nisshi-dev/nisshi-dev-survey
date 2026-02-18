@@ -81,14 +81,17 @@ export function LandingPage() {
             準備中
           </motion.span>
 
-          <motion.h1
+          <motion.div
             animate={{ opacity: 1, y: 0 }}
-            className="font-bold text-4xl tracking-tight"
+            className="flex items-baseline gap-2"
             initial={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            nisshi-dev-survey
-          </motion.h1>
+            <h1 className="font-bold text-4xl tracking-tight">
+              nisshi-dev-survey
+            </h1>
+            <span className="text-muted text-sm">v{__APP_VERSION__}</span>
+          </motion.div>
 
           <motion.div
             animate={{ opacity: 1, y: 0 }}
