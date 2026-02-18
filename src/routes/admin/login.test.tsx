@@ -2,26 +2,29 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
-import { afterEach, describe, expect, test, vi } from "vitest";
-
-const signInSocialMock = vi.fn();
-
-vi.mock("@/lib/auth-client", () => ({
-  authClient: {
-    signIn: {
-      social: signInSocialMock,
-    },
-  },
-}));
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 const { LoginPage } = await import("./login");
 
 const GOOGLE_LOGIN_RE = /Google でログイン/;
 
 describe("LoginPage", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockResolvedValue({
+      json: () =>
+        Promise.resolve({
+          url: "https://accounts.google.com/o/oauth2/auth?...",
+          redirect: true,
+        }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
   afterEach(() => {
     cleanup();
-    signInSocialMock.mockClear();
+    vi.restoreAllMocks();
   });
 
   test("「Google でログイン」ボタンを表示する", () => {
@@ -45,9 +48,7 @@ describe("LoginPage", () => {
     expect(screen.queryByLabelText("パスワード")).toBeNull();
   });
 
-  test("ボタンクリックで signIn.social が呼ばれる", async () => {
-    signInSocialMock.mockResolvedValue({});
-
+  test("ボタンクリックで Google OAuth エンドポイントに fetch される", async () => {
     render(
       <MemoryRouter>
         <LoginPage />
@@ -57,9 +58,15 @@ describe("LoginPage", () => {
     const user = userEvent.setup();
     await user.click(screen.getByRole("button", { name: GOOGLE_LOGIN_RE }));
 
-    expect(signInSocialMock).toHaveBeenCalledWith({
-      provider: "google",
-      callbackURL: `${window.location.origin}/admin`,
-    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining("/admin/auth/sign-in/social"),
+      expect.objectContaining({
+        method: "POST",
+        credentials: "include",
+        body: expect.stringContaining(
+          `"callbackURL":"${window.location.origin}/admin"`
+        ),
+      })
+    );
   });
 });

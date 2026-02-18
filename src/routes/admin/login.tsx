@@ -1,13 +1,23 @@
 import { Button, Card } from "@heroui/react";
 import { motion } from "motion/react";
-import { authClient } from "@/lib/auth-client";
+
+const API_URL = import.meta.env.VITE_API_URL || `${window.location.origin}/api`;
 
 export function LoginPage() {
-  const handleGoogleLogin = () => {
-    authClient.signIn.social({
-      provider: "google",
-      callbackURL: `${window.location.origin}/admin`,
+  const handleGoogleLogin = async () => {
+    const res = await fetch(`${API_URL}/admin/auth/sign-in/social`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        provider: "google",
+        callbackURL: `${window.location.origin}/admin`,
+      }),
     });
+    const data = await res.json();
+    if (data.url && data.redirect) {
+      window.location.href = data.url;
+    }
   };
 
   return (
