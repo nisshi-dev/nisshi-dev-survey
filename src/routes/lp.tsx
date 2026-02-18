@@ -87,7 +87,7 @@ export function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <h1 className="font-bold text-4xl tracking-tight">
+            <h1 className="font-bold text-3xl tracking-tight sm:text-4xl">
               nisshi-dev-survey
             </h1>
             <span className="text-muted text-sm">v{__APP_VERSION__}</span>

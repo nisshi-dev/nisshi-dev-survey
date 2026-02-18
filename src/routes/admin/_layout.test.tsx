@@ -72,7 +72,10 @@ describe("AdminLayout", () => {
     );
 
     const user = userEvent.setup();
-    await user.click(screen.getByRole("button", { name: "ログアウト" }));
+    const logoutButtons = screen.getAllByRole("button", {
+      name: "ログアウト",
+    });
+    await user.click(logoutButtons[0] as HTMLElement);
 
     expect(triggerMock).toHaveBeenCalled();
     expect(navigateMock).toHaveBeenCalledWith("/admin/login");

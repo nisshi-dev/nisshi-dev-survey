@@ -322,7 +322,7 @@ export function SurveyDetailPage() {
         >
           <span aria-hidden>←</span> ダッシュボード
         </Link>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <h1 className="font-bold text-2xl tracking-tight">{survey.title}</h1>
           <Chip color={statusColorMap[currentStatus]} size="sm" variant="soft">
             {SURVEY_STATUS_LABELS[currentStatus]}
@@ -330,7 +330,7 @@ export function SurveyDetailPage() {
         </div>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button onPress={() => navigate(`/admin/surveys/${id}/edit`)} size="sm">
           編集
         </Button>
@@ -403,7 +403,7 @@ export function SurveyDetailPage() {
           <Card.Content>
             <p className="font-medium text-muted text-sm">共有 URL</p>
             <code
-              className="mt-1 block rounded-lg border border-border/50 bg-surface-secondary px-3 py-2 text-sm"
+              className="mt-1 block break-all rounded-lg border border-border/50 bg-surface-secondary px-3 py-2 text-sm"
               data-testid="share-url"
             >
               {baseUrl}

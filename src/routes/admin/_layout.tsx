@@ -12,8 +12,20 @@ export function AdminLayout() {
   };
 
   return (
-    <div className="flex min-h-screen">
-      <nav className="flex w-56 shrink-0 flex-col border-border/60 border-r bg-surface px-3 py-5">
+    <div className="flex min-h-screen flex-col md:flex-row">
+      <nav className="flex items-center justify-between border-border/60 border-b bg-surface px-4 py-3 md:hidden">
+        <div className="flex items-center gap-3">
+          <h2 className="font-bold text-sm tracking-tight">
+            nisshi-dev-survey
+          </h2>
+          <span className="text-muted text-xs">管理画面</span>
+        </div>
+        <Button onPress={handleLogout} size="sm" variant="ghost">
+          ログアウト
+        </Button>
+      </nav>
+
+      <nav className="hidden w-56 shrink-0 flex-col border-border/60 border-r bg-surface px-3 py-5 md:flex">
         <div className="mb-6 px-3">
           <h2 className="font-bold text-sm tracking-tight">
             nisshi-dev-survey
@@ -46,7 +58,7 @@ export function AdminLayout() {
           </p>
         </div>
       </nav>
-      <main className="flex-1 overflow-y-auto p-8">
+      <main className="flex-1 overflow-y-auto p-4 md:p-8">
         <div className="mx-auto max-w-5xl">
           <Outlet />
         </div>

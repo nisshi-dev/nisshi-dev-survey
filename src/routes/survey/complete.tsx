@@ -83,18 +83,21 @@ export function CompletePage() {
 
         <motion.div
           animate={{ opacity: 1 }}
-          className="flex flex-col items-center gap-2"
+          className="flex flex-col items-center gap-3"
           initial={{ opacity: 0 }}
           transition={{ duration: 0.4, delay: 0.7 }}
         >
-          <Link href="https://workshop.nisshi.dev/">
-            nisshi-dev工房公式サイト（整備中）
-            <Link.Icon />
-          </Link>
-          <Link href="https://nisshi.dev">
-            nisshi-dev個人サイト
-            <Link.Icon />
-          </Link>
+          <Link href="/">nisshi-dev-survey とは？</Link>
+          <div className="flex flex-col items-center gap-2 text-sm">
+            <Link href="https://workshop.nisshi.dev/">
+              nisshi-dev工房公式サイト（整備中）
+              <Link.Icon />
+            </Link>
+            <Link href="https://nisshi.dev">
+              nisshi-dev個人サイト
+              <Link.Icon />
+            </Link>
+          </div>
         </motion.div>
       </motion.div>
 
