@@ -8,6 +8,7 @@
 |---|---|---|
 | リポジトリ | `nisshi-dev-survey` | `nisshi-dev-survey-api` |
 | ドメイン | survey.nisshi.dev | api.survey.nisshi.dev |
+| デプロイ先 | Vercel | Cloudflare Workers |
 | Framework | Vite（SPA） | Hono |
 
 API の技術仕様・エンドポイント・認証フローは API リポジトリの `docs/architecture.md` を参照。
@@ -61,8 +62,8 @@ src/
 ## 開発環境
 
 - フロントと API を別プロセスで起動する
-  - API: `npm run dev`（localhost:3000）
-  - フロント: `npm run dev`（localhost:5173）— Vite の `server.proxy` で `/api` を localhost:3000 にプロキシ
+  - API: `npm run dev`（localhost:8787）— `wrangler dev`
+  - フロント: `npm run dev`（localhost:5173）— Vite の `server.proxy` で `/api` を localhost:8787 にプロキシ
 - 環境変数は `.env` に設定
   - `VITE_API_URL` — API の URL（本番: `https://api.survey.nisshi.dev`、開発時は空 → プロキシ経由）
 

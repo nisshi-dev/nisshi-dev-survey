@@ -5,13 +5,13 @@ UI は **HeroUI v3 beta** + **Tailwind CSS v4** + **motion** で実装する。
 
 ## アーキテクチャ
 
-フロントエンドとAPIは別リポジトリ・別 Vercel プロジェクトに分離されている。
+フロントエンドとAPIは別リポジトリに分離されている。
 
 | | フロントエンド | API |
 |---|---|---|
 | リポジトリ | `nisshi-dev-survey`（本リポ） | `nisshi-dev-survey-api`（別リポ） |
 | ドメイン | survey.nisshi.dev | api.survey.nisshi.dev |
-| Framework | Vite | Other（Vite SSR ビルド） |
+| デプロイ先 | Vercel | Cloudflare Workers |
 
 ## docs
 
@@ -41,7 +41,7 @@ UI は **HeroUI v3 beta** + **Tailwind CSS v4** + **motion** で実装する。
 
 ### 開発・ビルド
 
-- `npm run dev` — Vite 開発サーバー起動（ポート 5173、`/api` は localhost:3000 にプロキシ）
+- `npm run dev` — Vite 開発サーバー起動（ポート 5173、`/api` は localhost:8787 にプロキシ）
 - `npm run build` — Orval クライアント生成 + Vite ビルド
 - `npm run preview` — ビルド成果物のプレビュー
 
@@ -68,10 +68,10 @@ UI は **HeroUI v3 beta** + **Tailwind CSS v4** + **motion** で実装する。
 
 ```
 ターミナル1（API）:
-  cd nisshi-dev-survey-api && npm run dev  # localhost:3000
+  cd nisshi-dev-survey-api && npm run dev  # localhost:8787（wrangler dev）
 
 ターミナル2（フロント）:
-  cd nisshi-dev-survey && npm run dev      # localhost:5173 → /api proxy → :3000
+  cd nisshi-dev-survey && npm run dev      # localhost:5173 → /api proxy → :8787
 ```
 
 API 変更時の型同期フロー:
