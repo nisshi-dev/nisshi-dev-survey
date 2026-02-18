@@ -9,8 +9,6 @@ const PERSONAL_LINK = /nisshi\.dev/;
 const COMING_SOON = /準備中/;
 const SURVEY_DESC = /アンケート/;
 const PERSONAL_USE = /カスタマイズ・運用中/;
-const API_OK = /API.*ok/;
-const API_ERROR = /API.*Error/;
 
 describe("LandingPage", () => {
   afterEach(() => {
@@ -80,7 +78,7 @@ describe("LandingPage", () => {
     expect(link.getAttribute("href")).toBe("https://nisshi.dev");
   });
 
-  test("API ヘルスチェックが成功した場合、ステータスを表示する", async () => {
+  test("API ヘルスチェック成功時に稼働中を表示する", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(JSON.stringify({ status: "ok" }), { status: 200 })
     );
@@ -92,11 +90,11 @@ describe("LandingPage", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(API_OK)).toBeDefined();
+      expect(screen.getByText("API サーバー稼働中")).toBeDefined();
     });
   });
 
-  test("API ヘルスチェックが失敗した場合、エラーを表示する", async () => {
+  test("API ヘルスチェック失敗時に停止中を表示する", async () => {
     vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("Network error"));
 
     render(
@@ -106,7 +104,7 @@ describe("LandingPage", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(API_ERROR)).toBeDefined();
+      expect(screen.getByText("API サーバー停止中")).toBeDefined();
     });
   });
 });

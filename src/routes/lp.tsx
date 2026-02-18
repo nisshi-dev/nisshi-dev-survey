@@ -2,6 +2,8 @@ import { Card, Link } from "@heroui/react";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 
+const API_URL = import.meta.env.VITE_API_URL || "/api";
+
 const fadeInUp = {
   initial: { opacity: 0, y: 16 },
   animate: { opacity: 1, y: 0 },
@@ -9,22 +11,19 @@ const fadeInUp = {
 
 function useHealthCheck() {
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL || "/api";
-    fetch(`${apiUrl}/health`)
+    fetch(`${API_URL}/health`, { credentials: "include" })
       .then((res) => res.json())
       .then((data: { status: string }) => {
         setStatus(data.status === "ok" ? "ok" : "error");
       })
-      .catch((err: unknown) => {
+      .catch(() => {
         setStatus("error");
-        setError(err instanceof Error ? err.message : "Unknown error");
       });
   }, []);
 
-  return { status, error };
+  return status;
 }
 
 export function LandingPage() {
@@ -83,10 +82,9 @@ export function LandingPage() {
               className="text-muted text-xs"
               transition={{ duration: 0.4, delay: 0.4 }}
             >
-              {health.status === "loading" && "API: checking..."}
-              {health.status === "ok" && "API: ok"}
-              {health.status === "error" &&
-                `API: Error${health.error ? ` (${health.error})` : ""}`}
+              {health === "loading" && "API: 確認中..."}
+              {health === "ok" && "API サーバー稼働中"}
+              {health === "error" && "API サーバー停止中"}
             </motion.p>
           </Card.Footer>
         </Card>
