@@ -6,7 +6,7 @@ export function LoginPage() {
   const handleGoogleLogin = () => {
     authClient.signIn.social({
       provider: "google",
-      callbackURL: "/admin",
+      callbackURL: `${window.location.origin}/admin`,
     });
   };
 

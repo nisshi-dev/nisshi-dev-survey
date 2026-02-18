@@ -59,7 +59,7 @@ describe("LoginPage", () => {
 
     expect(signInSocialMock).toHaveBeenCalledWith({
       provider: "google",
-      callbackURL: "/admin",
+      callbackURL: `${window.location.origin}/admin`,
     });
   });
 });
