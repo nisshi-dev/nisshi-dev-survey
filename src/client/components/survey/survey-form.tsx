@@ -2,7 +2,7 @@ import { Button, Card, Form, Spinner } from "@heroui/react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { usePostApiSurveyByIdSubmit } from "@/generated/api/survey/survey";
+import { usePostSurveyByIdSubmit } from "@/generated/api/survey/survey";
 import type { Question } from "@/shared/schema/survey";
 import { CheckboxQuestionField } from "./checkbox-question-field";
 import { EmailCopySection } from "./email-copy-section";
@@ -49,7 +49,7 @@ export function SurveyForm({
   dataEntryId,
 }: Props) {
   const navigate = useNavigate();
-  const { trigger, isMutating, error } = usePostApiSurveyByIdSubmit(surveyId);
+  const { trigger, isMutating, error } = usePostSurveyByIdSubmit(surveyId);
   const [sendCopy, setSendCopy] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {

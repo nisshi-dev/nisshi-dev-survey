@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { MarkdownRenderer } from "@/client/components/markdown-renderer";
 import { SurveyForm } from "@/client/components/survey/survey-form";
-import { useGetApiSurveyById } from "@/generated/api/survey/survey";
+import { useGetSurveyById } from "@/generated/api/survey/survey";
 import type { Question, SurveyParam } from "@/shared/schema/survey";
 
 interface DataEntry {
@@ -131,7 +131,7 @@ function EntryRequiredState() {
 export function SurveyPage() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
-  const { data, isLoading } = useGetApiSurveyById(id ?? "");
+  const { data, isLoading } = useGetSurveyById(id ?? "");
 
   if (isLoading || !data) {
     return <LoadingSkeleton />;

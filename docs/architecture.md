@@ -7,7 +7,7 @@
 | | フロントエンド（本リポ） | API |
 |---|---|---|
 | リポジトリ | `nisshi-dev-survey` | `nisshi-dev-survey-api` |
-| ドメイン | survey.nisshi.dev | api.survey.nisshi.dev |
+| ドメイン | survey.nisshi.dev | nisshi-dev-survey-api.nisshi.workers.dev |
 | デプロイ先 | Vercel | Cloudflare Workers |
 | Framework | Vite（SPA） | Hono |
 
@@ -53,19 +53,21 @@ src/
 
 ```
 [API リポ] Valibot スキーマ（SSoT）
-  └─→ npm run generate:openapi → openapi.json
+  └─→ npm run dev → localhost:8787/doc で OpenAPI JSON を配信
 
-[フロントリポ] openapi.json をコピー
-  └─→ Orval: openapi.json → SWR hooks 自動生成（src/generated/api/）
+[フロントリポ] npm run generate:client
+  └─→ Orval: localhost:8787/doc から OpenAPI 仕様を取得 → SWR hooks 自動生成（src/generated/api/）
 ```
+
+Vercel ビルドでは環境変数 `OPENAPI_URL=https://nisshi-dev-survey-api.nisshi.workers.dev/doc` を設定し、デプロイ済み API から取得する。
 
 ## 開発環境
 
 - フロントと API を別プロセスで起動する
   - API: `npm run dev`（localhost:8787）— `wrangler dev`
-  - フロント: `npm run dev`（localhost:5173）— Vite の `server.proxy` で `/api` を localhost:8787 にプロキシ
+  - フロント: `npm run dev`（localhost:5173）— Vite の `server.proxy` で `/api/*` を localhost:8787 にプロキシ（`/api` プレフィックスを除去して転送）
 - 環境変数は `.env` に設定
-  - `VITE_API_URL` — API の URL（本番: `https://api.survey.nisshi.dev`、開発時は空 → プロキシ経由）
+  - `VITE_API_URL` — API の URL（本番: `https://nisshi-dev-survey-api.nisshi.workers.dev`、開発時は未設定 → `/api` プレフィックス経由でプロキシ）
 
 ## UI 実装方針
 
@@ -82,4 +84,6 @@ src/
 - **Framework Preset:** Vite
 - **ビルドコマンド:** `npm run build`（Orval API クライアント生成 + Vite ビルド）
 - **出力:** `dist/` を静的ファイルとして配信（SPA フォールバック自動設定）
-- **環境変数:** `VITE_API_URL=https://api.survey.nisshi.dev`
+- **環境変数:**
+  - `VITE_API_URL=https://nisshi-dev-survey-api.nisshi.workers.dev`
+  - `OPENAPI_URL=https://nisshi-dev-survey-api.nisshi.workers.dev/doc`

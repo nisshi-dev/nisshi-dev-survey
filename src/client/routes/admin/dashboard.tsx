@@ -1,6 +1,6 @@
 import { Button, Card, Chip, Spinner } from "@heroui/react";
 import { Link } from "react-router-dom";
-import { useGetApiAdminSurveys } from "@/generated/api/admin-surveys/admin-surveys";
+import { useGetAdminSurveys } from "@/generated/api/admin-surveys/admin-surveys";
 import {
   SURVEY_STATUS_LABELS,
   type SurveyStatus,
@@ -20,7 +20,7 @@ const dateFormatter = new Intl.DateTimeFormat("ja-JP", {
 });
 
 export function DashboardPage() {
-  const { data, isLoading } = useGetApiAdminSurveys();
+  const { data, isLoading } = useGetAdminSurveys();
 
   if (isLoading || !data) {
     return (

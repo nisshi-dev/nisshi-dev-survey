@@ -9,13 +9,13 @@ import {
 import { ResponsePieChart } from "@/client/components/admin/response-pie-chart";
 import { TextResponseList } from "@/client/components/admin/text-response-list";
 import {
-  useDeleteApiAdminSurveysById,
-  useDeleteApiAdminSurveysByIdDataEntriesByEntryId,
-  useGetApiAdminSurveysById,
-  useGetApiAdminSurveysByIdResponses,
-  usePatchApiAdminSurveysById,
-  usePostApiAdminSurveysByIdDataEntries,
-  usePutApiAdminSurveysByIdDataEntriesByEntryId,
+  useDeleteAdminSurveysById,
+  useDeleteAdminSurveysByIdDataEntriesByEntryId,
+  useGetAdminSurveysById,
+  useGetAdminSurveysByIdResponses,
+  usePatchAdminSurveysById,
+  usePostAdminSurveysByIdDataEntries,
+  usePutAdminSurveysByIdDataEntriesByEntryId,
 } from "@/generated/api/admin-surveys/admin-surveys";
 import {
   type Question,
@@ -180,19 +180,19 @@ export function SurveyDetailPage() {
     data: surveyData,
     isLoading: surveyLoading,
     mutate,
-  } = useGetApiAdminSurveysById(id ?? "");
+  } = useGetAdminSurveysById(id ?? "");
   const { data: responsesData, isLoading: responsesLoading } =
-    useGetApiAdminSurveysByIdResponses(id ?? "");
-  const { trigger, isMutating } = usePatchApiAdminSurveysById(id ?? "");
+    useGetAdminSurveysByIdResponses(id ?? "");
+  const { trigger, isMutating } = usePatchAdminSurveysById(id ?? "");
   const { trigger: deleteTrigger, isMutating: isDeleting } =
-    useDeleteApiAdminSurveysById(id ?? "");
+    useDeleteAdminSurveysById(id ?? "");
 
   const { trigger: createEntryTrigger, isMutating: isCreatingEntry } =
-    usePostApiAdminSurveysByIdDataEntries(id ?? "");
+    usePostAdminSurveysByIdDataEntries(id ?? "");
   const { trigger: updateEntryTrigger, isMutating: isUpdatingEntry } =
-    usePutApiAdminSurveysByIdDataEntriesByEntryId(id ?? "", "");
+    usePutAdminSurveysByIdDataEntriesByEntryId(id ?? "", "");
   const { trigger: deleteEntryTrigger } =
-    useDeleteApiAdminSurveysByIdDataEntriesByEntryId(id ?? "", "");
+    useDeleteAdminSurveysByIdDataEntriesByEntryId(id ?? "", "");
 
   const [entryModalOpen, setEntryModalOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<DataEntry | null>(null);

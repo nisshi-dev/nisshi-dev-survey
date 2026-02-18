@@ -7,8 +7,8 @@ import type {
 } from "@/client/components/admin/survey-form";
 import { SurveyForm } from "@/client/components/admin/survey-form";
 import {
-  useGetApiAdminSurveysById,
-  usePutApiAdminSurveysById,
+  useGetAdminSurveysById,
+  usePutAdminSurveysById,
 } from "@/generated/api/admin-surveys/admin-surveys";
 import type { Question, SurveyParam } from "@/shared/schema/survey";
 
@@ -48,8 +48,8 @@ function paramsToDrafts(params: SurveyParam[]): ParamDraft[] {
 export function SurveyEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data: surveyData, isLoading } = useGetApiAdminSurveysById(id ?? "");
-  const { trigger, isMutating } = usePutApiAdminSurveysById(id ?? "");
+  const { data: surveyData, isLoading } = useGetAdminSurveysById(id ?? "");
+  const { trigger, isMutating } = usePutAdminSurveysById(id ?? "");
 
   const survey =
     surveyData && surveyData.status === 200 ? surveyData.data : null;

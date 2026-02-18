@@ -8,11 +8,11 @@ import {
   TextField,
 } from "@heroui/react";
 import { useNavigate } from "react-router-dom";
-import { usePostApiAdminAuthLogin } from "@/generated/api/auth/auth";
+import { usePostAdminAuthLogin } from "@/generated/api/auth/auth";
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { trigger, isMutating, error } = usePostApiAdminAuthLogin();
+  const { trigger, isMutating, error } = usePostAdminAuthLogin();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

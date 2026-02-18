@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { SurveyForm } from "@/client/components/admin/survey-form";
-import { usePostApiAdminSurveys } from "@/generated/api/admin-surveys/admin-surveys";
+import { usePostAdminSurveys } from "@/generated/api/admin-surveys/admin-surveys";
 import type { Question, SurveyParam } from "@/shared/schema/survey";
 
 export function SurveyCreatePage() {
   const navigate = useNavigate();
-  const { trigger, isMutating } = usePostApiAdminSurveys();
+  const { trigger, isMutating } = usePostAdminSurveys();
 
   const handleSubmit = async (data: {
     title: string;

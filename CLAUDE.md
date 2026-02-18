@@ -10,7 +10,7 @@ UI は **HeroUI v3 beta** + **Tailwind CSS v4** + **motion** で実装する。
 | | フロントエンド | API |
 |---|---|---|
 | リポジトリ | `nisshi-dev-survey`（本リポ） | `nisshi-dev-survey-api`（別リポ） |
-| ドメイン | survey.nisshi.dev | api.survey.nisshi.dev |
+| ドメイン | survey.nisshi.dev | nisshi-dev-survey-api.nisshi.workers.dev |
 | デプロイ先 | Vercel | Cloudflare Workers |
 
 ## docs
@@ -41,7 +41,7 @@ UI は **HeroUI v3 beta** + **Tailwind CSS v4** + **motion** で実装する。
 
 ### 開発・ビルド
 
-- `npm run dev` — Vite 開発サーバー起動（ポート 5173、`/api` は localhost:8787 にプロキシ）
+- `npm run dev` — Vite 開発サーバー起動（ポート 5173、`/api/*` → localhost:8787 にプロキシ、`/api` プレフィックスは自動除去）
 - `npm run build` — Orval クライアント生成 + Vite ビルド
 - `npm run preview` — ビルド成果物のプレビュー
 
@@ -58,7 +58,7 @@ UI は **HeroUI v3 beta** + **Tailwind CSS v4** + **motion** で実装する。
 
 ### コード生成（`generate:*`）
 
-- `npm run generate:client` — Orval で SWR hooks を生成（`openapi.json` から）
+- `npm run generate:client` — Orval で SWR hooks を生成（ローカル API の `/doc` から取得、`OPENAPI_URL` で変更可能）
 
 ### ユーティリティ
 
@@ -71,15 +71,16 @@ UI は **HeroUI v3 beta** + **Tailwind CSS v4** + **motion** で実装する。
   cd nisshi-dev-survey-api && npm run dev  # localhost:8787（wrangler dev）
 
 ターミナル2（フロント）:
-  cd nisshi-dev-survey && npm run dev      # localhost:5173 → /api proxy → :8787
+  cd nisshi-dev-survey && npm run dev      # localhost:5173 → /api/* proxy → :8787（/api を除去）
 ```
 
 API 変更時の型同期フロー:
 1. API リポで変更
-2. API リポで `npm run generate:openapi` → `openapi.json` 生成
-3. `openapi.json` をフロントリポにコピー
-4. フロントリポで `npm run generate:client` → SWR hooks 再生成
-5. `src/shared/schema/survey.ts` の型定義も必要に応じて同期
+2. API の開発サーバーを起動（`cd nisshi-dev-survey-api && npm run dev`）
+3. フロントリポで `npm run generate:client` → ローカル API の `/doc` から OpenAPI 仕様を取得し SWR hooks 再生成
+4. `src/shared/schema/survey.ts` の型定義も必要に応じて同期
+
+> Vercel ビルドでは環境変数 `OPENAPI_URL=https://nisshi-dev-survey-api.nisshi.workers.dev/doc` を設定
 
 ## ドキュメント管理
 
