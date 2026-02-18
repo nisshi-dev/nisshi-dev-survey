@@ -1,6 +1,6 @@
-import { Chip, Skeleton } from "@heroui/react";
+import { Button, Chip, Skeleton } from "@heroui/react";
 import { motion } from "motion/react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { SurveyForm } from "@/components/survey/survey-form";
 import { useGetSurveyById } from "@/generated/api/survey/survey";
@@ -10,6 +10,20 @@ interface DataEntry {
   id: string;
   label: string | null;
   values: Record<string, string>;
+}
+
+function BackToTopButton() {
+  return (
+    <motion.div
+      animate={{ opacity: 1 }}
+      initial={{ opacity: 0 }}
+      transition={{ duration: 0.4, delay: 0.7 }}
+    >
+      <Button size="sm" variant="ghost">
+        <Link to="/">トップに戻る</Link>
+      </Button>
+    </motion.div>
+  );
 }
 
 function SkeletonCard() {
@@ -100,6 +114,7 @@ function NotFoundState() {
         >
           URLが正しいか確認してください。
         </motion.p>
+        <BackToTopButton />
       </motion.div>
     </div>
   );
@@ -157,6 +172,7 @@ function EntryRequiredState() {
         >
           このアンケートに回答するには、配布された専用リンクからアクセスしてください。
         </motion.p>
+        <BackToTopButton />
       </motion.div>
     </div>
   );
