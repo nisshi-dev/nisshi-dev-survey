@@ -238,6 +238,9 @@ export function SurveyPage() {
             surveyId={survey.id}
           />
         </main>
+        <footer className="py-6 text-center text-muted text-xs">
+          &copy; 2026 nisshi-dev
+        </footer>
       </div>
     );
   }
@@ -292,6 +295,9 @@ export function SurveyPage() {
           surveyId={survey.id}
         />
       </main>
+      <footer className="py-6 text-center text-muted text-xs">
+        &copy; 2026 nisshi-dev
+      </footer>
     </div>
   );
 }

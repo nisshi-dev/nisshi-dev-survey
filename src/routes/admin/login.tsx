@@ -77,6 +77,15 @@ export function LoginPage() {
           </Form>
         </Card>
       </motion.div>
+
+      <motion.p
+        animate={{ opacity: 1 }}
+        className="absolute bottom-6 text-muted text-xs"
+        initial={{ opacity: 0 }}
+        transition={{ duration: 0.5, delay: 1 }}
+      >
+        &copy; 2026 nisshi-dev
+      </motion.p>
     </div>
   );
 }
