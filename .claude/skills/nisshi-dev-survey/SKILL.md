@@ -1,20 +1,20 @@
 ---
 name: nisshi-dev-survey
-description: nisshi-dev Survey のデータ投入 API を使ってアンケートを作成し、回答データを投入する。アンケート設計からデータ投入まで一気通貫で支援する。
+description: nisshi-dev-survey のデータ投入 API を使ってアンケートを作成し、回答データを投入する。アンケート設計からデータ投入まで一気通貫で支援する。
 ---
 
-# nisshi-dev Survey データ投入スキル
+# nisshi-dev-survey データ投入スキル
 
-外部から nisshi-dev Survey のアンケートデータを作成・投入するための API リファレンスとワークフロー。
+外部から nisshi-dev-survey のアンケートデータを作成・投入するための API リファレンスとワークフロー。
 
 ## ワークフロー
 
 ### 全体の流れ
 
 1. **アンケート設計** — `/designing-surveys` スキルを使って効果的なアンケートを設計する
-2. **アンケート作成** — `POST /api/data/surveys` でアンケートを作成
-3. **データエントリ作成**（任意） — `POST /api/data/surveys/:id/data-entries` で配布単位を作成
-4. **回答投入** — `POST /api/data/surveys/:id/responses` でデータを一括送信
+2. **アンケート作成** — `POST /data/surveys` でアンケートを作成
+3. **データエントリ作成**（任意） — `POST /data/surveys/:id/data-entries` で配布単位を作成
+4. **回答投入** — `POST /data/surveys/:id/responses` でデータを一括送信
 5. **確認** — 管理画面（`/admin/surveys/:id`）で回答を確認
 
 ### Step 1: アンケート設計
@@ -32,8 +32,17 @@ description: nisshi-dev Survey のデータ投入 API を使ってアンケー�
 
 ## 前提条件
 
-- `NISSHI_DEV_SURVEY_API_KEY` 環境変数が Survey サーバーに設定されていること
-- API Base URL: `http://localhost:5173/api/data`（ローカル開発時）
+- `NISSHI_DEV_SURVEY_API_KEY` が API サーバーに設定されていること
+  - ローカル: API リポの `.dev.vars` に設定
+  - 本番: `wrangler secret put NISSHI_DEV_SURVEY_API_KEY` で設定
+
+### API Base URL
+
+| 環境 | URL | 備考 |
+|---|---|---|
+| ローカル（プロキシ経由） | `http://localhost:5173/api` | フロント + API 両方起動が必要 |
+| ローカル（API 直接） | `http://localhost:8787` | API リポで `npm run dev` |
+| 本番 | `https://nisshi-dev-survey-api.nisshi.workers.dev` | Cloudflare Workers |
 
 ## 認証
 
@@ -96,7 +105,7 @@ X-API-Key: <NISSHI_DEV_SURVEY_API_KEY の値>
 ### 1. アンケート作成
 
 ```
-POST /api/data/surveys
+POST /data/surveys
 ```
 
 リクエストボディ:
@@ -125,7 +134,7 @@ POST /api/data/surveys
 ### 2. アンケート一覧取得
 
 ```
-GET /api/data/surveys
+GET /data/surveys
 ```
 
 レスポンス (200): `{ surveys: [{ id, title, status, createdAt }] }`
@@ -133,7 +142,7 @@ GET /api/data/surveys
 ### 3. アンケート詳細取得
 
 ```
-GET /api/data/surveys/:id
+GET /data/surveys/:id
 ```
 
 レスポンス (200): アンケート情報 + `dataEntries` 配列（各エントリの `id`, `surveyId`, `values`, `label`, `responseCount`, `createdAt`）
@@ -141,7 +150,7 @@ GET /api/data/surveys/:id
 ### 4. データエントリ作成
 
 ```
-POST /api/data/surveys/:id/data-entries
+POST /data/surveys/:id/data-entries
 ```
 
 リクエストボディ:
@@ -161,7 +170,7 @@ POST /api/data/surveys/:id/data-entries
 ### 5. データエントリ一覧取得
 
 ```
-GET /api/data/surveys/:id/data-entries
+GET /data/surveys/:id/data-entries
 ```
 
 レスポンス (200): `{ dataEntries: [{ id, surveyId, values, label, responseCount, createdAt }] }`
@@ -169,7 +178,7 @@ GET /api/data/surveys/:id/data-entries
 ### 6. 回答一括送信
 
 ```
-POST /api/data/surveys/:id/responses
+POST /data/surveys/:id/responses
 ```
 
 注意: アンケートが `status: "active"` の場合のみ回答可能。
@@ -209,8 +218,16 @@ POST /api/data/surveys/:id/responses
 ## curl 例
 
 ```bash
+# ── Base URL を環境に合わせて設定 ──
+# ローカル（プロキシ経由）:
+API_BASE="http://localhost:5173/api"
+# ローカル（API 直接）:
+# API_BASE="http://localhost:8787"
+# 本番:
+# API_BASE="https://nisshi-dev-survey-api.nisshi.workers.dev"
+
 # 1. アンケート作成
-curl -X POST http://localhost:5173/api/data/surveys \
+curl -X POST "$API_BASE/data/surveys" \
   -H "X-API-Key: $NISSHI_DEV_SURVEY_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -221,13 +238,13 @@ curl -X POST http://localhost:5173/api/data/surveys \
   }'
 
 # 2. データエントリ作成
-curl -X POST http://localhost:5173/api/data/surveys/SURVEY_ID/data-entries \
+curl -X POST "$API_BASE/data/surveys/SURVEY_ID/data-entries" \
   -H "X-API-Key: $NISSHI_DEV_SURVEY_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"values": {"event": "GENkaigi 2026"}, "label": "GENkaigi 2026"}'
 
 # 3. 回答一括送信（dataEntryId 付き）
-curl -X POST http://localhost:5173/api/data/surveys/SURVEY_ID/responses \
+curl -X POST "$API_BASE/data/surveys/SURVEY_ID/responses" \
   -H "X-API-Key: $NISSHI_DEV_SURVEY_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -238,7 +255,7 @@ curl -X POST http://localhost:5173/api/data/surveys/SURVEY_ID/responses \
   }'
 
 # 4. アンケート詳細確認（データエントリ・回答数含む）
-curl http://localhost:5173/api/data/surveys/SURVEY_ID \
+curl "$API_BASE/data/surveys/SURVEY_ID" \
   -H "X-API-Key: $NISSHI_DEV_SURVEY_API_KEY"
 ```
 
