@@ -21,7 +21,6 @@ UI は **HeroUI v3 beta** + **Tailwind CSS v4** + **motion** で実装する。
 | [docs/architecture.md](docs/architecture.md) | アーキテクチャ・技術仕様 |
 | [docs/git-guidelines.md](docs/git-guidelines.md) | Git ガイドライン |
 | [docs/coding-rules.md](docs/coding-rules.md) | コーディングルール（ultracite / Biome） |
-| [docs/validation.md](docs/validation.md) | バリデーション・型ガード方針（Valibot） |
 
 ## 開発手法: TDD（テスト駆動開発）
 

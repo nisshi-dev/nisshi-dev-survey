@@ -28,7 +28,7 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "generate:client": "orval",
-    "clean": "rm -rf dist node_modules/.cache"
+    "clean": "rm -r dist node_modules/.cache"
   },
   "dependencies": {
     "@heroui/react": "3.0.0-beta.6",
