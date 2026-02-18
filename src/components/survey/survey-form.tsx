@@ -1,4 +1,4 @@
-import { Button, Card, Form, Spinner } from "@heroui/react";
+import { Button, Form, Spinner } from "@heroui/react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +6,7 @@ import { usePostSurveyByIdSubmit } from "@/generated/api/survey/survey";
 import type { Question } from "@/types/survey";
 import { CheckboxQuestionField } from "./checkbox-question-field";
 import { EmailCopySection } from "./email-copy-section";
+import { QuestionItemCard } from "./question-item-card";
 import { RadioQuestionField } from "./radio-question-field";
 import { TextQuestionField } from "./text-question-field";
 
@@ -92,19 +93,17 @@ export function SurveyForm({
               delay: Math.min(i * 0.1, 0.8),
             }}
           >
-            <Card className="w-full">
-              <Card.Content>
-                {q.type === "text" && (
-                  <TextQuestionField index={i + 1} question={q} />
-                )}
-                {q.type === "radio" && (
-                  <RadioQuestionField index={i + 1} question={q} />
-                )}
-                {q.type === "checkbox" && (
-                  <CheckboxQuestionField index={i + 1} question={q} />
-                )}
-              </Card.Content>
-            </Card>
+            <QuestionItemCard>
+              {q.type === "text" && (
+                <TextQuestionField index={i + 1} question={q} />
+              )}
+              {q.type === "radio" && (
+                <RadioQuestionField index={i + 1} question={q} />
+              )}
+              {q.type === "checkbox" && (
+                <CheckboxQuestionField index={i + 1} question={q} />
+              )}
+            </QuestionItemCard>
           </motion.div>
         ))}
 

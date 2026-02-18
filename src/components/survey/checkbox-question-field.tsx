@@ -42,7 +42,11 @@ export function CheckboxQuestionField({ question, index }: Props) {
         value={selectedValues}
       >
         {question.options.map((opt) => (
-          <Checkbox key={opt} value={opt}>
+          <Checkbox
+            className="rounded-xl border border-border bg-surface px-4 py-3"
+            key={opt}
+            value={opt}
+          >
             <Checkbox.Control>
               <Checkbox.Indicator />
             </Checkbox.Control>
@@ -50,7 +54,10 @@ export function CheckboxQuestionField({ question, index }: Props) {
           </Checkbox>
         ))}
         {question.allowOther && (
-          <Checkbox value={OTHER_VALUE}>
+          <Checkbox
+            className="rounded-xl border border-border bg-surface px-4 py-3"
+            value={OTHER_VALUE}
+          >
             <Checkbox.Control>
               <Checkbox.Indicator />
             </Checkbox.Control>

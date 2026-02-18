@@ -8,6 +8,7 @@ import {
 } from "@/components/admin/data-entry-table";
 import { ResponsePieChart } from "@/components/admin/response-pie-chart";
 import { TextResponseList } from "@/components/admin/text-response-list";
+import { QuestionItemCard } from "@/components/survey/question-item-card";
 import {
   useDeleteAdminSurveysById,
   useDeleteAdminSurveysByIdDataEntriesByEntryId,
@@ -84,13 +85,10 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
 
 function QuestionList({ questions }: { questions: Question[] }) {
   return (
-    <Card>
-      <Card.Content className="flex flex-col gap-0 p-0">
-        {questions.map((q, i) => (
-          <div
-            className="flex items-start gap-3 border-border/50 px-4 py-3 transition-colors hover:bg-surface-secondary/50 [&:not(:last-child)]:border-b"
-            key={q.id}
-          >
+    <div className="flex flex-col gap-2">
+      {questions.map((q, i) => (
+        <QuestionItemCard key={q.id}>
+          <div className="flex items-start gap-3">
             <span className="mt-0.5 rounded bg-surface-secondary px-1.5 py-0.5 font-mono text-muted text-xs">
               {i + 1}
             </span>
@@ -119,9 +117,9 @@ function QuestionList({ questions }: { questions: Question[] }) {
               )}
             </div>
           </div>
-        ))}
-      </Card.Content>
-    </Card>
+        </QuestionItemCard>
+      ))}
+    </div>
   );
 }
 
