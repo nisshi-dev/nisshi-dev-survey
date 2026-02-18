@@ -4,12 +4,13 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-vi.mock("@/generated/api/auth/auth", () => ({
-  usePostAdminAuthLogout: vi.fn(),
-}));
+const signOutMock = vi.fn();
 
-const { usePostAdminAuthLogout } = await import("@/generated/api/auth/auth");
-const mockUseLogout = vi.mocked(usePostAdminAuthLogout);
+vi.mock("@/lib/auth-client", () => ({
+  authClient: {
+    signOut: signOutMock,
+  },
+}));
 
 const navigateMock = vi.fn();
 vi.mock("react-router-dom", async () => {
@@ -29,14 +30,10 @@ describe("AdminLayout", () => {
   afterEach(() => {
     cleanup();
     navigateMock.mockClear();
+    signOutMock.mockClear();
   });
 
   test("ナビゲーションにダッシュボードリンクを表示する", () => {
-    mockUseLogout.mockReturnValue({
-      trigger: vi.fn(),
-      isMutating: false,
-    } as never);
-
     render(
       <MemoryRouter initialEntries={["/admin"]}>
         <Routes>
@@ -51,15 +48,8 @@ describe("AdminLayout", () => {
     expect(screen.getByText("子コンテンツ")).toBeDefined();
   });
 
-  test("ログアウトボタンをクリックすると trigger が呼ばれ /admin/login に遷移する", async () => {
-    const triggerMock = vi.fn().mockResolvedValue({
-      data: { message: "ok" },
-      status: 200,
-    });
-    mockUseLogout.mockReturnValue({
-      trigger: triggerMock,
-      isMutating: false,
-    } as never);
+  test("ログアウトボタンをクリックすると signOut が呼ばれ /admin/login に遷移する", async () => {
+    signOutMock.mockResolvedValue({});
 
     render(
       <MemoryRouter initialEntries={["/admin"]}>
@@ -77,7 +67,10 @@ describe("AdminLayout", () => {
     });
     await user.click(logoutButtons[0] as HTMLElement);
 
-    expect(triggerMock).toHaveBeenCalled();
-    expect(navigateMock).toHaveBeenCalledWith("/admin/login");
+    expect(signOutMock).toHaveBeenCalledWith({
+      fetchOptions: {
+        onSuccess: expect.any(Function),
+      },
+    });
   });
 });
