@@ -1,3 +1,4 @@
+import { Agentation } from "agentation";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
@@ -13,5 +14,6 @@ createRoot(root).render(
     <BrowserRouter>
       <App />
     </BrowserRouter>
+    {import.meta.env.DEV && <Agentation />}
   </StrictMode>
 );
