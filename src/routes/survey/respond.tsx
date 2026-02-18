@@ -12,11 +12,6 @@ interface DataEntry {
   values: Record<string, string>;
 }
 
-const gradientBg = {
-  background:
-    "radial-gradient(ellipse at top, oklch(0.696 0.17 162.48) 0%, transparent 55%)",
-};
-
 function SkeletonCard() {
   return (
     <div className="flex flex-col gap-3 rounded-xl bg-surface/60 p-4">
@@ -35,19 +30,14 @@ function SkeletonCard() {
 
 function LoadingSkeleton() {
   return (
-    <div className="relative flex min-h-screen flex-col">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.07]"
-        style={gradientBg}
-      />
-      <header className="relative border-border/50 border-b bg-surface/80 backdrop-blur-sm">
+    <div className="flex min-h-screen flex-col">
+      <header className="border-border/50 border-b bg-surface/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-2xl flex-col items-center gap-1.5 px-4 py-5">
           <Skeleton className="h-7 w-48 rounded-lg" />
           <Skeleton className="h-4 w-24 rounded-lg" />
         </div>
       </header>
-      <main className="relative mx-auto w-full max-w-2xl px-4 py-6">
+      <main className="mx-auto w-full max-w-2xl px-4 py-6">
         <div className="flex flex-col gap-4">
           <SkeletonCard />
           <SkeletonCard />
@@ -60,15 +50,10 @@ function LoadingSkeleton() {
 
 function NotFoundState() {
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden p-4">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.07]"
-        style={gradientBg}
-      />
+    <div className="flex min-h-screen items-center justify-center p-4">
       <motion.div
         animate={{ opacity: 1, y: 0 }}
-        className="relative flex w-full max-w-sm flex-col items-center text-center"
+        className="flex w-full max-w-sm flex-col items-center text-center"
         initial={{ opacity: 0, y: 16 }}
         transition={{ duration: 0.4 }}
       >
@@ -122,15 +107,10 @@ function NotFoundState() {
 
 function EntryRequiredState() {
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden p-4">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.07]"
-        style={gradientBg}
-      />
+    <div className="flex min-h-screen items-center justify-center p-4">
       <motion.div
         animate={{ opacity: 1, y: 0 }}
-        className="relative flex w-full max-w-sm flex-col items-center text-center"
+        className="flex w-full max-w-sm flex-col items-center text-center"
         initial={{ opacity: 0, y: 16 }}
         transition={{ duration: 0.4 }}
       >
@@ -217,15 +197,10 @@ export function SurveyPage() {
     const paramValues = entry.values;
 
     return (
-      <div className="relative flex min-h-screen flex-col">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.07]"
-          style={gradientBg}
-        />
+      <div className="flex min-h-screen flex-col">
         <motion.header
           animate={{ opacity: 1, y: 0 }}
-          className="relative border-border/50 border-b bg-surface/80 backdrop-blur-sm"
+          className="border-border/50 border-b bg-surface/80 backdrop-blur-sm"
           initial={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.4 }}
         >
@@ -240,7 +215,7 @@ export function SurveyPage() {
         </motion.header>
         {visibleParams.length > 0 && (
           <div
-            className="relative mx-auto flex w-full max-w-2xl flex-wrap gap-2 border-border/50 border-b px-4 py-3"
+            className="mx-auto flex w-full max-w-2xl flex-wrap gap-2 border-border/50 border-b px-4 py-3"
             data-testid="survey-params"
           >
             {visibleParams.map((p) => (
@@ -251,11 +226,11 @@ export function SurveyPage() {
           </div>
         )}
         {survey.description && (
-          <div className="relative mx-auto w-full max-w-2xl border-border/50 border-b px-4 py-4">
+          <div className="mx-auto w-full max-w-2xl border-border/50 border-b px-4 py-4">
             <MarkdownRenderer content={survey.description} />
           </div>
         )}
-        <main className="relative mx-auto w-full max-w-2xl px-4 py-6">
+        <main className="mx-auto w-full max-w-2xl px-4 py-6">
           <SurveyForm
             dataEntryId={entry.id}
             params={paramValues}
@@ -281,15 +256,10 @@ export function SurveyPage() {
   );
 
   return (
-    <div className="relative flex min-h-screen flex-col">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.07]"
-        style={gradientBg}
-      />
+    <div className="flex min-h-screen flex-col">
       <motion.header
         animate={{ opacity: 1, y: 0 }}
-        className="relative border-border/50 border-b bg-surface/80 backdrop-blur-sm"
+        className="border-border/50 border-b bg-surface/80 backdrop-blur-sm"
         initial={{ opacity: 0, y: -8 }}
         transition={{ duration: 0.4 }}
       >
@@ -300,7 +270,7 @@ export function SurveyPage() {
       </motion.header>
       {visibleParams.length > 0 && (
         <div
-          className="relative mx-auto flex w-full max-w-2xl flex-wrap gap-2 border-border/50 border-b px-4 py-3"
+          className="mx-auto flex w-full max-w-2xl flex-wrap gap-2 border-border/50 border-b px-4 py-3"
           data-testid="survey-params"
         >
           {visibleParams.map((p) => (
@@ -311,11 +281,11 @@ export function SurveyPage() {
         </div>
       )}
       {survey.description && (
-        <div className="relative mx-auto w-full max-w-2xl border-border/50 border-b px-4 py-4">
+        <div className="mx-auto w-full max-w-2xl border-border/50 border-b px-4 py-4">
           <MarkdownRenderer content={survey.description} />
         </div>
       )}
-      <main className="relative mx-auto w-full max-w-2xl px-4 py-6">
+      <main className="mx-auto w-full max-w-2xl px-4 py-6">
         <SurveyForm
           params={hasParamValues ? paramValues : undefined}
           questions={questions}
