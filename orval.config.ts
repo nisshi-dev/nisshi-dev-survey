@@ -12,7 +12,7 @@ export default defineConfig({
       baseUrl: "",
       override: {
         mutator: {
-          path: "./src/client/lib/api-fetcher.ts",
+          path: "./src/lib/api-fetcher.ts",
           name: "apiFetcher",
         },
       },

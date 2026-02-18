@@ -78,7 +78,7 @@ API 変更時の型同期フロー:
 1. API リポで変更
 2. API の開発サーバーを起動（`cd nisshi-dev-survey-api && npm run dev`）
 3. フロントリポで `npm run generate:client` → ローカル API の `/doc` から OpenAPI 仕様を取得し SWR hooks 再生成
-4. `src/shared/schema/survey.ts` の型定義も必要に応じて同期
+4. `src/types/survey.ts` の型定義も必要に応じて同期
 
 > Vercel ビルドでは環境変数 `OPENAPI_URL=https://nisshi-dev-survey-api.nisshi.workers.dev/doc` を設定
 
