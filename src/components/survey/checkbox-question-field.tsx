@@ -23,7 +23,7 @@ export function CheckboxQuestionField({ question, index }: Props) {
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
         <QuestionBadge index={index} />
-        <span className="font-medium text-sm">
+        <span className="font-medium">
           {question.label}
           {question.required && <span className="ml-1 text-danger"> *</span>}
         </span>
@@ -42,7 +42,11 @@ export function CheckboxQuestionField({ question, index }: Props) {
         value={selectedValues}
       >
         {question.options.map((opt) => (
-          <Checkbox key={opt} value={opt}>
+          <Checkbox
+            className="rounded-xl border border-border bg-surface px-4 py-3"
+            key={opt}
+            value={opt}
+          >
             <Checkbox.Control>
               <Checkbox.Indicator />
             </Checkbox.Control>
@@ -50,7 +54,10 @@ export function CheckboxQuestionField({ question, index }: Props) {
           </Checkbox>
         ))}
         {question.allowOther && (
-          <Checkbox value={OTHER_VALUE}>
+          <Checkbox
+            className="rounded-xl border border-border bg-surface px-4 py-3"
+            value={OTHER_VALUE}
+          >
             <Checkbox.Control>
               <Checkbox.Indicator />
             </Checkbox.Control>

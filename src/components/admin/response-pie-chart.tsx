@@ -1,9 +1,9 @@
-import { Card } from "@heroui/react";
+import { Card, Chip } from "@heroui/react";
 import { Pie, PieChart, Tooltip } from "recharts";
 import type { CheckboxQuestion, RadioQuestion } from "@/types/survey";
 
 const COLORS = [
-  "#006FEE",
+  "oklch(0.696 0.17 162.48)",
   "#9353D3",
   "#17C964",
   "#F5A524",
@@ -48,8 +48,11 @@ export function ResponsePieChart({ question, responses }: Props) {
 
   return (
     <Card>
-      <Card.Header>
+      <Card.Header className="flex items-center gap-2">
         <h3 className="font-semibold text-sm">{question.label}</h3>
+        <Chip size="sm" variant="soft">
+          {totalAnswers}件
+        </Chip>
       </Card.Header>
       <Card.Content>
         {totalAnswers === 0 ? (

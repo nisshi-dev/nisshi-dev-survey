@@ -136,9 +136,7 @@ describe("DashboardPage", () => {
     );
 
     expect(
-      screen.getByText(
-        "アンケートを作成して、チームやユーザーからフィードバックを集めましょう。"
-      )
+      screen.getByText("アンケートを作成して、フィードバックを集めましょう。")
     ).toBeDefined();
     const emptyLink = screen.getByRole("link", {
       name: "最初のアンケートを作成",
@@ -183,8 +181,8 @@ describe("DashboardPage", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText("受付中")).toBeDefined();
-    expect(screen.getByText("下書き")).toBeDefined();
-    expect(screen.getByText("完了")).toBeDefined();
+    expect(screen.getAllByText("受付中").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("下書き").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("完了").length).toBeGreaterThanOrEqual(1);
   });
 });

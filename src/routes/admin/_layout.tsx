@@ -12,10 +12,27 @@ export function AdminLayout() {
   };
 
   return (
-    <div className="flex min-h-screen">
-      <nav className="flex w-60 flex-col border-border border-r bg-surface p-4">
-        <h2 className="mb-4 font-bold text-lg">nisshi-dev Survey</h2>
-        <ul className="flex flex-1 flex-col gap-1 p-0">
+    <div className="flex min-h-screen flex-col md:flex-row">
+      <nav className="flex items-center justify-between border-border/60 border-b bg-surface px-4 py-3 md:hidden">
+        <div className="flex items-center gap-3">
+          <h2 className="font-bold text-sm tracking-tight">
+            nisshi-dev-survey
+          </h2>
+          <span className="text-muted text-xs">管理画面</span>
+        </div>
+        <Button onPress={handleLogout} size="sm" variant="ghost">
+          ログアウト
+        </Button>
+      </nav>
+
+      <nav className="hidden w-56 shrink-0 flex-col border-border/60 border-r bg-surface px-3 py-5 md:flex">
+        <div className="mb-6 px-3">
+          <h2 className="font-bold text-sm tracking-tight">
+            nisshi-dev-survey
+          </h2>
+          <p className="text-muted text-xs">管理画面</p>
+        </div>
+        <ul className="flex flex-1 flex-col gap-0.5 p-0">
           <li className="list-none">
             <NavLink
               className={({ isActive }) =>
@@ -32,12 +49,19 @@ export function AdminLayout() {
             </NavLink>
           </li>
         </ul>
-        <Button onPress={handleLogout} variant="ghost">
-          ログアウト
-        </Button>
+        <div className="border-border/60 border-t pt-3">
+          <Button fullWidth onPress={handleLogout} size="sm" variant="ghost">
+            ログアウト
+          </Button>
+          <p className="mt-2 text-center text-muted/60 text-xs">
+            &copy; 2026 nisshi-dev
+          </p>
+        </div>
       </nav>
-      <main className="flex-1 p-6">
-        <Outlet />
+      <main className="flex-1 overflow-y-auto p-4 md:p-8">
+        <div className="mx-auto max-w-5xl">
+          <Outlet />
+        </div>
       </main>
     </div>
   );

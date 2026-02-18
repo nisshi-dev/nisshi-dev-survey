@@ -20,7 +20,7 @@ export function RadioQuestionField({ question, index }: Props) {
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
         <QuestionBadge index={index} />
-        <span className="font-medium text-sm">
+        <span className="font-medium">
           {question.label}
           {question.required && <span className="ml-1 text-danger"> *</span>}
         </span>
@@ -33,7 +33,11 @@ export function RadioQuestionField({ question, index }: Props) {
         value={selectedValue}
       >
         {question.options.map((opt) => (
-          <Radio key={opt} value={opt}>
+          <Radio
+            className="rounded-xl border border-border bg-surface px-4 py-3"
+            key={opt}
+            value={opt}
+          >
             <Radio.Control>
               <Radio.Indicator />
             </Radio.Control>
@@ -41,7 +45,10 @@ export function RadioQuestionField({ question, index }: Props) {
           </Radio>
         ))}
         {question.allowOther && (
-          <Radio value={OTHER_VALUE}>
+          <Radio
+            className="rounded-xl border border-border bg-surface px-4 py-3"
+            value={OTHER_VALUE}
+          >
             <Radio.Control>
               <Radio.Indicator />
             </Radio.Control>

@@ -1,8 +1,8 @@
-# nisshi-dev Survey — 要件定義・仕様
+# nisshi-dev-survey — 要件定義・仕様
 
 ## 何をするアプリか
 
-nisshi-dev Survey は **Google Forms の軽量版** のようなアンケート収集アプリ。
+nisshi-dev-survey は **Google Forms の軽量版** のようなアンケート収集アプリ。
 管理者がアンケートを作成し、固定 URL を共有して回答を集める。
 
 ## 想定ユーザー

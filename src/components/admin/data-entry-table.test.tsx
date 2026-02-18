@@ -87,7 +87,7 @@ describe("DataEntryTable", () => {
       />
     );
 
-    expect(screen.getByText("データエントリがありません。")).toBeDefined();
+    expect(screen.getByText("データエントリがありません")).toBeDefined();
   });
 
   test("追加ボタンをクリックすると onAdd が呼ばれる", async () => {

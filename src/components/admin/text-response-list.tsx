@@ -1,4 +1,4 @@
-import { Card } from "@heroui/react";
+import { Card, Chip } from "@heroui/react";
 import type { TextQuestion } from "@/types/survey";
 
 interface Props {
@@ -13,8 +13,11 @@ export function TextResponseList({ question, responses }: Props) {
 
   return (
     <Card>
-      <Card.Header>
+      <Card.Header className="flex items-center gap-2">
         <h3 className="font-semibold text-sm">{question.label}</h3>
+        <Chip size="sm" variant="soft">
+          {answers.length}件
+        </Chip>
       </Card.Header>
       <Card.Content>
         {answers.length === 0 ? (
@@ -23,7 +26,7 @@ export function TextResponseList({ question, responses }: Props) {
           <ul className="flex flex-col gap-2">
             {answers.map((a, i) => (
               <li
-                className="rounded-lg bg-surface-secondary px-3 py-2 text-sm"
+                className="rounded-lg border border-border/40 bg-surface-secondary px-3 py-2 text-sm"
                 key={`${question.id}-${i}`}
               >
                 {a}
