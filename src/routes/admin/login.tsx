@@ -28,7 +28,7 @@ export function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <Card.Header>
-          <Card.Title>nisshi-dev Survey 管理画面</Card.Title>
+          <Card.Title>nisshi-dev-survey 管理画面</Card.Title>
           <Card.Description>
             管理者アカウントでログインしてください
           </Card.Description>

@@ -14,7 +14,7 @@ export function AdminLayout() {
   return (
     <div className="flex min-h-screen">
       <nav className="flex w-60 flex-col border-border border-r bg-surface p-4">
-        <h2 className="mb-4 font-bold text-lg">nisshi-dev Survey</h2>
+        <h2 className="mb-4 font-bold text-lg">nisshi-dev-survey</h2>
         <ul className="flex flex-1 flex-col gap-1 p-0">
           <li className="list-none">
             <NavLink

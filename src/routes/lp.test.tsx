@@ -23,7 +23,7 @@ describe("LandingPage", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText("nisshi-dev Survey")).toBeDefined();
+    expect(screen.getByText("nisshi-dev-survey")).toBeDefined();
   });
 
   test("準備中であることを表示する", () => {
