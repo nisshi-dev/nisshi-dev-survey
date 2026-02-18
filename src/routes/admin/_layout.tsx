@@ -41,6 +41,9 @@ export function AdminLayout() {
           <Button fullWidth onPress={handleLogout} size="sm" variant="ghost">
             ログアウト
           </Button>
+          <p className="mt-2 text-center text-muted/60 text-xs">
+            &copy; 2026 nisshi-dev
+          </p>
         </div>
       </nav>
       <main className="flex-1 overflow-y-auto p-8">
