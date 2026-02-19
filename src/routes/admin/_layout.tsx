@@ -1,11 +1,13 @@
 import { Button } from "@heroui/react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 
+const API_URL = import.meta.env.VITE_API_URL || "/api";
+
 export function AdminLayout() {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await fetch("/api/admin/auth/sign-out", {
+    await fetch(`${API_URL}/admin/auth/sign-out`, {
       method: "POST",
       credentials: "include",
     });
