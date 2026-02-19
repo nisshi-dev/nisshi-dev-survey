@@ -2,14 +2,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { afterEach, describe, expect, test, vi } from "vitest";
-
-vi.mock("@/generated/api/auth/auth", () => ({
-  usePostAdminAuthLogout: vi.fn(),
-}));
-
-const { usePostAdminAuthLogout } = await import("@/generated/api/auth/auth");
-const mockUseLogout = vi.mocked(usePostAdminAuthLogout);
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 const navigateMock = vi.fn();
 vi.mock("react-router-dom", async () => {
@@ -26,17 +19,20 @@ vi.mock("react-router-dom", async () => {
 const { AdminLayout } = await import("./_layout");
 
 describe("AdminLayout", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockResolvedValue({ ok: true });
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
   afterEach(() => {
     cleanup();
     navigateMock.mockClear();
+    vi.restoreAllMocks();
   });
 
   test("ナビゲーションにダッシュボードリンクを表示する", () => {
-    mockUseLogout.mockReturnValue({
-      trigger: vi.fn(),
-      isMutating: false,
-    } as never);
-
     render(
       <MemoryRouter initialEntries={["/admin"]}>
         <Routes>
@@ -51,16 +47,7 @@ describe("AdminLayout", () => {
     expect(screen.getByText("子コンテンツ")).toBeDefined();
   });
 
-  test("ログアウトボタンをクリックすると trigger が呼ばれ /admin/login に遷移する", async () => {
-    const triggerMock = vi.fn().mockResolvedValue({
-      data: { message: "ok" },
-      status: 200,
-    });
-    mockUseLogout.mockReturnValue({
-      trigger: triggerMock,
-      isMutating: false,
-    } as never);
-
+  test("ログアウトボタンをクリックすると sign-out に POST され /admin/login に遷移する", async () => {
     render(
       <MemoryRouter initialEntries={["/admin"]}>
         <Routes>
@@ -77,7 +64,10 @@ describe("AdminLayout", () => {
     });
     await user.click(logoutButtons[0] as HTMLElement);
 
-    expect(triggerMock).toHaveBeenCalled();
+    expect(fetchMock).toHaveBeenCalledWith("/api/admin/auth/sign-out", {
+      method: "POST",
+      credentials: "include",
+    });
     expect(navigateMock).toHaveBeenCalledWith("/admin/login");
   });
 });

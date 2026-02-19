@@ -2,63 +2,42 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
-import { afterEach, describe, expect, test, vi } from "vitest";
-
-vi.mock("@/generated/api/auth/auth", () => ({
-  usePostAdminAuthLogin: vi.fn(),
-}));
-
-const { usePostAdminAuthLogin } = await import("@/generated/api/auth/auth");
-const mockUseLogin = vi.mocked(usePostAdminAuthLogin);
-
-const navigateMock = vi.fn();
-vi.mock("react-router-dom", async () => {
-  const actual =
-    await vi.importActual<typeof import("react-router-dom")>(
-      "react-router-dom"
-    );
-  return {
-    ...actual,
-    useNavigate: () => navigateMock,
-  };
-});
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 const { LoginPage } = await import("./login");
 
+const GOOGLE_LOGIN_RE = /Google でログイン/;
+
 describe("LoginPage", () => {
-  afterEach(() => {
-    cleanup();
-    navigateMock.mockClear();
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockResolvedValue({
+      json: () =>
+        Promise.resolve({
+          url: "https://accounts.google.com/o/oauth2/auth?...",
+          redirect: true,
+        }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
   });
 
-  test("メールアドレスとパスワードの入力欄を表示する", () => {
-    mockUseLogin.mockReturnValue({
-      trigger: vi.fn(),
-      isMutating: false,
-    } as never);
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
 
+  test("「Google でログイン」ボタンを表示する", () => {
     render(
       <MemoryRouter>
         <LoginPage />
       </MemoryRouter>
     );
 
-    expect(screen.getByLabelText("メールアドレス")).toBeDefined();
-    expect(screen.getByLabelText("パスワード")).toBeDefined();
-    expect(screen.getByRole("button", { name: "ログイン" })).toBeDefined();
+    expect(screen.getByRole("button", { name: GOOGLE_LOGIN_RE })).toBeDefined();
   });
 
-  test("送信時に trigger が呼ばれ、成功したら /admin に遷移する", async () => {
-    const triggerMock = vi.fn().mockResolvedValue({
-      data: { message: "ok" },
-      status: 200,
-      headers: new Headers(),
-    });
-    mockUseLogin.mockReturnValue({
-      trigger: triggerMock,
-      isMutating: false,
-    } as never);
-
+  test("ボタンクリックで Google OAuth エンドポイントに fetch される", async () => {
     render(
       <MemoryRouter>
         <LoginPage />
@@ -66,30 +45,17 @@ describe("LoginPage", () => {
     );
 
     const user = userEvent.setup();
-    await user.type(screen.getByLabelText("メールアドレス"), "a@b.com");
-    await user.type(screen.getByLabelText("パスワード"), "pass123");
-    await user.click(screen.getByRole("button", { name: "ログイン" }));
+    await user.click(screen.getByRole("button", { name: GOOGLE_LOGIN_RE }));
 
-    expect(triggerMock).toHaveBeenCalledWith({
-      email: "a@b.com",
-      password: "pass123",
-    });
-    expect(navigateMock).toHaveBeenCalledWith("/admin");
-  });
-
-  test("エラー時にエラーメッセージを表示する", () => {
-    mockUseLogin.mockReturnValue({
-      trigger: vi.fn(),
-      isMutating: false,
-      error: new Error("Login failed"),
-    } as never);
-
-    render(
-      <MemoryRouter>
-        <LoginPage />
-      </MemoryRouter>
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/admin/auth/sign-in/social",
+      expect.objectContaining({
+        method: "POST",
+        credentials: "include",
+        body: expect.stringContaining(
+          `"callbackURL":"${window.location.origin}/admin"`
+        ),
+      })
     );
-
-    expect(screen.getByText("ログインに失敗しました。")).toBeDefined();
   });
 });

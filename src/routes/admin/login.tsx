@@ -1,28 +1,21 @@
-import {
-  Button,
-  Card,
-  Form,
-  Input,
-  Label,
-  Spinner,
-  TextField,
-} from "@heroui/react";
+import { Button, Card } from "@heroui/react";
 import { motion } from "motion/react";
-import { useNavigate } from "react-router-dom";
-import { usePostAdminAuthLogin } from "@/generated/api/auth/auth";
 
 export function LoginPage() {
-  const navigate = useNavigate();
-  const { trigger, isMutating, error } = usePostAdminAuthLogin();
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const fd = new FormData(e.currentTarget);
-    await trigger({
-      email: fd.get("email") as string,
-      password: fd.get("password") as string,
+  const handleGoogleLogin = async () => {
+    const res = await fetch("/api/admin/auth/sign-in/social", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        provider: "google",
+        callbackURL: `${window.location.origin}/admin`,
+      }),
     });
-    navigate("/admin");
+    const data = await res.json();
+    if (data.url && data.redirect) {
+      window.location.href = data.url;
+    }
   };
 
   return (
@@ -50,31 +43,11 @@ export function LoginPage() {
         </div>
 
         <Card>
-          <Form onSubmit={handleSubmit}>
-            <Card.Content className="flex flex-col gap-6">
-              <TextField isRequired name="email" type="email">
-                <Label>メールアドレス</Label>
-                <Input placeholder="admin@example.com" />
-              </TextField>
-              <TextField isRequired name="password" type="password">
-                <Label>パスワード</Label>
-                <Input placeholder="••••••••" />
-              </TextField>
-              {error && (
-                <p className="text-danger text-sm">ログインに失敗しました。</p>
-              )}
-            </Card.Content>
-            <Card.Footer className="pt-4">
-              <Button fullWidth isPending={isMutating} type="submit">
-                {({ isPending }) => (
-                  <>
-                    {isPending ? <Spinner color="current" size="sm" /> : null}
-                    {isPending ? "ログイン中..." : "ログイン"}
-                  </>
-                )}
-              </Button>
-            </Card.Footer>
-          </Form>
+          <Card.Content className="flex flex-col gap-4">
+            <Button fullWidth onPress={handleGoogleLogin}>
+              Google でログイン
+            </Button>
+          </Card.Content>
         </Card>
       </motion.div>
 
