@@ -1,9 +1,11 @@
 import { Button, Card } from "@heroui/react";
 import { motion } from "motion/react";
 
+const API_URL = import.meta.env.VITE_API_URL || "/api";
+
 export function LoginPage() {
   const handleGoogleLogin = async () => {
-    const res = await fetch("/api/admin/auth/sign-in/social", {
+    const res = await fetch(`${API_URL}/admin/auth/sign-in/social`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
