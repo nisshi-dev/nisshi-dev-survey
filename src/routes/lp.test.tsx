@@ -7,7 +7,7 @@ import { LandingPage } from "./lp";
 const WORKSHOP_LINK = /nisshi-dev工房/;
 const PERSONAL_LINK = /nisshi\.dev/;
 const COMING_SOON = /準備中/;
-const SURVEY_DESC = /アンケート/;
+const SURVEY_DESC = /Google Forms/;
 const PERSONAL_USE = /カスタマイズ・運用中/;
 
 describe("LandingPage", () => {
