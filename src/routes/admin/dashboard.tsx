@@ -1,14 +1,11 @@
 import { Button, Card, Chip, Spinner } from "@heroui/react";
 import { Link } from "react-router-dom";
 import { useGetAdminSurveys } from "@/generated/api/admin-surveys/admin-surveys";
-import { SURVEY_STATUS_LABELS, type SurveyStatus } from "@/types/survey";
-
-const statusColorMap: Record<SurveyStatus, "default" | "success" | "warning"> =
-  {
-    draft: "default",
-    active: "success",
-    completed: "warning",
-  };
+import {
+  SURVEY_STATUS_COLOR_MAP,
+  SURVEY_STATUS_LABELS,
+  type SurveyStatus,
+} from "@/types/survey";
 
 const dateFormatter = new Intl.DateTimeFormat("ja-JP", {
   year: "numeric",
@@ -131,7 +128,9 @@ export function DashboardPage() {
                     <td className="px-4 py-3">
                       <Chip
                         color={
-                          statusColorMap[(s.status as SurveyStatus) ?? "draft"]
+                          SURVEY_STATUS_COLOR_MAP[
+                            (s.status as SurveyStatus) ?? "draft"
+                          ]
                         }
                         size="sm"
                         variant="soft"

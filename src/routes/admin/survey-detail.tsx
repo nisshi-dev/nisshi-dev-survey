@@ -19,40 +19,16 @@ import {
   usePutAdminSurveysByIdDataEntriesByEntryId,
 } from "@/generated/api/admin-surveys/admin-surveys";
 import {
+  QUESTION_TYPE_COLORS,
+  QUESTION_TYPE_LABELS,
   type Question,
+  SURVEY_STATUS_ACTION_LABELS,
+  SURVEY_STATUS_COLOR_MAP,
   SURVEY_STATUS_LABELS,
   SURVEY_STATUSES,
   type SurveyParam,
   type SurveyStatus,
 } from "@/types/survey";
-
-const statusColorMap: Record<SurveyStatus, "default" | "success" | "warning"> =
-  {
-    draft: "default",
-    active: "success",
-    completed: "warning",
-  };
-
-const statusActionLabels: Record<SurveyStatus, string> = {
-  draft: "下書きに戻す",
-  active: "受付中にする",
-  completed: "完了にする",
-};
-
-const questionTypeLabels: Record<Question["type"], string> = {
-  text: "テキスト",
-  radio: "単一選択",
-  checkbox: "複数選択",
-};
-
-const questionTypeColors: Record<
-  Question["type"],
-  "default" | "accent" | "warning"
-> = {
-  text: "default",
-  radio: "accent",
-  checkbox: "warning",
-};
 
 function ResponseAnalysis({
   questions,
@@ -96,11 +72,11 @@ function QuestionList({ questions }: { questions: Question[] }) {
               <div className="flex items-center gap-2">
                 <span className="font-medium text-sm">{q.label}</span>
                 <Chip
-                  color={questionTypeColors[q.type]}
+                  color={QUESTION_TYPE_COLORS[q.type]}
                   size="sm"
                   variant="soft"
                 >
-                  {questionTypeLabels[q.type]}
+                  {QUESTION_TYPE_LABELS[q.type]}
                 </Chip>
               </div>
               {(q.type === "radio" || q.type === "checkbox") && (
@@ -324,7 +300,11 @@ export function SurveyDetailPage() {
         </Link>
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="font-bold text-2xl tracking-tight">{survey.title}</h1>
-          <Chip color={statusColorMap[currentStatus]} size="sm" variant="soft">
+          <Chip
+            color={SURVEY_STATUS_COLOR_MAP[currentStatus]}
+            size="sm"
+            variant="soft"
+          >
             {SURVEY_STATUS_LABELS[currentStatus]}
           </Chip>
         </div>
@@ -342,7 +322,7 @@ export function SurveyDetailPage() {
             size="sm"
             variant="secondary"
           >
-            {statusActionLabels[s]}
+            {SURVEY_STATUS_ACTION_LABELS[s]}
           </Button>
         ))}
         {currentStatus !== "completed" && (

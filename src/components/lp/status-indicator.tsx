@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { API_URL } from "../../hooks/use-health-check";
+import { API_URL } from "../../lib/constants";
 
 const STATUS_DOT = {
   loading: "bg-yellow-400",
