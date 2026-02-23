@@ -9,6 +9,7 @@ export function AdminLayout() {
   const handleLogout = async () => {
     await fetch(`${API_URL}/admin/auth/sign-out`, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       credentials: "include",
     });
     navigate("/admin/login");
