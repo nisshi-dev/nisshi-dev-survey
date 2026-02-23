@@ -66,6 +66,7 @@ describe("AdminLayout", () => {
 
     expect(fetchMock).toHaveBeenCalledWith("/api/admin/auth/sign-out", {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       credentials: "include",
     });
     expect(navigateMock).toHaveBeenCalledWith("/admin/login");

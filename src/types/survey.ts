@@ -52,3 +52,35 @@ export const SURVEY_STATUS_LABELS: Record<SurveyStatus, string> = {
   active: "受付中",
   completed: "完了",
 } as const;
+
+export const SURVEY_STATUS_COLOR_MAP: Record<
+  SurveyStatus,
+  "default" | "success" | "warning"
+> = {
+  draft: "default",
+  active: "success",
+  completed: "warning",
+};
+
+export const SURVEY_STATUS_ACTION_LABELS: Record<SurveyStatus, string> = {
+  draft: "下書きに戻す",
+  active: "受付中にする",
+  completed: "完了にする",
+};
+
+// ── 質問タイプ表示 ──
+
+export const QUESTION_TYPE_LABELS: Record<Question["type"], string> = {
+  text: "テキスト",
+  radio: "単一選択",
+  checkbox: "複数選択",
+};
+
+export const QUESTION_TYPE_COLORS: Record<
+  Question["type"],
+  "default" | "accent" | "warning"
+> = {
+  text: "default",
+  radio: "accent",
+  checkbox: "warning",
+};
