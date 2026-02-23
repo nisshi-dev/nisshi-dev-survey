@@ -181,3 +181,7 @@ npm run test:coverage  # カバレッジ付きで実行
 ```
 
 詳細は [CLAUDE.md](CLAUDE.md) および [docs/](docs/) を参照。
+
+## License
+
+[MIT](LICENSE)
