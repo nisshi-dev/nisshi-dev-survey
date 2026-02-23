@@ -1,4 +1,5 @@
-import { Link } from "@heroui/react";
+import { ExternalLinkIcon } from "../components/icons/external-link-icon";
+import { GitHubIcon } from "../components/icons/github-icon";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 
@@ -35,11 +36,14 @@ const STATUS_LABEL = {
 
 function StatusIndicator({ status }: { status: "loading" | "ok" | "error" }) {
   return (
-    <motion.div
+    <motion.a
       animate={{ opacity: 1 }}
-      className="flex items-center gap-2 text-muted text-xs"
+      className="flex items-center gap-2 rounded-full border border-border/60 px-3 py-1 text-muted text-xs transition-colors hover:bg-surface-secondary"
+      href={`${API_URL}/health`}
       initial={{ opacity: 0 }}
-      transition={{ duration: 0.5, delay: 0.8 }}
+      rel="noopener noreferrer"
+      target="_blank"
+      transition={{ duration: 0.5, delay: 0.25 }}
     >
       <span className="relative flex h-2 w-2">
         {status === "ok" && (
@@ -52,7 +56,7 @@ function StatusIndicator({ status }: { status: "loading" | "ok" | "error" }) {
         />
       </span>
       {STATUS_LABEL[status]}
-    </motion.div>
+    </motion.a>
   );
 }
 
@@ -87,10 +91,12 @@ export function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <h1 className="font-bold text-3xl tracking-tight sm:text-4xl">
+            <h1 className="font-bold text-2xl tracking-tight sm:text-4xl">
               nisshi-dev-survey
             </h1>
-            <span className="text-muted text-sm">v{__APP_VERSION__}</span>
+            <span className="text-muted text-xs sm:text-sm">
+              v{__APP_VERSION__}
+            </span>
           </motion.div>
 
           <motion.div
@@ -99,14 +105,17 @@ export function LandingPage() {
             initial={{ opacity: 0, y: 16 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <p className="text-muted leading-relaxed">
-              シンプルなアンケート収集サービスを開発中です。
+            <p className="text-muted text-sm leading-relaxed sm:text-base">
+              Google Forms
+              の軽量版。AIエージェントからアンケート設計〜データ投入まで一気通貫で自動化できます。
             </p>
-            <p className="text-muted text-sm">
+            <p className="text-muted text-xs sm:text-sm">
               現在は nisshi-dev
               のワークフローに合わせてカスタマイズ・運用中です。
             </p>
           </motion.div>
+
+          <StatusIndicator status={health} />
         </div>
 
         <motion.div
@@ -115,7 +124,7 @@ export function LandingPage() {
           transition={{ duration: 0.5, delay: 0.35 }}
         >
           <a
-            className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 font-medium text-sm text-white shadow-accent/25 shadow-lg transition-all hover:brightness-110 active:scale-[0.98]"
+            className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 font-medium text-xs text-white shadow-accent/25 shadow-lg transition-all hover:brightness-110 active:scale-[0.98] sm:px-6 sm:py-3 sm:text-sm"
             href="https://survey.nisshi.dev/survey/cmlzb4omy0000psp76bkn4fto?entry=cmlzbemt50000psp7wd91n5ps"
             rel="noopener noreferrer"
             target="_blank"
@@ -160,24 +169,105 @@ export function LandingPage() {
         </div>
       </motion.div>
 
-      <div className="relative mt-8 flex flex-col items-center gap-5">
-        <motion.nav
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center gap-3"
-          initial={{ opacity: 0, y: 12 }}
+      <motion.div
+        animate={{ opacity: 1, y: 0 }}
+        className="relative mt-10 grid w-full max-w-4xl grid-cols-1 gap-4 sm:grid-cols-3"
+        initial={{ opacity: 0, y: 20 }}
+        transition={{ duration: 0.5, delay: 0.6 }}
+      >
+        {[
+          {
+            title: "AI エージェント & API ファースト",
+            description:
+              "Claude Code スキルや OpenAPI ベースの Data API で、アンケート設計〜回答投入を自動化",
+          },
+          {
+            title: "データエントリ方式",
+            description:
+              "パラメータ付き配布 URL で、バージョン別・イベント別の回答を確実に追跡",
+          },
+          {
+            title: "回答者フレンドリー",
+            description: "アカウント登録不要。URL を開くだけで即回答",
+          },
+        ].map((feature) => (
+          <div
+            className="rounded-lg border border-border/60 bg-surface p-4"
+            key={feature.title}
+          >
+            <h3 className="font-medium text-foreground text-sm">
+              {feature.title}
+            </h3>
+            <p className="mt-1 text-muted text-xs leading-relaxed">
+              {feature.description}
+            </p>
+          </div>
+        ))}
+      </motion.div>
+
+      <div className="relative mt-8 flex flex-col items-center gap-4">
+        <motion.p
+          animate={{ opacity: 1 }}
+          className="text-muted text-xs"
+          initial={{ opacity: 0 }}
           transition={{ duration: 0.5, delay: 0.7 }}
         >
-          <Link href="https://workshop.nisshi.dev/">
-            nisshi-dev工房公式サイト（整備中）
-            <Link.Icon />
-          </Link>
-          <Link href="https://nisshi.dev">
-            nisshi.dev 個人サイト
-            <Link.Icon />
-          </Link>
-        </motion.nav>
-
-        <StatusIndicator status={health} />
+          ソースコードはすべて公開しています
+        </motion.p>
+        <motion.div
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-wrap items-center justify-center gap-3"
+          initial={{ opacity: 0, y: 12 }}
+          transition={{ duration: 0.5, delay: 0.75 }}
+        >
+          <a
+            className="inline-flex items-center gap-2 rounded-lg border border-border/60 bg-surface px-4 py-2 text-foreground text-sm transition-colors hover:bg-surface-secondary"
+            href="https://github.com/nisshi-dev/nisshi-dev-survey"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <GitHubIcon className="h-4 w-4" />
+            Frontend
+            <ExternalLinkIcon className="h-3 w-3 opacity-50" />
+          </a>
+          <a
+            className="inline-flex items-center gap-2 rounded-lg border border-border/60 bg-surface px-4 py-2 text-foreground text-sm transition-colors hover:bg-surface-secondary"
+            href="https://github.com/nisshi-dev/nisshi-dev-survey-api"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <GitHubIcon className="h-4 w-4" />
+            API
+            <ExternalLinkIcon className="h-3 w-3 opacity-50" />
+          </a>
+        </motion.div>
+        <motion.div
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-wrap items-center justify-center gap-3"
+          initial={{ opacity: 0, y: 12 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+        >
+          <a
+            className="inline-flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-sm text-white transition-colors hover:bg-emerald-600"
+            href="https://workshop.nisshi.dev/"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <img alt="" className="h-4 w-4 rounded-sm" src="/icons/workshop.png" />
+            nisshi-dev工房
+            <ExternalLinkIcon className="h-3 w-3 opacity-50" />
+          </a>
+          <a
+            className="inline-flex items-center gap-2 rounded-lg bg-amber-800 px-4 py-2 text-sm text-white transition-colors hover:bg-amber-900"
+            href="https://nisshi.dev"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <img alt="" className="h-4 w-4 rounded-sm" src="/icons/nisshi.png" />
+            nisshi.dev
+            <ExternalLinkIcon className="h-3 w-3 opacity-50" />
+          </a>
+        </motion.div>
       </div>
 
       <motion.p
