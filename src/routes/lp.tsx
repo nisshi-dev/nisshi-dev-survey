@@ -1,7 +1,7 @@
-import { ExternalLinkIcon } from "../components/icons/external-link-icon";
-import { GitHubIcon } from "../components/icons/github-icon";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
+import { ExternalLinkIcon } from "../components/icons/external-link-icon";
+import { GitHubIcon } from "../components/icons/github-icon";
 
 const API_URL = import.meta.env.VITE_API_URL || "/api";
 
@@ -124,7 +124,7 @@ export function LandingPage() {
           transition={{ duration: 0.5, delay: 0.35 }}
         >
           <a
-            className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 font-medium text-xs text-white shadow-accent/25 shadow-lg transition-all hover:brightness-110 active:scale-[0.98] sm:px-6 sm:py-3 sm:text-sm"
+            className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 font-medium text-white text-xs shadow-accent/25 shadow-lg transition-all hover:brightness-110 active:scale-[0.98] sm:px-6 sm:py-3 sm:text-sm"
             href="https://survey.nisshi.dev/survey/cmlzb4omy0000psp76bkn4fto?entry=cmlzbemt50000psp7wd91n5ps"
             rel="noopener noreferrer"
             target="_blank"
@@ -142,7 +142,7 @@ export function LandingPage() {
         transition={{ duration: 0.6, delay: 0.5 }}
       >
         <div className="flex flex-col gap-2">
-          <h2 className="text-center font-medium text-muted text-xs tracking-wider uppercase">
+          <h2 className="text-center font-medium text-muted text-xs uppercase tracking-wider">
             管理者ダッシュボード
           </h2>
           <video
@@ -155,7 +155,7 @@ export function LandingPage() {
           />
         </div>
         <div className="flex flex-col gap-2">
-          <h2 className="text-center font-medium text-muted text-xs tracking-wider uppercase">
+          <h2 className="text-center font-medium text-muted text-xs uppercase tracking-wider">
             アンケート回答
           </h2>
           <video
@@ -263,7 +263,13 @@ export function LandingPage() {
             rel="noopener noreferrer"
             target="_blank"
           >
-            <img alt="" className="h-4 w-4 rounded-sm" src="/icons/workshop.png" />
+            <img
+              alt=""
+              className="h-4 w-4 rounded-sm"
+              height={16}
+              src="/icons/workshop.png"
+              width={16}
+            />
             nisshi-dev工房
             <ExternalLinkIcon className="h-3 w-3 opacity-50" />
           </a>
@@ -273,7 +279,13 @@ export function LandingPage() {
             rel="noopener noreferrer"
             target="_blank"
           >
-            <img alt="" className="h-4 w-4 rounded-sm" src="/icons/nisshi.png" />
+            <img
+              alt=""
+              className="h-4 w-4 rounded-sm"
+              height={16}
+              src="/icons/nisshi.png"
+              width={16}
+            />
             nisshi.dev
             <ExternalLinkIcon className="h-3 w-3 opacity-50" />
           </a>

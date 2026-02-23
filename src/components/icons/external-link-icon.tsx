@@ -1,9 +1,10 @@
 export function ExternalLinkIcon({ className }: { className?: string }) {
   return (
     <svg
-      aria-hidden
+      aria-hidden="true"
       className={className}
       fill="none"
+      role="img"
       stroke="currentColor"
       strokeLinecap="round"
       strokeLinejoin="round"
