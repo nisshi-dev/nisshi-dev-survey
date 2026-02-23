@@ -60,7 +60,7 @@ export function LandingPage() {
   const health = useHealthCheck();
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 py-16">
+    <div className="relative flex min-h-screen flex-col items-center overflow-hidden px-4 pt-8 pb-8 md:px-8">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-[0.07]"
@@ -70,8 +70,8 @@ export function LandingPage() {
         }}
       />
 
-      <div className="relative flex w-full max-w-md flex-col items-center gap-12">
-        <div className="flex flex-col items-center gap-5 text-center">
+      <div className="relative flex w-full max-w-lg flex-col items-center gap-5">
+        <div className="flex flex-col items-center gap-3 text-center">
           <motion.span
             animate={{ opacity: 1, scale: 1 }}
             className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1 font-medium text-accent text-xs tracking-wider"
@@ -124,12 +124,48 @@ export function LandingPage() {
             <span aria-hidden>→</span>
           </a>
         </motion.div>
+      </div>
 
+      <motion.div
+        animate={{ opacity: 1, y: 0 }}
+        className="relative mt-8 grid w-full max-w-7xl grid-cols-1 gap-6 md:grid-cols-2"
+        initial={{ opacity: 0, y: 24 }}
+        transition={{ duration: 0.6, delay: 0.5 }}
+      >
+        <div className="flex flex-col gap-2">
+          <h2 className="text-center font-medium text-muted text-xs tracking-wider uppercase">
+            管理者ダッシュボード
+          </h2>
+          <video
+            autoPlay
+            className="w-full rounded-xl border border-border/60 shadow-lg"
+            loop
+            muted
+            playsInline
+            src="/videos/admin-dashboard.webm"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <h2 className="text-center font-medium text-muted text-xs tracking-wider uppercase">
+            アンケート回答
+          </h2>
+          <video
+            autoPlay
+            className="w-full rounded-xl border border-border/60 shadow-lg"
+            loop
+            muted
+            playsInline
+            src="/videos/survey-respond.webm"
+          />
+        </div>
+      </motion.div>
+
+      <div className="relative mt-8 flex flex-col items-center gap-5">
         <motion.nav
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col items-center gap-3"
           initial={{ opacity: 0, y: 12 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
+          transition={{ duration: 0.5, delay: 0.7 }}
         >
           <Link href="https://workshop.nisshi.dev/">
             nisshi-dev工房公式サイト（整備中）
@@ -146,7 +182,7 @@ export function LandingPage() {
 
       <motion.p
         animate={{ opacity: 1 }}
-        className="absolute bottom-6 text-muted text-xs"
+        className="mt-8 text-muted text-xs"
         initial={{ opacity: 0 }}
         transition={{ duration: 0.5, delay: 1 }}
       >

@@ -172,6 +172,7 @@ npm run dev  # localhost:5173 → /api/* を localhost:8787 にプロキシ
 | `/heroui-react` | HeroUI v3 コンポーネントのドキュメント参照・利用 |
 | `/web-design-guidelines` | Web Interface Guidelines に基づく UI レビュー |
 | `/brainstorming` | 機能実装前の要件・設計の深掘り |
+| `/optimize-assets` | 画像・動画の圧縮・最適化（PNG→AVIF、MP4→WebM/AV1） |
 | `/agent-browser` | ブラウザ自動化による Web アプリテスト |
 
 ## テスト
