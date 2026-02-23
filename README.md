@@ -11,7 +11,15 @@ Google Forms の軽量版。AI エージェントからアンケート設計〜�
 
 **https://survey.nisshi.dev**
 
-<!-- TODO: スクリーンショットを追加 -->
+![ランディングページ](docs/images/lp.png)
+
+### 管理者ダッシュボード
+
+<video src="docs/images/admin-dashboard.mp4" controls muted></video>
+
+### アンケート回答
+
+<video src="docs/images/survey-respond.mp4" controls muted></video>
 
 ## Features
 
