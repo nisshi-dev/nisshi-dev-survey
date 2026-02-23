@@ -212,7 +212,17 @@ export function LandingPage() {
           initial={{ opacity: 0 }}
           transition={{ duration: 0.5, delay: 0.7 }}
         >
-          ソースコードはすべて公開しています
+          すべてのソースコードを{" "}
+          <a
+            className="inline-flex items-center gap-0.5 underline underline-offset-2 transition-colors hover:text-foreground"
+            href="https://github.com/nisshi-dev/nisshi-dev-survey/blob/main/LICENSE"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            MIT License
+            <ExternalLinkIcon className="inline h-2.5 w-2.5" />
+          </a>{" "}
+          で公開しています
         </motion.p>
         <motion.div
           animate={{ opacity: 1, y: 0 }}
