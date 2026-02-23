@@ -110,11 +110,20 @@ export function LandingPage() {
         </div>
 
         <motion.div
-          animate={{ scaleX: 1, opacity: 1 }}
-          className="h-px w-12 bg-accent/40"
-          initial={{ scaleX: 0, opacity: 0 }}
-          transition={{ duration: 0.6, delay: 0.35 }}
-        />
+          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 12 }}
+          transition={{ duration: 0.5, delay: 0.35 }}
+        >
+          <a
+            className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 font-medium text-sm text-white shadow-accent/25 shadow-lg transition-all hover:brightness-110 active:scale-[0.98]"
+            href="https://survey.nisshi.dev/survey/cmlzb4omy0000psp76bkn4fto?entry=cmlzbemt50000psp7wd91n5ps"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            サンプルアンケートを試す
+            <span aria-hidden>→</span>
+          </a>
+        </motion.div>
 
         <motion.nav
           animate={{ opacity: 1, y: 0 }}

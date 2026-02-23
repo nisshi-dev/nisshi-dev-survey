@@ -11,6 +11,8 @@ Google Forms の軽量版。AI エージェントからアンケート設計〜�
 
 **https://survey.nisshi.dev**
 
+> **サンプルアンケートを試す:** https://survey.nisshi.dev/survey/cmlzb4omy0000psp76bkn4fto?entry=cmlzbemt50000psp7wd91n5ps
+
 ![ランディングページ](docs/images/lp.png)
 
 ### 管理者ダッシュボード
